@@ -83,11 +83,11 @@ class App(object):
         values = self.values_factory()
 
         if self.config_file is not None:
-            values.update_from_config(self.config_file)
+            values.config = self.config_file
         if self.env is not None:
-            values.update_from_env(self.env)
+            values.env = self.env
 
-        values.update_from_cli(self.argv)
+        values.cli = self.argv
 
         return values
 
