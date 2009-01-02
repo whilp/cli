@@ -35,6 +35,22 @@ class Values(optparse.Values):
         parent._update_loose({name: value})
 
     def update_from_config(self, config_file):
+        """Parse a configuration file and update the Values tree.
+
+        The config file is read using ConfigParser.ConfigParser.
+        All options are flattened into a single-level structure such
+        that the following two options are equivalent:
+
+            [one.two]
+            three = four
+
+            [one]
+            two.three = four
+
+        In each case, the value 'one.two.three' will equal 'four'.
+        In cases where the same option name has multiple values, the
+        last entry with that name will be used.
+        """
         # XXX: seed the parser with defaults here?
         parser = ConfigParser()
         parser.read(config_file)
@@ -47,6 +63,12 @@ class Values(optparse.Values):
                 self.set(name, value)
 
     def update_from_env(self, env):
+        """Parse 'env' and update the Values tree.
+
+        'env' should be a dictionary similar to that provided by
+        os.environ. Keys will be converted from 'FOO_BAR' notation
+        to 'foo.bar'; values will be untouched.
+        """
         for key, value in env.items():
             key = self.delim.join(key.lower().split('_')[1:])
             self.set(key, value)
