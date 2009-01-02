@@ -27,12 +27,14 @@ class App(object):
     information is optional, though it must accept them.
     """
 
-    def __init__(self, main=None, argv=None, exit_after_main=True):
+    def __init__(self, main=None, config_file=None, argv=None,
+            exit_after_main=True):
         self.main = main
-        self.exit_after_main = exit_after_main
+        self.config_file = config_file
         self.argv = argv
+        self.exit_after_main = exit_after_main
 
-    def parse_config(self):
+    def parse_config(self, config_file):
         """Parse the configuration file."""
         pass
 
@@ -66,7 +68,7 @@ class App(object):
 
         Returns a tuple (opts, args).
         """
-        opts = self.parse_config()
+        opts = self.parse_config(self.config_file)
         eopts = self.parse_env()
         opts, args = self.parse_cli()
 
