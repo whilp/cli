@@ -50,7 +50,7 @@ class App(object):
 
         opts, args = parser.parse_args(self.args)
 
-        return None, None
+        return opts, args
 
     def parse_options(self):
         """Parse all application options.
