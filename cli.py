@@ -47,7 +47,9 @@ class Values(optparse.Values):
                 self.set(name, value)
 
     def update_from_env(self, env):
-        pass
+        for key, value in env.items():
+            key = self.delim.join(key.lower().split('_')[1:])
+            self.set(key, value)
 
     def update_from_cli(self, argv):
         # XXX: hook usage into here.
@@ -162,9 +164,13 @@ def main(opts, args, app=None):
     print 'cli.App test!'
 
 if __name__ == '__main__':
-    app = App(config_file='sample.config')
+    fake_env = {
+            'OURAPP_DEFAULT_FOO': 'notbar',
+            'OURAPP_FROBNITZ_SPAM': 'noteggs'}
+    app = App('ourapp', config_file='sample.config', env=fake_env)
 
     print app.opts.default.foo
     print app.opts.frobnitz.foo.bar
+    print app.opts.frobnitz.spam
 
     #app.run()
