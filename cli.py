@@ -3,7 +3,7 @@ import sys
 
 from ConfigParser import ConfigParser
 from inspect import getargs
-from optparse import OptionParser
+from optparse import Option, OptionParser
 
 class Error(Exception):
     pass
@@ -73,10 +73,9 @@ class Values(optparse.Values):
             key = self.delim.join(key.lower().split('_'))
             self.set(key, value)
 
-    def update_from_cli(self, argv):
+    def update_from_cli(self, options, argv):
         # XXX: hook usage into here.
-        parser = OptionParser()
-        # add options here.
+        parser = OptionParser(option_list=options)
 
         opts, args = parser.parse_args(argv)
 
@@ -101,6 +100,11 @@ class App(object):
     """
     values_factory = Values
     optparser_factory = OptionParser
+    opt_types = {
+        type(''): 'string',
+        type(1): 'int',
+        type(1.0): 'float',
+        type(complex(1)): 'complex'}
 
     def __init__(self, name, main=None, config_file=None, argv=None,
             env=None, exit_after_main=True):
@@ -111,7 +115,19 @@ class App(object):
         self.env = env
         self.exit_after_main = exit_after_main
 
-        self.optparser = self.optparser_factory(self.usage)
+        self.options = []
+
+    def add_option(self, name, default, help, action="store"):
+        """Build an optparse.Option object and add it to the option list."""
+        opt = Option(
+            short ='-%s' % name[0],
+            long = '--%s' % name.replace('_', '-'),
+            dest = name,
+            action = action,
+            type = self.opt_types.get(type(default), 'string'),
+            default = default,
+            help = help)
+        self.options.append(opt)
 
     @property
     def opts(self):
@@ -141,7 +157,7 @@ class App(object):
                     if k.lower().startswith(self.name.lower() + '_')])
             opts.update_from_env(env)
 
-        opts.update_from_cli(self.argv)
+        opts.update_from_cli(self.options, self.argv)
 
         return opts
 
