@@ -15,6 +15,13 @@ class Values(optparse.Values):
     delim = '.'
 
     def set(self, name, value):
+        """Set option 'name' to 'value'.
+
+        Options with delimiter characters in their names represent
+        options several levels down in the Values tree. Create as
+        many Values instances as necessary before setting the leaf
+        instance to 'value'.
+        """
         subnames = name.split(self.delim)
         name = subnames.pop()
         parent = self
@@ -163,13 +170,6 @@ def main(opts, args, app=None):
     print 'cli.App test!'
 
 if __name__ == '__main__':
-    values = Values()
-
-    values.set('foo.bar', 'spam')
-
-    print values.foo.bar
-
-elif False and __name__ == '__main__':
     app = App(config_file='sample.config')
 
     print app.values
