@@ -42,8 +42,9 @@ class Values(optparse.Values):
         for section in parser.sections():
             for option in parser.options(section):
                 name = self.delim.join((section, option))
+                value = parser.get(section, option)
                 # XXX: hook in vars here?
-                self.set(name, parser.get(section, option))
+                self.set(name, value)
 
     config = property(None, update_from_config)
 
