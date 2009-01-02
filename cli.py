@@ -46,12 +46,8 @@ class Values(optparse.Values):
                 # XXX: hook in vars here?
                 self.set(name, value)
 
-    config = property(None, update_from_config)
-
     def update_from_env(self, env):
         pass
-
-    env = property(None, update_from_env)
 
     def update_from_cli(self, argv):
         # XXX: hook usage into here.
@@ -61,8 +57,6 @@ class Values(optparse.Values):
         opts, args = parser.parse_args(argv)
 
         return opts, args
-
-    cli = property(None, update_from_cli)
 
 class App(object):
     """A command-line application.
@@ -109,11 +103,12 @@ class App(object):
         opts = self.values_factory()
 
         if self.config_file is not None:
-            opts.config = self.config_file
+            opts.update_from_config(self.config_file)
         if self.env is not None:
             opts.env = self.env
+            opts.update_from_env(self.env)
 
-        opts.cli = self.argv
+        opts.update_from_cli(self.argv)
 
         return opts
 
