@@ -35,7 +35,11 @@ class App(object):
         self.exit_after_main = exit_after_main
 
     def parse_config(self, config_file):
-        """Parse the configuration file."""
+        """Parse the configuration file.
+        
+        Returns a single Values instance representing the
+        configuration file.
+        """
         if config_file is None:
             return Values()
 
