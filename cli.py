@@ -27,9 +27,10 @@ class App(object):
     information is optional, though it must accept them.
     """
 
-    def __init__(self, main=None, exit_after_main=True):
+    def __init__(self, main=None, args=None, exit_after_main=True):
         self.main = main
         self.exit_after_main = exit_after_main
+        self.args = args
 
     def parse_cli(self):
         """Parse options and arguments.
@@ -43,7 +44,7 @@ class App(object):
         parser = OptionParser(self.usage)
         # add options here.
 
-        opts, args = parser.parse_args()
+        opts, args = parser.parse_args(self.args)
 
         return None, None
 
