@@ -40,6 +40,10 @@ class App(object):
 
         Returns a tuple: (opts, args). 
         """
+        parser = OptionParser(self.usage)
+        # add options here.
+
+        opts, args = parser.parse_args()
 
         return None, None
 
@@ -50,6 +54,10 @@ class App(object):
     @property
     def args(self):
         return self.parse_cli()[1]
+
+    @property
+    def usage(self):
+        return self.main.__doc__
 
     def find_main(self, main=None):
         """Find a suitable main() callable.
