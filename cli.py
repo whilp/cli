@@ -57,7 +57,7 @@ class App(object):
 
     @property
     def usage(self):
-        return self.main.__doc__
+        return self.main.__doc__ or ''
 
     def find_main(self, main=None):
         """Find a suitable main() callable.
