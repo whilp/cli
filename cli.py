@@ -46,7 +46,7 @@ class App(object):
 
         args, varargs, varkw = getargs(main.func_code)
 
-        if len(args) != 3 or not (varargs or varkw):
+        if len(args) != 3 or (varargs or varkw):
             raise MainError("main() must take three arguments or varargs/varkw")
 
         return main
