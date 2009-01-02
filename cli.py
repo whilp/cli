@@ -77,8 +77,9 @@ class App(object):
     """
     values_factory = Values
 
-    def __init__(self, main=None, config_file=None, argv=None,
+    def __init__(self, name, main=None, config_file=None, argv=None,
             env=None, exit_after_main=True):
+        self.name = name
         self.main = main
         self.config_file = config_file
         self.argv = argv
@@ -105,8 +106,10 @@ class App(object):
         if self.config_file is not None:
             opts.update_from_config(self.config_file)
         if self.env is not None:
-            opts.env = self.env
-            opts.update_from_env(self.env)
+            # Filter env for variables starting with our name.
+            env = dict([(k, v) for k, v in self.env.items() \
+                    if k.lower().startswith(self.name.lower() + '_')])
+            opts.update_from_env(env)
 
         opts.update_from_cli(self.argv)
 
