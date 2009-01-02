@@ -12,13 +12,30 @@ class MainError(Error):
     pass
 
 class Values(optparse.Values):
+    delim = '.'
+
+    def set(self, name, value):
+        splitted = name.split(self.delim)
+        parent = self
+
+        # Build the Values tree.
+        for n in name.split(self.delim):
+            setattr(parent, n, self.__class__())
+            print n
+            parent = getattr(parent, n)
+
+        setattr(parent, n, value)
 
     def update_from_config(self, config_file):
         # XXX: seed the parser with defaults here?
         parser = ConfigParser()
         parser.read(config_file)
 
-        return parser
+        for section in parser.sections():
+            for option in parser.options(section):
+                name = self.delim.join((section, option))
+                # XXX: hook in vars here?
+                self.set(name, parser.get(section, option))
 
     config = property(None, update_from_config)
 
@@ -146,8 +163,16 @@ def main(opts, args, app=None):
     print 'cli.App test!'
 
 if __name__ == '__main__':
+    values = Values()
+
+    values.set('foo.bar', 'spam')
+
+    print values.foo.bar
+
+elif False and __name__ == '__main__':
     app = App(config_file='sample.config')
 
     print app.values
+    print app.opts.frobnitz
 
     #app.run()
