@@ -20,8 +20,12 @@ class Values(optparse.Values):
 
         return parser
 
+    config = property(None, update_from_config)
+
     def update_from_env(self, env):
         pass
+
+    env = property(None, update_from_env)
 
     def update_from_cli(self, argv):
         # XXX: hook usage into here.
@@ -31,6 +35,8 @@ class Values(optparse.Values):
         opts, args = parser.parse_args(argv)
 
         return opts, args
+
+    cli = property(None, update_from_cli)
 
 class App(object):
     """A command-line application.
