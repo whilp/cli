@@ -104,7 +104,7 @@ class App(object):
     def __init__(self, name, main=None, config_file=None, argv=None,
             env=None, exit_after_main=True):
         self.name = name
-        self.main = main
+        self.main = self.find_main(main)
         self.config_file = config_file
         self.argv = argv
         self.env = env
@@ -176,9 +176,7 @@ class App(object):
         with the return value of the application's callable.
         Otherwise, return the result.
         """
-        main = self.find_main(self.main)
-
-        returned = main(self.opts, self.args, self)
+        returned = self.main(self.opts, self.args, self)
 
         if self.exit_after_main:
             sys.exit(returned)
