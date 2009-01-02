@@ -70,7 +70,7 @@ class Values(optparse.Values):
         to 'foo.bar'; values will be untouched.
         """
         for key, value in env.items():
-            key = self.delim.join(key.lower().split('_')[1:])
+            key = self.delim.join(key.lower().split('_'))
             self.set(key, value)
 
     def update_from_cli(self, argv):
@@ -130,8 +130,11 @@ class App(object):
         if self.config_file is not None:
             opts.update_from_config(self.config_file)
         if self.env is not None:
-            # Filter env for variables starting with our name.
-            env = dict([(k, v) for k, v in self.env.items() \
+            # Filter env for variables starting with our name. A
+            # mapping like {'OURAPP_FOO_BAR': 'foo'} will become
+            # {'FOO_BAR': 'foo'}.
+            env = dict([('_'.join(k.split('_')[1:]), v) \
+                    for k, v in self.env.items() \
                     if k.lower().startswith(self.name.lower() + '_')])
             opts.update_from_env(env)
 
