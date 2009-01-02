@@ -66,15 +66,12 @@ class App(object):
 
         Returns a tuple (opts, args).
         """
-        opts, args = self.parse_config()
-        eopts, eargs = self.parse_env()
+        opts = self.parse_config()
+        eopts = self.parse_env()
         opts, args = self.parse_cli()
 
         opts.update(eopts)
         opts.update(copts)
-
-        args.update(eargs)
-        args.update(cargs)
 
         return opts, args
 
