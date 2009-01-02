@@ -15,16 +15,16 @@ class Values(optparse.Values):
     delim = '.'
 
     def set(self, name, value):
-        splitted = name.split(self.delim)
+        subnames = name.split(self.delim)
+        name = subnames.pop()
         parent = self
 
         # Build the Values tree.
-        for n in name.split(self.delim):
+        for n in subnames:
             setattr(parent, n, self.__class__())
-            print n
             parent = getattr(parent, n)
 
-        setattr(parent, n, value)
+        parent._update_loose({name: value})
 
     def update_from_config(self, config_file):
         # XXX: seed the parser with defaults here?
