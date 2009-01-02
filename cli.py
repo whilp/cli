@@ -32,12 +32,16 @@ class App(object):
         self.exit_after_main = exit_after_main
         self.args = args
 
-    def parse_cli(self):
-        """Parse options and arguments.
+    def parse_config(self):
+        """Parse the configuration file."""
+        pass
 
-        In addition to the standard CLI options and arguments, this
-        also includes environment variables and configuration file
-        directives which are resolved to options and arguments.
+    def parse_env(self):
+        """Parse the execution environment."""
+        pass
+
+    def parse_cli(self):
+        """Parse CLI options and arguments.
 
         Returns a tuple: (opts, args). 
         """
@@ -48,13 +52,39 @@ class App(object):
 
         return None, None
 
+    def parse_options(self):
+        """Parse all application options.
+
+        In addition to the standard CLI options and arguments, this
+        also includes environment variables and configuration file
+        directives which are resolved to options and arguments.
+        Options specified in more than one of the above sources are
+        resolved in the following order, with the rightmost source
+        winning:
+
+            configuration -> environment -> CLI
+
+        Returns a tuple (opts, args).
+        """
+        opts, args = self.parse_config()
+        eopts, eargs = self.parse_env()
+        opts, args = self.parse_cli()
+
+        opts.update(eopts)
+        opts.update(copts)
+
+        args.update(eargs)
+        args.update(cargs)
+
+        return opts, args
+
     @property
     def opts(self):
-        return self.parse_cli()[0]
+        return self.parse_options()[0]
 
     @property
     def args(self):
-        return self.parse_cli()[1]
+        return self.parse_options()[1]
 
     @property
     def usage(self):
