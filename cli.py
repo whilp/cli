@@ -1,6 +1,7 @@
 import sys
 
 from inspect import getargs
+from optparse import OptionParser
 
 class Error(Exception):
     pass
@@ -29,6 +30,26 @@ class App(object):
     def __init__(self, main=None, exit_after_main=True):
         self.main = main
         self.exit_after_main = exit_after_main
+
+    def parse_cli(self):
+        """Parse options and arguments.
+
+        In addition to the standard CLI options and arguments, this
+        also includes environment variables and configuration file
+        directives which are resolved to options and arguments.
+
+        Returns a tuple: (opts, args). 
+        """
+
+        return None, None
+
+    @property
+    def opts(self):
+        return self.parse_cli()[0]
+
+    @property
+    def args(self):
+        return self.parse_cli()[1]
 
     def find_main(self, main=None):
         """Find a suitable main() callable.
