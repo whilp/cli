@@ -1,14 +1,35 @@
+import optparse
 import sys
 
 from ConfigParser import ConfigParser
 from inspect import getargs
-from optparse import OptionParser, Values
+from optparse import OptionParser
 
 class Error(Exception):
     pass
 
 class MainError(Error):
     pass
+
+class Values(optparse.Values):
+
+    def update_from_config(self, config_file):
+        # XXX: seed the parser with defaults here?
+        parser = ConfigParser()
+        parser.read(config_file)
+
+        return parser
+
+    def update_from_env(self, env):
+        pass
+
+    def update_from_cli(self, argv):
+        parser = OptionParser(self.usage)
+        # add options here.
+
+        opts, args = parser.parse_args(self.argv)
+
+        return opts, args
 
 class App(object):
     """A command-line application.
@@ -27,42 +48,15 @@ class App(object):
     Whether or not the callable actually _uses_ any of this
     information is optional, though it must accept them.
     """
+    values_factory = Values
 
     def __init__(self, main=None, config_file=None, argv=None,
-            exit_after_main=True):
+            env=None, exit_after_main=True):
         self.main = main
         self.config_file = config_file
         self.argv = argv
+        self.env = env
         self.exit_after_main = exit_after_main
-
-    def parse_config(self, config_file):
-        """Parse the configuration file.
-        
-        Returns a single Values instance representing the
-        configuration file.
-        """
-        if config_file is None:
-            return Values()
-
-        # XXX: seed the parser with defaults here?
-        parser = ConfigParser()
-        parser.read(config_file)
-
-    def parse_env(self):
-        """Parse the execution environment."""
-        pass
-
-    def parse_cli(self):
-        """Parse CLI options and arguments.
-
-        Returns a tuple: (opts, args). 
-        """
-        parser = OptionParser(self.usage)
-        # add options here.
-
-        opts, args = parser.parse_args(self.argv)
-
-        return opts, args
 
     def parse_options(self):
         """Parse all application options.
@@ -78,16 +72,16 @@ class App(object):
 
         Returns a tuple (opts, args).
         """
-        opts = self.parse_config(self.config_file)
-        eopts = self.parse_env()
-        copts, cargs = self.parse_cli()
+        values = self.values_factory()
 
-        # XXX: hook these in when the Values instances know about
-        # updates.
-        #opts.update(eopts)
-        #opts.update(copts)
+        if self.config_file is not None:
+            values.update_from_config(self.config_file)
+        if self.env is not None:
+            values.update_from_env(self.env)
 
-        return opts, cargs
+        values.update_from_cli()
+
+        return values.opts, opts.args
 
     @property
     def opts(self):
@@ -146,4 +140,5 @@ def main(opts, args, app=None):
 if __name__ == '__main__':
     app = App(config_file='sample.config')
 
-    app.run()
+    config = app.parse_config(app.config_file)
+    #app.run()
