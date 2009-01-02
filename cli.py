@@ -27,10 +27,10 @@ class App(object):
     information is optional, though it must accept them.
     """
 
-    def __init__(self, main=None, args=None, exit_after_main=True):
+    def __init__(self, main=None, argv=None, exit_after_main=True):
         self.main = main
         self.exit_after_main = exit_after_main
-        self.args = args
+        self.argv = argv
 
     def parse_config(self):
         """Parse the configuration file."""
@@ -48,7 +48,7 @@ class App(object):
         parser = OptionParser(self.usage)
         # add options here.
 
-        opts, args = parser.parse_args(self.args)
+        opts, args = parser.parse_args(self.argv)
 
         return opts, args
 
