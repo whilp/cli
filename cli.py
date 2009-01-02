@@ -1,7 +1,7 @@
 import sys
 
 from inspect import getargs
-from optparse import OptionParser
+from optparse import OptionParser, Values
 
 class Error(Exception):
     pass
@@ -36,7 +36,8 @@ class App(object):
 
     def parse_config(self, config_file):
         """Parse the configuration file."""
-        pass
+        if config_file is None:
+            return Values()
 
     def parse_env(self):
         """Parse the execution environment."""
