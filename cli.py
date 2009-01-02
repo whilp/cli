@@ -24,10 +24,11 @@ class Values(optparse.Values):
         pass
 
     def update_from_cli(self, argv):
-        parser = OptionParser(self.usage)
+        # XXX: hook usage into here.
+        parser = OptionParser()
         # add options here.
 
-        opts, args = parser.parse_args(self.argv)
+        opts, args = parser.parse_args(argv)
 
         return opts, args
 
@@ -58,7 +59,8 @@ class App(object):
         self.env = env
         self.exit_after_main = exit_after_main
 
-    def parse_options(self):
+    @property
+    def values(self):
         """Parse all application options.
 
         In addition to the standard CLI options and arguments, this
@@ -79,17 +81,17 @@ class App(object):
         if self.env is not None:
             values.update_from_env(self.env)
 
-        values.update_from_cli()
+        values.update_from_cli(self.argv)
 
-        return values.opts, opts.args
+        return values
 
     @property
     def opts(self):
-        return self.parse_options()[0]
+        return self.values[0]
 
     @property
     def args(self):
-        return self.parse_options()[1]
+        return self.values[1]
 
     @property
     def usage(self):
@@ -140,5 +142,6 @@ def main(opts, args, app=None):
 if __name__ == '__main__':
     app = App(config_file='sample.config')
 
-    config = app.parse_config(app.config_file)
+    print app.values
+
     #app.run()
