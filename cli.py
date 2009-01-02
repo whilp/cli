@@ -106,17 +106,16 @@ class App(object):
 
         Returns a tuple (opts, args).
         """
-        values = self.values_factory()
+        opts = self.values_factory()
 
         if self.config_file is not None:
-            #values.config = self.config_file
-            values.update_from_config(self.config_file)
+            opts.config = self.config_file
         if self.env is not None:
-            values.env = self.env
+            opts.env = self.env
 
-        values.cli = self.argv
+        opts.cli = self.argv
 
-        return values
+        return opts
 
     @property
     def usage(self):
