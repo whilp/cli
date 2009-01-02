@@ -80,14 +80,14 @@ class App(object):
         """
         opts = self.parse_config(self.config_file)
         eopts = self.parse_env()
-        opts, args = self.parse_cli()
+        copts, cargs = self.parse_cli()
 
         # XXX: hook these in when the Values instances know about
         # updates.
         #opts.update(eopts)
         #opts.update(copts)
 
-        return opts, args
+        return opts, cargs
 
     @property
     def opts(self):
