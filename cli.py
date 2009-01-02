@@ -1,5 +1,6 @@
 import sys
 
+from ConfigParser import ConfigParser
 from inspect import getargs
 from optparse import OptionParser, Values
 
@@ -43,6 +44,10 @@ class App(object):
         if config_file is None:
             return Values()
 
+        # XXX: seed the parser with defaults here?
+        parser = ConfigParser()
+        parser.read(config_file)
+
     def parse_env(self):
         """Parse the execution environment."""
         pass
@@ -77,8 +82,10 @@ class App(object):
         eopts = self.parse_env()
         opts, args = self.parse_cli()
 
-        opts.update(eopts)
-        opts.update(copts)
+        # XXX: hook these in when the Values instances know about
+        # updates.
+        #opts.update(eopts)
+        #opts.update(copts)
 
         return opts, args
 
@@ -137,6 +144,6 @@ def main(opts, args, app=None):
     print 'cli.App test!'
 
 if __name__ == '__main__':
-    app = App()
+    app = App(config_file='sample.config')
 
     app.run()
