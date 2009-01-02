@@ -28,7 +28,8 @@ class Values(optparse.Values):
 
         # Build the Values tree.
         for n in subnames:
-            setattr(parent, n, self.__class__())
+            if not hasattr(parent, n):
+                setattr(parent, n, self.__class__())
             parent = getattr(parent, n)
 
         parent._update_loose({name: value})
