@@ -92,7 +92,7 @@ class App(object):
         self.exit_after_main = exit_after_main
 
     @property
-    def values(self):
+    def opts(self):
         """Parse all application options.
 
         In addition to the standard CLI options and arguments, this
@@ -109,21 +109,14 @@ class App(object):
         values = self.values_factory()
 
         if self.config_file is not None:
-            values.config = self.config_file
+            #values.config = self.config_file
+            values.update_from_config(self.config_file)
         if self.env is not None:
             values.env = self.env
 
         values.cli = self.argv
 
         return values
-
-    @property
-    def opts(self):
-        return self.values[0]
-
-    @property
-    def args(self):
-        return self.values[1]
 
     @property
     def usage(self):
@@ -174,7 +167,7 @@ def main(opts, args, app=None):
 if __name__ == '__main__':
     app = App(config_file='sample.config')
 
-    print app.values
-    print app.opts.frobnitz
+    print app.opts.default.foo
+    print app.opts.frobnitz.foo.bar
 
     #app.run()
