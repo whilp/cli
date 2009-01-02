@@ -100,6 +100,7 @@ class App(object):
     information is optional, though it must accept them.
     """
     values_factory = Values
+    optparser_factory = OptionParser
 
     def __init__(self, name, main=None, config_file=None, argv=None,
             env=None, exit_after_main=True):
@@ -109,6 +110,8 @@ class App(object):
         self.argv = argv
         self.env = env
         self.exit_after_main = exit_after_main
+
+        self.optparser = self.optparser_factory(self.usage)
 
     @property
     def opts(self):
