@@ -27,7 +27,7 @@ function::
         app.run()
 
 If you save that in 'helloworld.py' and run it, you should get the
-following:
+following::
 
     $ python ./helloworld.py
     hello world.
