@@ -25,4 +25,15 @@ provide reasonable defaults while doing it. For example::
         app = App('summer')
         app.run()
 
-That's it!
+That's it! In the App world, command line options, settings found in
+configuration files and even environment variables are boiled down
+into standard Python arguments and keyword arguments passed to a
+main() function that you define. In addition, you have access to the
+App object itself, which can provide more functionality (like
+logging).
+
+Option Parsing
+==============
+
+App uses Python's standard optparse package to parse options and
+arguments on the command line. 
