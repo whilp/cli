@@ -294,22 +294,3 @@ class LoggingApp(App):
         """
         self.log.setLevel(opts=self.values)
         super(LoggingApp, self).run()
-
-def ourapp(app, *args, **kwargs):
-    """[options]
-    
-    foo.\
-    """
-    log = app.log
-    log.critical("critical")
-    log.warning("warning")
-    log.info("info")
-    log.debug("debug")
-
-if __name__ == '__main__':
-    app = LoggingApp(ourapp)
-
-    app.add_option('foo_test', False, "test help doc", "store_true")
-    app.add_option('foo_test2', False, "test help doc", "store_true")
-
-    app.run()
