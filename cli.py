@@ -296,6 +296,11 @@ class LoggingApp(App):
         self.log.addHandler(handler)
 
     def run(self):
+        """Run the app.
+
+        Before running, set the logger's verbosity level based on
+        the CLI options.
+        """
         self.log.setLevel(opts=self.values)
         super(LoggingApp, self).run()
 
