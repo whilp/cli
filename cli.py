@@ -105,6 +105,11 @@ class Values(optparse.Values):
             self.set(key, value)
 
     def update_from_cli(self, parser, argv):
+        """Parse the command line an update the Values tree.
+
+        'parser' should be an instance of optparse.OptionParser;
+        argv should be (in most cases) sys.argv.
+        """
         opts, self.args = parser.parse_args(argv)
 
         # XXX: Is there a nicer way of discovering the options and
