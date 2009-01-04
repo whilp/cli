@@ -149,7 +149,7 @@ class App(object):
         self.parser = self.optparser_factory(prog=self.name,
                 usage=self.usage or None)
 
-        setup = getattr(self, 'setup')
+        setup = getattr(self, 'setup', None)
         if callable(setup):
             setup()
 
