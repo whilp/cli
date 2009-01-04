@@ -116,8 +116,13 @@ class App(object):
     def add_option(self, name, default, help, action="store",
             **kwargs):
         """Build an optparse.Option object and add it to the option list."""
+        short = kwargs.pop('short', '-%s' % name[0])
+
+        if self.parser.has_option(short):
+            short = '-%s' % short[-1].capitalize()
+
         self.parser.add_option(
-            kwargs.pop('short', '-%s' % name[0]),
+            short,
             kwargs.pop('long', '--%s' % name.replace('_', '-')),
             dest = name,
             action = action,
@@ -210,5 +215,6 @@ if __name__ == '__main__':
 
     #(self, name, default, help, action="store"):
     app.add_option('foo_test', False, "test help doc", "store_true")
+    app.add_option('foo_test2', False, "test help doc", "store_true")
 
     print app.opts.foo_test
