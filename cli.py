@@ -13,6 +13,7 @@ class MainError(Error):
 
 class Values(optparse.Values):
     delim = '.'
+    args = []
 
     def set(self, name, value):
         """Set option 'name' to 'value'.
@@ -74,7 +75,7 @@ class Values(optparse.Values):
             self.set(key, value)
 
     def update_from_cli(self, parser, argv):
-        opts, args = parser.parse_args(argv)
+        opts, self.args = parser.parse_args(argv)
 
         # XXX: Is there a nicer way of discovering the options and
         # their names? optparse looks at __dict__ directly, too, so
@@ -139,7 +140,7 @@ class App(object):
             **kwargs)
 
     @property
-    def opts(self):
+    def values(self):
         """Parse all application options.
 
         In addition to the standard CLI options and arguments, this
@@ -151,10 +152,10 @@ class App(object):
 
             configuration -> environment -> CLI
         """
-        opts = self.values_factory()
+        values = self.values_factory()
 
         if self.config_file is not None:
-            opts.update_from_config(self.config_file)
+            values.update_from_config(self.config_file)
         if self.env is not None:
             # Filter env for variables starting with our name. A
             # mapping like {'OURAPP_FOO_BAR': 'foo'} will become
@@ -162,11 +163,19 @@ class App(object):
             env = dict([('_'.join(k.split('_')[1:]), v) \
                     for k, v in self.env.items() \
                     if k.lower().startswith(self.name.lower() + '_')])
-            opts.update_from_env(env)
+            values.update_from_env(env)
 
-        opts.update_from_cli(self.parser, self.argv)
+        values.update_from_cli(self.parser, self.argv)
 
-        return opts
+        return values
+
+    @property
+    def opts(self):
+        return self.values
+
+    @property
+    def args(self):
+        return self.values.args
 
     @property
     def usage(self):
@@ -212,6 +221,8 @@ class App(object):
 def main(opts, args, app=None):
     """docstring test."""
     print 'cli.App test!'
+    print opts.__dict__
+    print args
 
 if __name__ == '__main__':
     fake_env = {
@@ -223,4 +234,4 @@ if __name__ == '__main__':
     app.add_option('foo_test', False, "test help doc", "store_true")
     app.add_option('foo_test2', False, "test help doc", "store_true")
 
-    print app.opts.foo_test
+    app.run()
