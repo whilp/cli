@@ -1,4 +1,4 @@
-def helloworld(app, *args, **kwargs):
+def helloworld(app):
     print 'hello world.'
 
 if __name__ == '__main__':
