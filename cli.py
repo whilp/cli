@@ -3,6 +3,7 @@ import optparse
 import sys
 
 from ConfigParser import ConfigParser
+from UserDict import UserDict
 from inspect import getargs
 from logging import Formatter, StreamHandler
 from optparse import Option, OptionParser
@@ -41,9 +42,13 @@ class CLILogger(logging.Logger):
 
         self.level = level
 
-class Values(optparse.Values):
+class Values(optparse.Values, UserDict):
     delim = '.'
     args = []
+
+    @property
+    def data(self):
+        return self.__dict__
 
     def set(self, name, value):
         """Set option 'name' to 'value'.
