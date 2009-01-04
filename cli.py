@@ -21,7 +21,7 @@ class CLILogger(logging.Logger):
     'silent' options to set the logger's verbosity.
     """
     default_level = logging.WARN
-    silent_level = logging.INFO
+    silent_level = logging.CRITICAL
 
     def setLevel(self, level=0, opts=None):
         """Set the logging level of this handler.
@@ -32,12 +32,11 @@ class CLILogger(logging.Logger):
         if opts is None:
             return logging.Logger.setLevel(self, level)
 
+        level = self.default_level + (10 * (opts.quiet - opts.verbose))
+
         if opts.silent:
             level = self.silent_level
-        else:
-            level = self.default_level + (10 * (opts.quiet - opts.verbose))
-
-        if level <= logging.NOTSET:
+        elif level <= logging.NOTSET:
             level = logging.DEBUG
 
         self.level = level
