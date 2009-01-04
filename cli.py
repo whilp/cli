@@ -79,7 +79,8 @@ class Values(optparse.Values):
 
         opts, args = parser.parse_args(argv)
 
-        return opts, args
+        for name in [x.dest for x in options]:
+            self.set(name, getattr(opts, name))
 
 class App(object):
     """A command-line application.
@@ -208,6 +209,6 @@ if __name__ == '__main__':
     app = App('ourapp', config_file='sample.config', env=fake_env)
 
     #(self, name, default, help, action="store"):
-    app.add_option('foo-test', False, "test help doc", "store_true")
+    app.add_option('foo_test', False, "test help doc", "store_true")
 
-    #app.run()
+    print app.opts.foo_test
