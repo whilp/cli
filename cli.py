@@ -14,6 +14,13 @@ class MainError(Error):
     pass
 
 class ConfigurableLogger(logging.Logger):
+    """Provide extra configuration smarts for loggers.
+
+    In addition to the powers of a regular logger, a
+    ConfigurableLogger can interpret optparseOptionGroups, using
+    the 'verbose', 'quiet' and 'silent' options to set the logger's
+    verbosity.
+    """
     default_level = logging.WARN
     silent_level = logging.INFO
 
