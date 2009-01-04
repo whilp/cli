@@ -4,6 +4,7 @@ import sys
 
 from ConfigParser import ConfigParser
 from inspect import getargs
+from logging import Formatter, StreamHandler
 from optparse import Option, OptionParser
 
 class Error(Exception):
@@ -241,11 +242,32 @@ class App(object):
             return returned
 
 class LoggingApp(App):
+    message_format = "%(message)s"
+    date_format = "%(asctime)s %(message)s"
 
     def setup(self):
+        # Add logging-related options.
         self.add_option("verbose", 0, "raise the verbosity", "count")
         self.add_option("quiet", 0, "decrease the verbosity", "count")
         self.add_option("silent", False, "only log warnings", "store_true")
+
+        # Create logger.
+        logging.setLoggerClass(ConfigurableLogger)
+        self.log = logging.getLogger(self.name)
+        
+        # Create handlers.
+        stream_handler = StreamHandler()
+        handler = stream_handler
+
+        # Create formatters.
+        message_formatter = Formatter(self.message_format)
+        date_formatter = Formatter(self.date_format)
+        verbose_formatter = Formatter()
+        formatter = message_formatter
+
+        handler.setFormatter(formatter)
+        self.log.setLevel(self.log.default_level)
+        self.log.addHandler(handler)
 
 def main(app, *args, **kwargs):
     """docstring test."""
