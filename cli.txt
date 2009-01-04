@@ -154,3 +154,72 @@ Now, we get the following when we run helloworldlang.py::
     hello world!
     $ python ./helloworldlang.py -l esperanto
     Salutan mondo!
+
+You can add lots of other kinds of options using the add_option()
+method; for more information, see the optparse documentation. For
+example, you could create a 'verbose' option that increments a
+verbosity counter and then decide whether or not to print log or
+debugging messages based on that counter.
+
+Since that's a common scenario, though, App makes it easy...
+
+Logging
+=======
+
+LoggingApp provides a logger (from logging.Logger) and handy options
+for controlling its verbosity::
+
+    def helloworldlang(app, *args, **kwargs):
+        """[options] [-l language]
+
+        Print 'hello world' in the requested language.
+        """
+        msg = 'hello world'
+        if kwargs['language'] == 'esperanto':
+            app.log.debug("switch to esperanto")
+            msg = 'Saluton mondo'
+
+        print('%s!' % msg)
+
+    if __name__ == '__main__':
+        from cli import LoggingApp
+        app = LoggingApp(helloworldlang)
+        app.add_option("language",
+            default='english',
+            help="print message in Esperanto",
+            action="store")
+        app.run()
+
+If you run the above, you'll find that your application just grew a
+few more options:
+
+    $ python ./helloworldlog.py -h
+    Usage: helloworldlang [-l language]
+
+        Print 'hello world' in the requested language.
+        
+
+    Options:
+      -h, --help            show this help message and exit
+      -v, --verbose         raise the verbosity
+      -q, --quiet           decrease the verbosity
+      -s, --silent          only log warnings
+      -l LANGUAGE, --language=LANGUAGE
+                            print message in Esperanto
+
+The 'verbose' and 'quiet' options increase and decrease,
+respectively, the log level for the App's log instance. Without any
+arguments, warnings, errors and critical messages will be printed.
+With one '-v', the logger will also print informational messages;
+with two, you'll see everything. Here it is in action:
+
+    $ python ./helloworldlog.py -l esperanto
+    Saluton mondo!
+    $ python ./helloworldlog.py -l esperanto -vv
+    switch to esperanto
+    Saluton mondo!
+
+You can configure the Logger's message and date formats by adjusting
+the LoggingApp's 'message_format' and 'date_format' attributes (or
+passing them in as keyword arguments when you instantiate the
+LoggingApp).
