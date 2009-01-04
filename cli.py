@@ -138,20 +138,24 @@ class App(object):
     values_factory = Values
     optparser_factory = OptionParser
 
-    def __init__(self, name, main=None, config_file=None, argv=None,
-            env=None, exit_after_main=True):
-        self.name = name
-        self.main = self.find_main(main)
+    def __init__(self, main, config_file=None, argv=None, env=None,
+            exit_after_main=True):
+        self.main = main
         self.config_file = config_file
         self.argv = argv
         self.env = env
         self.exit_after_main = exit_after_main
 
-        self.parser = self.optparser_factory(self.usage or None)
+        self.parser = self.optparser_factory(prog=self.name,
+                usage=self.usage or None)
 
         setup = getattr(self, 'setup')
         if callable(setup):
             setup()
+
+    @property
+    def name(self):
+        return getattr(self.main, 'func_name', self.main.__class__.__name__)
 
     def add_option(self, name, default, help, action="store",
             **kwargs):
@@ -218,25 +222,7 @@ class App(object):
 
     @property
     def usage(self):
-        return self.main.__doc__ or ''
-
-    def find_main(self, main=None):
-        """Find a suitable main() callable.
-
-        If the supplied 'main' argument is not a callable, search
-        globals() for a suitable callable. If no callable is found
-        or the chosen callable doesn't support the App interface
-        (see cli.App.__doc__ for more information), raise MainError.
-        """
-        if not callable(main):
-            main = globals().get('main', None)
-
-        if not callable(main):
-            raise MainError("Could not find main()")
-
-        args, varargs, varkw = getargs(main.func_code)
-
-        return main
+        return '%prog ' + (self.main.__doc__ or '')
 
     def run(self):
         """Run the application's callable.
@@ -268,10 +254,10 @@ class LoggingApp(App):
     message_format = "%(message)s"
     date_format = "%(asctime)s %(message)s"
 
-    def __init__(self, name, stream=None, logfile=None, **kwargs):
+    def __init__(self, main, stream=None, logfile=None, **kwargs):
         self.logfile = logfile
         self.stream = stream
-        super(LoggingApp, self).__init__(name, **kwargs)
+        super(LoggingApp, self).__init__(main, **kwargs)
 
     def setup(self):
         # Add logging-related options.
@@ -309,8 +295,11 @@ class LoggingApp(App):
         self.log.setLevel(opts=self.values)
         super(LoggingApp, self).run()
 
-def main(app, *args, **kwargs):
-    """docstring test."""
+def ourapp(app, *args, **kwargs):
+    """[options]
+    
+    foo.\
+    """
     log = app.log
     log.critical("critical")
     log.warning("warning")
@@ -318,7 +307,7 @@ def main(app, *args, **kwargs):
     log.debug("debug")
 
 if __name__ == '__main__':
-    app = LoggingApp('ourapp')
+    app = LoggingApp(ourapp)
 
     app.add_option('foo_test', False, "test help doc", "store_true")
     app.add_option('foo_test2', False, "test help doc", "store_true")
