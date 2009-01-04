@@ -16,10 +16,9 @@ class MainError(Error):
 class CLILogger(logging.Logger):
     """Provide extra configuration smarts for loggers.
 
-    In addition to the powers of a regular logger, a
-    CLILogger can interpret optparseOptionGroups, using
-    the 'verbose', 'quiet' and 'silent' options to set the logger's
-    verbosity.
+    In addition to the powers of a regular logger, a CLILogger can
+    interpret optparseOptionGroups, using the 'verbose', 'quiet' and
+    'silent' options to set the logger's verbosity.
     """
     default_level = logging.WARN
     silent_level = logging.INFO
