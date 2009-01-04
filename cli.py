@@ -242,9 +242,12 @@ class App(object):
             return returned
 
 class LoggingApp(App):
-    logfile = None
     message_format = "%(message)s"
     date_format = "%(asctime)s %(message)s"
+
+    def __init__(self, name, logfile=None, **kwargs):
+        self.logfile = logfile
+        super(LoggingApp, self).__init__(name, **kwargs)
 
     def setup(self):
         # Add logging-related options.
