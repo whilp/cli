@@ -104,7 +104,8 @@ class App(object):
         type(''): 'string',
         type(1): 'int',
         type(1.0): 'float',
-        type(complex(1)): 'complex'}
+        type(complex(1)): 'complex',
+        type(True): 'choice'}
 
     def __init__(self, name, main=None, config_file=None, argv=None,
             env=None, exit_after_main=True):
@@ -117,16 +118,17 @@ class App(object):
 
         self.options = []
 
-    def add_option(self, name, default, help, action="store"):
+    def add_option(self, name, default, help, action="store",
+            **kwargs):
         """Build an optparse.Option object and add it to the option list."""
         opt = Option(
-            short ='-%s' % name[0],
-            long = '--%s' % name.replace('_', '-'),
+            kwargs.pop('short', '-%s' % name[0]),
+            kwargs.pop('long', '--%s' % name.replace('_', '-')),
             dest = name,
             action = action,
-            type = self.opt_types.get(type(default), 'string'),
             default = default,
-            help = help)
+            help = help,
+            **kwargs)
         self.options.append(opt)
 
     @property
@@ -211,8 +213,7 @@ if __name__ == '__main__':
             'OURAPP_FROBNITZ_SPAM': 'noteggs'}
     app = App('ourapp', config_file='sample.config', env=fake_env)
 
-    print app.opts.default.foo
-    print app.opts.frobnitz.foo.bar
-    print app.opts.frobnitz.spam
+    #(self, name, default, help, action="store"):
+    app.add_option('foo-test', False, "test help doc", "store_true")
 
     #app.run()
