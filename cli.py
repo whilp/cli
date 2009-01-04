@@ -13,11 +13,11 @@ class Error(Exception):
 class MainError(Error):
     pass
 
-class ConfigurableLogger(logging.Logger):
+class CLILogger(logging.Logger):
     """Provide extra configuration smarts for loggers.
 
     In addition to the powers of a regular logger, a
-    ConfigurableLogger can interpret optparseOptionGroups, using
+    CLILogger can interpret optparseOptionGroups, using
     the 'verbose', 'quiet' and 'silent' options to set the logger's
     verbosity.
     """
@@ -277,7 +277,7 @@ class LoggingApp(App):
         self.add_option("silent", False, "only log warnings", "store_true")
 
         # Create logger.
-        logging.setLoggerClass(ConfigurableLogger)
+        logging.setLoggerClass(CLILogger)
         self.log = logging.getLogger(self.name)
         
         # Create handlers.
