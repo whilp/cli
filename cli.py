@@ -245,6 +245,14 @@ class App(object):
             return returned
 
 class LoggingApp(App):
+    """A command-line application that knows how to log.
+
+    A LoggingApp provides a 'log' attribute, which is a logger (from
+    the logging module). The logger's verbosity is controlled via
+    handy options ('verbose', 'quiet', 'silent') and sends its
+    output to stderr by default (though it will log to a file if the
+    'logfile' attribute is not None).
+    """
     message_format = "%(message)s"
     date_format = "%(asctime)s %(message)s"
 
