@@ -251,13 +251,16 @@ class LoggingApp(App):
     the logging module). The logger's verbosity is controlled via
     handy options ('verbose', 'quiet', 'silent') and sends its
     output to stderr by default (though it will log to a file if the
-    'logfile' attribute is not None).
+    'logfile' attribute is not None). Non-stderr streams can be
+    requested by setting the 'stream' attribute to something besides
+    None.
     """
     message_format = "%(message)s"
     date_format = "%(asctime)s %(message)s"
 
-    def __init__(self, name, logfile=None, **kwargs):
+    def __init__(self, name, stream=None, logfile=None, **kwargs):
         self.logfile = logfile
+        self.stream = stream
         super(LoggingApp, self).__init__(name, **kwargs)
 
     def setup(self):
@@ -271,7 +274,7 @@ class LoggingApp(App):
         self.log = logging.getLogger(self.name)
         
         # Create handlers.
-        stream_handler = StreamHandler()
+        stream_handler = StreamHandler(self.stream)
         handler = stream_handler
         if self.logfile is not None:
             file_handler = FileHandler(self.logfile)
