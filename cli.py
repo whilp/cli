@@ -31,7 +31,10 @@ class ConfigurableLogger(logging.Logger):
         else:
             level = self.default_level + (10 * (opts.quiet - opts.verbose))
 
-        self.level = level 
+        if level <= logging.NOTSET:
+            level = logging.DEBUG
+
+        self.level = level
 
 class Values(optparse.Values):
     delim = '.'
