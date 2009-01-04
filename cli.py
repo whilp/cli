@@ -109,14 +109,18 @@ class Values(optparse.Values):
 
         'parser' should be an instance of optparse.OptionParser;
         argv should be (in most cases) sys.argv.
+
+        Returns the parsed list of arguments.
         """
-        opts, self.args = parser.parse_args(argv)
+        opts, args = parser.parse_args(argv)
 
         # XXX: Is there a nicer way of discovering the options and
         # their names? optparse looks at __dict__ directly, too, so
         # this may be As Good As It Gets.
         for name, opt in opts.__dict__.items():
             self.set(name, opt)
+
+        return args
 
 class App(object):
     """A command-line application.
@@ -208,17 +212,17 @@ class App(object):
                     if k.lower().startswith(self.name.lower() + '_')])
             values.update_from_env(env)
 
-        values.update_from_cli(self.parser, self.argv)
+        args = values.update_from_cli(self.parser, self.argv)
 
-        return values
+        return values, args
 
     @property
     def opts(self):
-        return self.values.__dict__
+        return self.values[0].__dict__
 
     @property
     def args(self):
-        return self.values.args
+        return self.values[1]
 
     @property
     def usage(self):
