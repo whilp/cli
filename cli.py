@@ -1,3 +1,4 @@
+import logging
 import optparse
 import sys
 
@@ -10,6 +11,26 @@ class Error(Exception):
 
 class MainError(Error):
     pass
+
+class ConfigurableLogger(logging.Logger):
+    default_level = logging.WARN
+    silent_level = logging.INFO
+
+    def setLevel(self, level=0, opts=None):
+        """Set the logging level of this handler.
+
+        If 'level' is an optparse.OptionGroup, choose the level
+        based on the 'verbose', 'silent' and 'quiet' attributes.
+        """
+        if opts is None:
+            return logging.Logger.setLevel(self, level)
+
+        if opts.silent:
+            level = self.silent_level
+        else:
+            level = self.default_level + (10 * (opts.quiet - opts.verbose))
+
+        self.level = level 
 
 class Values(optparse.Values):
     delim = '.'
