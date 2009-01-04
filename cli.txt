@@ -17,7 +17,7 @@ files, interpret the environment and build a logger for you!
 App makes writing easy to use scripts as simple as defining a
 function::
 
-    def helloworld(app, *args, **kwargs):
+    def helloworld(app):
         print 'hello world.'
 
     if __name__ == '__main__':
@@ -43,4 +43,114 @@ Python's standard optparse package) for you::
 
 As we proceed, you'll find out that App did a few more things behind
 the scenes for you, too, but it's worth investigating the option
-parsing in greater depth first.
+parsing in greater depth. But first, a quick explanation of the App
+interface.
+
+App Interface
+=============
+
+All App wants from you is a function (or other callable). Your
+function must accept at least one argument (the App object itself).
+The name of your function (stored in the .func_name attribute) or
+callable class will become the name of the application. Similarly,
+the docstring for your function or callable (hereafter simply
+referred to as the function) will become your application's usage
+statement.
+
+App may also pass arguments and options to your function, so it
+should be prepared to handle arguments and keyword arguments, too.
+In most cases, the signature for an App function will look something
+like this::
+
+    def yourapp(app, *args, **kwargs):
+        pass
+
+Option Parsing
+==============
+
+App parses options and arguments on the command line and passes them
+to your application as arguments. By default, the only valid option
+is '-h', which will print your application's usage message (ie its
+docstring). But it's easy to add your own::
+
+    def helloworldlang(app, *args, **kwargs):
+        """[options]
+
+        Print 'hello world' in the requested language.
+        """
+        msg = 'hello world'
+        if kwargs['esperanto']:
+            msg = 'Saluton mondo'
+
+        print('%s!' % msg)
+
+    if __name__ == '__main__':
+        from cli import App
+        app = App(helloworldlang)
+        app.add_option("esperanto",
+            default=False,
+            help="print message in Esperanto",
+            action="store_true")
+        app.run()
+
+Save that as 'helloworldlang.py' and run it::
+
+    $ python ./helloworldlang.py -h
+    Usage: helloworldlang 
+
+        Print 'hello world' in the requested language.
+        
+
+    Options:
+      -h, --help       show this help message and exit
+      -e, --esperanto  print message in Esperanto
+    $ python ./helloworldlang.py
+    hello world!
+    $ python ./helloworldlang.py -e
+    Saluton mondo!
+
+Presto!
+
+You can also create options that expect arguments of their own. For
+example, adding a new option for each new language helloworldlang.py
+supports will quickly become annoying. Instead, it would be simpler
+to create a single language option to which we can assign arbitrary
+languages. This is easy to do using the 'store' action (which is
+also the default for add_option())::
+
+    def helloworldlang(app, *args, **kwargs):
+        """[-l language]
+
+        Print 'hello world' in the requested language.
+        """
+        msg = 'hello world'
+        if kwargs['language'] == 'esperanto':
+            msg = 'Saluton mondo'
+
+        print('%s!' % msg)
+
+    if __name__ == '__main__':
+        from cli import App
+        app = App(helloworldlang)
+        app.add_option("language",
+            default='english',
+            help="print message in LANGUAGE",
+            action="store")
+        app.run()
+
+Now, we get the following when we run helloworldlang.py::
+
+    $ python ./helloworldlang.py -h
+    Usage: helloworldlang [-l language]
+
+        Print 'hello world' in the requested language.
+        
+
+    Options:
+      -h, --help            show this help message and exit
+      -l LANGUAGE, --language=LANGUAGE
+                            print message in Esperanto
+    $ python ./helloworldlang.py
+    hello world!
+    $ python ./helloworldlang.py -l esperanto
+    Salutan mondo!
