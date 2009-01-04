@@ -255,12 +255,14 @@ class LoggingApp(App):
     requested by setting the 'stream' attribute to something besides
     None.
     """
-    message_format = "%(message)s"
-    date_format = "%(asctime)s %(message)s"
 
-    def __init__(self, main, stream=None, logfile=None, **kwargs):
+    def __init__(self, main, stream=None, logfile=None,
+            message_format="%(message)s", 
+            date_format="%(asctime)s %(message)s", **kwargs):
         self.logfile = logfile
         self.stream = stream
+        self.message_format = message_format
+        self.date_format = date_format
         super(LoggingApp, self).__init__(main, **kwargs)
 
     def setup(self):
