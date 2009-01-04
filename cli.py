@@ -100,12 +100,6 @@ class App(object):
     """
     values_factory = Values
     optparser_factory = OptionParser
-    opt_types = {
-        type(''): 'string',
-        type(1): 'int',
-        type(1.0): 'float',
-        type(complex(1)): 'complex',
-        type(True): 'choice'}
 
     def __init__(self, name, main=None, config_file=None, argv=None,
             env=None, exit_after_main=True):
