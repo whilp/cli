@@ -115,7 +115,15 @@ class App(object):
 
     def add_option(self, name, default, help, action="store",
             **kwargs):
-        """Build an optparse.Option object and add it to the option list."""
+        """Add an option to the CLI option parser.
+        
+        The option names are generated from the 'name' argument. In
+        most cases, the short option will become '-n', where 'n' is
+        the first character of 'name'. If an option is already
+        defined with this character, it will automatically be
+        capitalized. The long form of the name will be 'name', with
+        the '-' replaced by a '_' (if present).
+        """
         short = kwargs.pop('short', '-%s' % name[0])
 
         if self.parser.has_option(short):
