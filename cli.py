@@ -135,6 +135,10 @@ class App(object):
 
         self.parser = self.optparser_factory(self.usage or None)
 
+        setup = getattr(self, 'setup')
+        if callable(setup):
+            setup()
+
     def add_option(self, name, default, help, action="store",
             **kwargs):
         """Add an option to the CLI option parser.
@@ -236,6 +240,13 @@ class App(object):
         else:
             return returned
 
+class LoggingApp(App):
+
+    def setup(self):
+        self.add_option("verbose", 0, "raise the verbosity", "count")
+        self.add_option("quiet", 0, "decrease the verbosity", "count")
+        self.add_option("silent", False, "only log warnings", "store_true")
+
 def main(app, *args, **kwargs):
     """docstring test."""
     print 'cli.App test!'
@@ -243,12 +254,8 @@ def main(app, *args, **kwargs):
     print kwargs['foo_test']
 
 if __name__ == '__main__':
-    fake_env = {
-            'OURAPP_DEFAULT_FOO': 'notbar',
-            'OURAPP_FROBNITZ_SPAM': 'noteggs'}
-    app = App('ourapp', config_file='sample.config', env=fake_env)
+    app = LoggingApp('ourapp')
 
-    #(self, name, default, help, action="store"):
     app.add_option('foo_test', False, "test help doc", "store_true")
     app.add_option('foo_test2', False, "test help doc", "store_true")
 
