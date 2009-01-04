@@ -9,31 +9,38 @@ CLI: Makes CLI easier for Python
 Overview
 ========
 
-The classes provided by the CLI module make command line programs
-easier to write in Python. Where once you might have instantiated
-your own optparse.OptionParser, ConfigParser.ConfigParser and
-logging.Logger, the App* classes handle all of that for you and
-provide reasonable defaults while doing it. For example::
+The CLI App classes (hereafter 'App') try to make writing command
+line applications in Python less boring by handling the obvious and
+easy bits. Let App parse options and arguments, read configuration
+files, interpret the environment and build a logger for you!
 
-    def main(app, x, y, **kwargs):
-        """calculate the sum of two arguments."""
-        print('x + y: %d' % x + y)
+App makes writing easy to use scripts as simple as defining a
+function::
+
+    def helloworld(app, *args, **kwargs):
+        print 'hello world.'
 
     if __name__ == '__main__':
         from cli import App
 
-        app = App('summer')
+        app = App(helloworld)
         app.run()
 
-That's it! In the App world, command line options, settings found in
-configuration files and even environment variables are boiled down
-into standard Python arguments and keyword arguments passed to a
-main() function that you define. In addition, you have access to the
-App object itself, which can provide more functionality (like
-logging).
+If you save that in 'helloworld.py' and run it, you should get the
+following:
 
-Option Parsing
-==============
+    $ python ./helloworld.py
+    hello world.
 
-App uses Python's standard optparse package to parse options and
-arguments on the command line. 
+But there's more! App automatically created an option parser (using
+Python's standard optparse package) for you::
+
+    $ python ./helloworld.py -h
+    Usage: helloworld 
+
+    Options:
+      -h, --help  show this help message and exit
+
+As we proceed, you'll find out that App did a few more things behind
+the scenes for you, too, but it's worth investigating the option
+parsing in greater depth first.
