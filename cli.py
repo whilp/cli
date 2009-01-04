@@ -242,6 +242,7 @@ class App(object):
             return returned
 
 class LoggingApp(App):
+    logfile = None
     message_format = "%(message)s"
     date_format = "%(asctime)s %(message)s"
 
@@ -258,6 +259,9 @@ class LoggingApp(App):
         # Create handlers.
         stream_handler = StreamHandler()
         handler = stream_handler
+        if self.logfile is not None:
+            file_handler = FileHandler(self.logfile)
+            handler = file_handler
 
         # Create formatters.
         message_formatter = Formatter(self.message_format)
