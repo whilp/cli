@@ -1,0 +1,28 @@
+.. _cli:
+
+================================
+CLI: Makes CLI easier for Python
+================================
+
+:author: Will Maier <will@m.aier.us>
+
+Overview
+========
+
+The classes provided by the CLI module make command line programs
+easier to write in Python. Where once you might have instantiated
+your own optparse.OptionParser, ConfigParser.ConfigParser and
+logging.Logger, the App* classes handle all of that for you and
+provide reasonable defaults while doing it. For example::
+
+    def main(app, x, y, **kwargs):
+        """calculate the sum of two arguments."""
+        print('x + y: %d' % x + y)
+
+    if __name__ == '__main__':
+        from cli import App
+
+        app = App('summer')
+        app.run()
+
+That's it!
