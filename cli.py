@@ -73,9 +73,8 @@ class Values(optparse.Values):
             key = self.delim.join(key.lower().split('_'))
             self.set(key, value)
 
-    def update_from_cli(self, options, argv):
-        # XXX: hook usage into here.
-        parser = OptionParser(option_list=options)
+    def update_from_cli(self, options, argv, usage=None):
+        parser = OptionParser(option_list=options, usage=usage)
 
         opts, args = parser.parse_args(argv)
 
@@ -154,7 +153,7 @@ class App(object):
                     if k.lower().startswith(self.name.lower() + '_')])
             opts.update_from_env(env)
 
-        opts.update_from_cli(self.options, self.argv)
+        opts.update_from_cli(self.options, self.argv, self.usage)
 
         return opts
 
@@ -200,6 +199,7 @@ class App(object):
             return returned
 
 def main(opts, args, app=None):
+    """docstring test."""
     print 'cli.App test!'
 
 if __name__ == '__main__':
