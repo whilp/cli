@@ -73,13 +73,14 @@ class Values(optparse.Values):
             key = self.delim.join(key.lower().split('_'))
             self.set(key, value)
 
-    def update_from_cli(self, options, argv, usage=None):
-        parser = OptionParser(option_list=options, usage=usage)
-
+    def update_from_cli(self, parser, argv):
         opts, args = parser.parse_args(argv)
 
-        for name in [x.dest for x in options]:
-            self.set(name, getattr(opts, name))
+        # XXX: Is there a nicer way of discovering the options and
+        # their names? optparse looks at __dict__ directly, too, so
+        # this may be As Good As It Gets.
+        for name, opt in opts.__dict__.items():
+            self.set(name, opt)
 
 class App(object):
     """A command-line application.
@@ -110,12 +111,12 @@ class App(object):
         self.env = env
         self.exit_after_main = exit_after_main
 
-        self.options = []
+        self.parser = self.optparser_factory(self.usage or None)
 
     def add_option(self, name, default, help, action="store",
             **kwargs):
         """Build an optparse.Option object and add it to the option list."""
-        opt = Option(
+        self.parser.add_option(
             kwargs.pop('short', '-%s' % name[0]),
             kwargs.pop('long', '--%s' % name.replace('_', '-')),
             dest = name,
@@ -123,7 +124,6 @@ class App(object):
             default = default,
             help = help,
             **kwargs)
-        self.options.append(opt)
 
     @property
     def opts(self):
@@ -153,7 +153,7 @@ class App(object):
                     if k.lower().startswith(self.name.lower() + '_')])
             opts.update_from_env(env)
 
-        opts.update_from_cli(self.options, self.argv, self.usage)
+        opts.update_from_cli(self.parser, self.argv)
 
         return opts
 
