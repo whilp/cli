@@ -259,3 +259,17 @@ would access as follows:
 
 See examples/helloworldconfig.py and examples/helloworld.conf for
 more information.
+
+App automatically looks for environment variables that start with
+your application's name followed by an '_'. It then transforms the
+variable name, dropping the application name prefix and lowercasing
+the rest. It also replaces any other '_' characters with '.', which
+allows nested options as described above for configuration files.
+
+Note that App can't provide defaults for options that aren't defined
+using add_option(). This means that you need to check before using
+configuration and environment options:
+
+    def helloworldenv(app, *args, **kwargs):
+        if 'envvar' in kwargs:
+            app.log.debug("Found envvar")
