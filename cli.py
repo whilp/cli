@@ -171,7 +171,7 @@ class App(object):
 
     @property
     def opts(self):
-        return self.values
+        return self.values.__dict__
 
     @property
     def args(self):
@@ -197,9 +197,6 @@ class App(object):
 
         args, varargs, varkw = getargs(main.func_code)
 
-        if len(args) != 3 or (varargs or varkw):
-            raise MainError("main() must take three arguments or varargs/varkw")
-
         return main
 
     def run(self):
@@ -211,18 +208,18 @@ class App(object):
         with the return value of the application's callable.
         Otherwise, return the result.
         """
-        returned = self.main(self.opts, self.args, self)
+        returned = self.main(self, *self.args, **self.opts)
 
         if self.exit_after_main:
             sys.exit(returned)
         else:
             return returned
 
-def main(opts, args, app=None):
+def main(app, *args, **kwargs):
     """docstring test."""
     print 'cli.App test!'
-    print opts.__dict__
     print args
+    print kwargs['foo_test']
 
 if __name__ == '__main__':
     fake_env = {
