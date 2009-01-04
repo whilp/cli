@@ -150,8 +150,6 @@ class App(object):
         winning:
 
             configuration -> environment -> CLI
-
-        Returns a tuple (opts, args).
         """
         opts = self.values_factory()
 
