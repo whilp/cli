@@ -269,11 +269,17 @@ class LoggingApp(App):
         self.log.setLevel(self.log.default_level)
         self.log.addHandler(handler)
 
+    def run(self):
+        self.log.setLevel(opts=self.values)
+        super(LoggingApp, self).run()
+
 def main(app, *args, **kwargs):
     """docstring test."""
-    print 'cli.App test!'
-    print args
-    print kwargs['foo_test']
+    log = app.log
+    log.critical("critical")
+    log.warning("warning")
+    log.info("info")
+    log.debug("debug")
 
 if __name__ == '__main__':
     app = LoggingApp('ourapp')
