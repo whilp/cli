@@ -223,3 +223,39 @@ You can configure the Logger's message and date formats by adjusting
 the LoggingApp's 'message_format' and 'date_format' attributes (or
 passing them in as keyword arguments when you instantiate the
 LoggingApp).
+
+Other Configuration Methods
+===========================
+
+More complicated applications may check environment variables or
+even read configuration files. With App, both of these sources are
+boiled down into plain old arguments and keyword arguments for your
+application function. App will read your configuration file and
+check the environment before parsing the command line. If, after
+resolving the configuration and environment options, it finds
+multiple definitions for a given option, the most recent definition
+wins. Just remember that CLI beats environment beats config file.
+
+App uses Python's standard ConfigParser, so you can use the familiar
+.ini style when writing configuration files. Simply tell App where
+your configuration file lives::
+
+    app = App(foo, config_file='sample.conf')
+
+When reading the configuration file, App will flatten it, using '.'
+to delimit levels present in the original file. This means that the
+two sections in the following config snippet are identical::
+
+    [section]
+    foo.bar = quux
+
+    [section.foo]
+    bar = quux
+
+Both of the above sections represent an option that your application
+would access as follows:
+
+    >>> kwargs['section']['foo']['bar']
+
+See examples/helloworldconfig.py and examples/helloworld.conf for
+more information.
