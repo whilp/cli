@@ -63,6 +63,12 @@ class Values(optparse.Values, UserDict):
     delim = '.'
     args = []
 
+    def __getattr__(self, key):
+        try:
+            return self.__dict__[key]
+        except KeyError:
+            return self[key]
+
     @property
     def data(self):
         return self.__dict__
