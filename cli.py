@@ -171,12 +171,16 @@ class App(object):
     optparser_factory = OptionParser
 
     def __init__(self, main, config_file=None, argv=None, env=None,
-            exit_after_main=True):
+            exit_after_main=True, stdin=None, stdout=None,
+            stderr=None):
         self.main = main
         self.config_file = config_file
         self.argv = argv
         self.env = env
         self.exit_after_main = exit_after_main
+        self.stdin = stdin and stdin or sys.stdin
+        self.stdout = stdout and stdout or sys.stdout
+        self.stderr = stderr and stderr or sys.stderr
 
         self.parser = self.optparser_factory(prog=self.name,
                 usage=self.usage or None)
