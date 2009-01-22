@@ -260,6 +260,10 @@ class App(object):
     def usage(self):
         return '%prog ' + (self.main.__doc__ or '')
 
+    def pre_run(self):
+        """Perform any last-minute setup before .main() is called."""
+        pass
+
     def run(self):
         """Run the application's callable.
 
@@ -269,6 +273,7 @@ class App(object):
         with the return value of the application's callable.
         Otherwise, return the result.
         """
+        self.pre_run()
         returned = self.main(self, *self.args, **self.opts)
 
         if self.exit_after_main:
@@ -324,11 +329,10 @@ class LoggingApp(App):
         self.log.setLevel(self.log.default_level)
         self.log.addHandler(handler)
 
-    def run(self):
+    def pre_run(self):
         """Run the app.
 
         Before running, set the logger's verbosity level based on
         the CLI options.
         """
         self.log.setLevel(opts=self.values[0])
-        super(LoggingApp, self).run()
