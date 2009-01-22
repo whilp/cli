@@ -93,63 +93,6 @@ class Values(optparse.Values, UserDict):
 
         parent._update_loose({name: value})
 
-    def update_from_config(self, config_file):
-        """Parse a configuration file and update the Values tree.
-
-        The config file is read using ConfigParser.ConfigParser.
-        All options are flattened into a single-level structure such
-        that the following two options are equivalent:
-
-            [one.two]
-            three = four
-
-            [one]
-            two.three = four
-
-        In each case, the value 'one.two.three' will equal 'four'.
-        In cases where the same option name has multiple values, the
-        last entry with that name will be used.
-        """
-        # XXX: seed the parser with defaults here?
-        parser = ConfigParser()
-        parser.read(config_file)
-
-        for section in parser.sections():
-            for option in parser.options(section):
-                name = self.delim.join((section, option))
-                value = parser.get(section, option)
-                # XXX: hook in vars here?
-                self.set(name, value)
-
-    def update_from_env(self, env):
-        """Parse 'env' and update the Values tree.
-
-        'env' should be a dictionary similar to that provided by
-        os.environ. Keys will be converted from 'FOO_BAR' notation
-        to 'foo.bar'; values will be untouched.
-        """
-        for key, value in env.items():
-            key = self.delim.join(key.lower().split('_'))
-            self.set(key, value)
-
-    def update_from_cli(self, parser, argv):
-        """Parse the command line an update the Values tree.
-
-        'parser' should be an instance of optparse.OptionParser;
-        argv should be (in most cases) sys.argv.
-
-        Returns the parsed list of arguments.
-        """
-        opts, args = parser.parse_args(argv)
-
-        # XXX: Is there a nicer way of discovering the options and
-        # their names? optparse looks at __dict__ directly, too, so
-        # this may be As Good As It Gets.
-        for name, opt in opts.__dict__.items():
-            self.set(name, opt)
-
-        return args
-
 class App(object):
     """A command-line application.
 
@@ -184,6 +127,13 @@ class App(object):
 
         self.parser = self.optparser_factory(prog=self.name,
                 usage=self.usage or None)
+
+        self.args = []
+
+        self.values.handlers = [
+            self.config_values_handler,
+            self.env_values_handler,
+            self.cli_values_handler]
 
         setup = getattr(self, 'setup', None)
         if callable(setup):
@@ -220,33 +170,93 @@ class App(object):
 
     @property
     def values(self):
-        """Parse all application options.
+        """Parse and return all application options.
 
-        In addition to the standard CLI options and arguments, this
-        also includes environment variables and configuration file
-        directives which are resolved to options and arguments.
-        Options specified in more than one of the above sources are
-        resolved in the following order, with the rightmost source
-        winning:
+        When the values property is accessed, all registered values
+        handlers will be run in sequence. Handlers that are called
+        later in the sequence can overwrite values set by earlier
+        handlers. By default, this produces a resolution order as
+        follows (from earliest to latest):
 
-            configuration -> environment -> CLI
+            configuration 
+            environment
+            CLI
+
+        In this case, values found on the command line will override
+        identical values set in the application's environment or
+        configuration files.
+
+        Inheritors (or instances) may alter this order or remove the
+        default handlers by manipulating the values_handlers
+        attribute.
         """
         values = self.values_factory()
+        for handler in self.values_handlers:
+            handler(values)
 
-        if self.config_file is not None:
-            values.update_from_config(self.config_file)
-        if self.env is not None:
-            # Filter env for variables starting with our name. A
-            # mapping like {'OURAPP_FOO_BAR': 'foo'} will become
-            # {'FOO_BAR': 'foo'}.
-            env = dict([('_'.join(k.split('_')[1:]), v) \
-                    for k, v in self.env.items() \
-                    if k.lower().startswith(self.name.lower() + '_')])
-            values.update_from_env(env)
+        return values, values.args
 
-        args = values.update_from_cli(self.parser, self.argv)
+    def config_values_handler(self, values):
+        """Parse a configuration file and update the Values tree.
 
-        return values, args
+        The config file is read using ConfigParser.ConfigParser.
+        All options are flattened into a single-level structure such
+        that the following two options are equivalent:
+
+            [one.two]
+            three = four
+
+            [one]
+            two.three = four
+
+        In each case, the value 'one.two.three' will equal 'four'.
+        In cases where the same option name has multiple values, the
+        last entry with that name will be used.
+        """
+        if self.config_file is None:
+            return
+
+        # XXX: seed the parser with defaults here?
+        parser = ConfigParser()
+        parser.read(self.config_file)
+
+        for section in parser.sections():
+            for option in parser.options(section):
+                name = self.delim.join((section, option))
+                value = parser.get(section, option)
+                # XXX: hook in vars here?
+                values.set(name, value)
+
+    def env_values_handler(self, values):
+        """Parse 'env' and update the Values tree.
+
+        The 'env' attribute should be a dictionary similar to that
+        provided by os.environ. Keys will be converted from
+        'FOO_BAR' notation to 'foo.bar'; values will be untouched.
+        """
+        if self.env is None:
+            return
+
+        # Filter env for variables starting with our name. A
+        # mapping like {'OURAPP_FOO_BAR': 'foo'} will become
+        # {'FOO_BAR': 'foo'}.
+        env = dict([('_'.join(k.split('_')[1:]), v) \
+                for k, v in self.env.items() \
+                if k.lower().startswith(self.name.lower() + '_')])
+
+        for key, value in env.items():
+            key = self.delim.join(key.lower().split('_'))
+            values.set(key, value)
+
+    def cli_values_handler(self, values):
+        """Parse the command line and update the Values tree."""
+        opts, args = self.parser.parse_args(self.argv)
+
+        # XXX: Is there a nicer way of discovering the options and
+        # their names? optparse looks at __dict__ directly, too, so
+        # this may be As Good As It Gets.
+        for name, opt in opts.__dict__.items():
+            values.set(name, opt)
 
     @property
     def opts(self):
