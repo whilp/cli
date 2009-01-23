@@ -158,8 +158,6 @@ class App(object):
         self.parser = self.optparser_factory(prog=self.name,
                 usage=self.usage or None)
 
-        self.args = []
-
         self.raw_values = []
         self.values.handlers = [
             self.config_values_handler,
