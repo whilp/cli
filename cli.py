@@ -123,7 +123,7 @@ class Values(optparse.Values, UserDict):
 
         parent._update_loose({name: value})
 
-class App(object):
+class CommandLineApp(object):
     """A command-line application.
 
     Command-line applications (CLI apps) perform a task based in
@@ -320,7 +320,7 @@ class App(object):
         else:
             return returned
 
-class LoggingApp(App):
+class LoggingApp(CommandLineApp):
     """A command-line application that knows how to log.
 
     A LoggingApp provides a 'log' attribute, which is a logger (from
@@ -375,3 +375,5 @@ class LoggingApp(App):
         the CLI options.
         """
         self.log.setLevel(opts=self.values[0])
+
+App = LoggingApp
