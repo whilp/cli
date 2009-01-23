@@ -7,7 +7,6 @@ from UserDict import UserDict
 from inspect import getargs
 from logging import Formatter, StreamHandler
 from operator import itemgetter
-from optparse import Option, OptionParser
 
 """
 Copyright (c) 2008 Will Maier <will@m.aier.us>
@@ -61,7 +60,7 @@ class CLILogger(logging.Logger):
         self.level = level
 
 class RawValue(UserDict):
-    option_factory = Option
+    option_factory = optparse.Option
 
     def __init__(self, name, default, help, coerce=str,
             action="store"):
@@ -141,7 +140,7 @@ class CommandLineApp(object):
     information is optional, though it must accept them.
     """
     values_factory = Values
-    optparser_factory = OptionParser
+    optparser_factory = optparse.OptionParser
 
     def __init__(self, main, config_file=None, argv=None, env=None,
             exit_after_main=True, stdin=None, stdout=None,
