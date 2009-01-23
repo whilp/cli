@@ -377,3 +377,16 @@ class LoggingApp(CommandLineApp):
         self.log.setLevel(opts=self.values[0])
 
 App = LoggingApp
+
+if __name__ == "__main__":
+    def test_app(app, *args, **kwargs):
+        """[options] foo
+
+        this is a test.
+        """
+        print args
+        print kwargs
+        print "test"
+
+    app = App(test_app)
+    app.run()
