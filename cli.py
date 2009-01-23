@@ -159,7 +159,7 @@ class CommandLineApp(object):
                 usage=self.usage or None)
 
         self.raw_values = []
-        self.values.handlers = [
+        self.values_handlers = [
             self.config_values_handler,
             self.env_values_handler,
             self.cli_values_handler]
