@@ -6,6 +6,7 @@ from ConfigParser import ConfigParser
 from UserDict import UserDict
 from inspect import getargs
 from logging import Formatter, StreamHandler
+from operator import itemgetter
 from optparse import Option, OptionParser
 
 """
@@ -58,6 +59,35 @@ class CLILogger(logging.Logger):
             level = logging.DEBUG
 
         self.level = level
+
+class RawValue(UserDict):
+    option_factory = Option
+
+    def __init__(self, name, default, help, coerce=str,
+            action="store"):
+        data = locals().copy()
+        data.pop('self')
+        self.data = data
+
+    @property
+    def name(self):
+        return self["name"].replace('_', '-')
+
+    @property
+    def short_flag(self):
+        return self.get("short_flag", "-%s" % self.name[0])
+
+    @property
+    def long_flag(self):
+        return self.get("long_flag", "--%s" % self.name)
+
+    action = property(itemgetter("action"))
+    default = property(itemgetter("default"))
+    help = property(itemgetter("help"))
+
+    @property
+    def option(self):
+        return self.option_factory(**self.data)
 
 class Values(optparse.Values, UserDict):
     delim = '.'
@@ -130,6 +160,7 @@ class App(object):
 
         self.args = []
 
+        self.raw_values = []
         self.values.handlers = [
             self.config_values_handler,
             self.env_values_handler,
