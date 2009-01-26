@@ -73,6 +73,17 @@ class ValueTest(BaseTest):
                 "long": "--foo-bar"}),
     ]
 
+    short_inputs = [
+            ({"name": "foo", "short": "F"}, 
+               {"name": "foo",
+                "long": "--foo",
+                "short": "-F"}),
+            ({"name": "foo", "short": "-F"}, 
+               {"name": "foo",
+                "long": "--foo",
+                "short": "-F"}),
+    ]
+
     def _test_inputs(self, inputs):
         for kwargs, attrs in inputs:
             value = Value(**kwargs)
@@ -84,22 +95,7 @@ class ValueTest(BaseTest):
         self._test_inputs(self.name_inputs)
 
     def test_short(self):
-        simple = [
-                ("foo", "-f"),
-                ("Foo", "-F")
-        ]
-
-        for name, result in simple:
-            self.assertEqual(Value(name).short, result)
-
-        # Test override, too.
-        override = [
-                ("F", "-F"),
-        ]
-
-        for short, result in override:
-            value = Value("foo", short=short)
-            self.assertEqual(value.short, result)
+        self._test_inputs(self.short_inputs)
 
     def test_long(self):
         simple = [
