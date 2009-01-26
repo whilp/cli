@@ -1,5 +1,8 @@
+import optparse
 import unittest
 import sys
+
+from cli import Value
 
 class TestFailed(Exception):
     pass
@@ -41,6 +44,17 @@ def run_unittest(*classes):
         else:
             suite.addTest(unittest.makeSuite(cls))
     run_suite(suite)
+
+class ValueTest(BaseTest):
+    values = ['']
+    options = [
+            optparse.Option("-f", "--foo", dest="foo",
+                action="store", default="notfoo")
+    ]
+
+    def test_optparse_compatibility(self):
+        for value, option in self.options.items():
+            self.assertEqual(value, option)
 
 def run_tests(app, *args, **kwargs):
     """[options]

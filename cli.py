@@ -59,6 +59,9 @@ class CLILogger(logging.Logger):
 
         self.level = level
 
+class Value(object):
+    pass
+
 class RawValue(UserDict):
     option_factory = optparse.Option
 
