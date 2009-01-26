@@ -69,40 +69,6 @@ class CLILogger(logging.Logger):
 
         self.level = level
 
-class Values(optparse.Values, UserDict):
-    delim = '.'
-    args = []
-
-    def __getattr__(self, key):
-        try:
-            return self.__dict__[key]
-        except KeyError:
-            return self[key]
-
-    @property
-    def data(self):
-        return self.__dict__
-
-    def set(self, name, value):
-        """Set option 'name' to 'value'.
-
-        Options with delimiter characters in their names represent
-        options several levels down in the Values tree. Create as
-        many Values instances as necessary before setting the leaf
-        instance to 'value'.
-        """
-        subnames = name.split(self.delim)
-        name = subnames.pop()
-        parent = self
-
-        # Build the Values tree.
-        for n in subnames:
-            if not hasattr(parent, n):
-                setattr(parent, n, self.__class__())
-            parent = getattr(parent, n)
-
-        parent._update_loose({name: value})
-
 class Parameter(object):
 
     def __init__(self, name, default=None, help=""):
