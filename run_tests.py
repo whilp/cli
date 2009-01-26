@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 class TestFailed(Exception):
     pass
@@ -46,7 +47,7 @@ def run_tests(app, *args, **kwargs):
 
     Run unit tests.
     """
-    pass
+    run_unittest(__name__)
 
 if __name__ == "__main__":
     from cli import App
