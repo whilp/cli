@@ -88,6 +88,7 @@ class Value(object):
 
     @property
     def dest(self):
+        return self.kwargs.get("dest", self.name).replace('-', '_')
         return self.name.replace('-', '_')
 
     @property

@@ -100,16 +100,28 @@ class ValueTest(BaseTest):
     def test_name(self):
         self._test_inputs(self.name_inputs)
 
+        self.assertRaises(TypeError, Value, "foo bar")
+
     def test_short(self):
         self._test_inputs(self.short_inputs)
 
     def test_long(self):
         self._test_inputs(self.long_inputs)
 
+    dest_inputs = [
+            ({"name": "foo", "dest": "foobar"}, 
+               {"name": "foo",
+                "dest": "foobar"}),
+            ({"name": "foo", "dest": "foo_bar"}, 
+               {"name": "foo",
+                "dest": "foo_bar"}),
+            ({"name": "foo", "dest": "foo-bar"}, 
+               {"name": "foo",
+                "dest": "foo_bar"}),
+    ]
+
     def test_dest(self):
-        self.assertEqual(Value("foo").dest, "foo")
-        self.assertEqual(Value("foo-bar").dest, "foo_bar")
-        self.assertEqual(Value("foo_bar").dest, "foo_bar")
+        self._test_inputs(self.dest_inputs)
 
 def run_tests(app, *args, **kwargs):
     """[options]
