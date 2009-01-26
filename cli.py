@@ -66,93 +66,6 @@ class CLILogger(logging.Logger):
 
         self.level = level
 
-class Value(object):
-    option_factory = optparse.Option
-
-    def __init__(self, name, default=None, help='', coerce=str, **kwargs):
-        # Grab and tweak locals() before they're polluted with other junk...
-        data = locals().copy()
-        data.pop("self")
-        data.pop("kwargs")
-
-        # Do very strict checking of name attribute. This is in our
-        # interest because so many of the properties are generated
-        # from name. If we check once here, we don't have to check
-        # again and again later in the class.
-        if [x for x in name if x not in VALUE_CHARACTERS]:
-            raise TypeError("'name' (%s) has invalid characters" % name)
-
-        self.name = name.lstrip('-')
-        data.update(kwargs)
-        self.data = data
-
-    def getter(item, default_getter=None, formatter=None):
-        """Returns a property that gets (and optionally formats) a value.
-        
-        If the item isn't found, getter() will apply the
-        'default_getter' to the self instance.
-        """
-        Default = object()
-        def getter(self):
-            value = self.data.get(item, Default)
-            if value is Default and callable(default_getter):
-                value = default_getter(self)
-            if formatter is not None:
-                value = formatter(value)
-            return value
-
-        return property(getter)
-
-    dest = getter("dest", attrgetter("name"), lambda x: x.replace('-', '_'))
-    short = getter("short", attrgetter("name"), lambda x: "-%s" % fmt_arg(x)[0])
-    long = getter("long", attrgetter("name"), lambda x: "--%s" % fmt_arg(x))
-    default = getter("default")
-    action = getter("action")
-    help = getter("help")
-
-    @property
-    def option(self):
-        kwargs = {
-                "dest": self.dest,
-                "default": self.default,
-                "action": self.action,
-                "help": self.help,
-        }
-        kwargs.update(self.data)
-        kwargs = dict((k, v) for k, v in kwargs.items() \
-                if k in self.option_factory.ATTRS)
-
-        return self.option_factory(self.short, self.long, **kwargs)
-
-class RawValue(UserDict):
-    option_factory = optparse.Option
-
-    def __init__(self, name, default, help, coerce=str,
-            action="store"):
-        data = locals().copy()
-        data.pop('self')
-        self.data = data
-
-    @property
-    def name(self):
-        return self["name"].replace('_', '-')
-
-    @property
-    def short_flag(self):
-        return self.get("short_flag", "-%s" % self.name[0])
-
-    @property
-    def long_flag(self):
-        return self.get("long_flag", "--%s" % self.name)
-
-    action = property(itemgetter("action"))
-    default = property(itemgetter("default"))
-    help = property(itemgetter("help"))
-
-    @property
-    def option(self):
-        return self.option_factory(**self.data)
-
 class Values(optparse.Values, UserDict):
     delim = '.'
     args = []
@@ -187,6 +100,9 @@ class Values(optparse.Values, UserDict):
 
         parent._update_loose({name: value})
 
+class Parameter(object):
+    pass
+
 class CommandLineApp(object):
     """A command-line application.
 
@@ -204,8 +120,8 @@ class CommandLineApp(object):
     Whether or not the callable actually _uses_ any of this
     information is optional, though it must accept them.
     """
-    values_factory = Values
     optparser_factory = optparse.OptionParser
+    param_factory = Parameter
 
     def __init__(self, main, config_file=None, argv=None, env=None,
             exit_after_main=True, stdin=None, stdout=None,
@@ -219,153 +135,31 @@ class CommandLineApp(object):
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
 
-        self.parser = self.optparser_factory(prog=self.name,
-                usage=self.usage or None)
+        self.params = self.param_factory()
 
-        self.raw_values = []
-        self.values_handlers = [
-            self.config_values_handler,
-            self.env_values_handler,
-            self.cli_values_handler]
+        try:
+            self.setup()
+        except NotImplementedError:
+            pass
 
-        setup = getattr(self, 'setup', None)
-        if callable(setup):
-            setup()
+    def setup(self):
+        raise NotImplementedError
 
     @property
     def name(self):
         return getattr(self.main, 'func_name', self.main.__class__.__name__)
 
-    def add_option(self, name, default, help, action="store",
-            **kwargs):
-        """Add an option to the CLI option parser.
-        
-        The option names are generated from the 'name' argument. In
-        most cases, the short option will become '-n', where 'n' is
-        the first character of 'name'. If an option is already
-        defined with this character, it will automatically be
-        capitalized. The long form of the name will be 'name', with
-        the '-' replaced by a '_' (if present).
-        """
-        short = kwargs.pop('short', '-%s' % name[0])
-
-        if self.parser.has_option(short):
-            short = '-%s' % short[-1].capitalize()
-
-        self.parser.add_option(
-            short,
-            kwargs.pop('long', '--%s' % name.replace('_', '-')),
-            dest = name,
-            action = action,
-            default = default,
-            help = help,
-            **kwargs)
-
-    @property
-    def values(self):
-        """Parse and return all application options.
-
-        When the values property is accessed, all registered values
-        handlers will be run in sequence. Handlers that are called
-        later in the sequence can overwrite values set by earlier
-        handlers. By default, this produces a resolution order as
-        follows (from earliest to latest):
-
-            configuration 
-            environment
-            CLI
-
-        In this case, values found on the command line will override
-        identical values set in the application's environment or
-        configuration files.
-
-        Inheritors (or instances) may alter this order or remove the
-        default handlers by manipulating the values_handlers
-        attribute.
-        """
-        values = self.values_factory()
-        for handler in self.values_handlers:
-            handler(values)
-
-        return values, values.args
-
-    def config_values_handler(self, values):
-        """Parse a configuration file and update the Values tree.
-
-        The config file is read using ConfigParser.ConfigParser.
-        All options are flattened into a single-level structure such
-        that the following two options are equivalent:
-
-            [one.two]
-            three = four
-
-            [one]
-            two.three = four
-
-        In each case, the value 'one.two.three' will equal 'four'.
-        In cases where the same option name has multiple values, the
-        last entry with that name will be used.
-        """
-        if self.config_file is None:
-            return
-
-        # XXX: seed the parser with defaults here?
-        parser = ConfigParser()
-        parser.read(self.config_file)
-
-        for section in parser.sections():
-            for option in parser.options(section):
-                name = self.delim.join((section, option))
-                value = parser.get(section, option)
-                # XXX: hook in vars here?
-                values.set(name, value)
-
-    def env_values_handler(self, values):
-        """Parse 'env' and update the Values tree.
-
-        The 'env' attribute should be a dictionary similar to that
-        provided by os.environ. Keys will be converted from
-        'FOO_BAR' notation to 'foo.bar'; values will be untouched.
-        """
-        if self.env is None:
-            return
-
-        # Filter env for variables starting with our name. A
-        # mapping like {'OURAPP_FOO_BAR': 'foo'} will become
-        # {'FOO_BAR': 'foo'}.
-        env = dict([('_'.join(k.split('_')[1:]), v) \
-                for k, v in self.env.items() \
-                if k.lower().startswith(self.name.lower() + '_')])
-
-        for key, value in env.items():
-            key = self.delim.join(key.lower().split('_'))
-            values.set(key, value)
-
-    def cli_values_handler(self, values):
-        """Parse the command line and update the Values tree."""
-        opts, args = self.parser.parse_args(self.argv)
-
-        # XXX: Is there a nicer way of discovering the options and
-        # their names? optparse looks at __dict__ directly, too, so
-        # this may be As Good As It Gets.
-        for name, opt in opts.__dict__.items():
-            values.set(name, opt)
-
-    @property
-    def opts(self):
-        return self.values[0].__dict__
+    def add_param(self, name, default=None, help=''):
+        """Add a parameter."""
+        self.params.append(name, default, help)
 
     @property
     def args(self):
-        return self.values[1]
+        raise NotImplementedError
 
     @property
     def usage(self):
         return '%prog ' + (self.main.__doc__ or '')
-
-    def pre_run(self):
-        """Perform any last-minute setup before .main() is called."""
-        pass
 
     def run(self):
         """Run the application's callable.
@@ -376,7 +170,6 @@ class CommandLineApp(object):
         with the return value of the application's callable.
         Otherwise, return the result.
         """
-        self.pre_run()
         returned = self.main(self, *self.args, **self.opts)
 
         if self.exit_after_main:
@@ -432,13 +225,14 @@ class LoggingApp(CommandLineApp):
         self.log.setLevel(self.log.default_level)
         self.log.addHandler(handler)
 
-    def pre_run(self):
+    def run(self):
         """Run the app.
 
         Before running, set the logger's verbosity level based on
         the CLI options.
         """
         self.log.setLevel(opts=self.values[0])
+        super(LoggingApp, self).run()
 
 App = LoggingApp
 
