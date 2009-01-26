@@ -132,6 +132,20 @@ class Parameter(object):
             raise ParameterError("Can't remove non-Parameter child "
                     "'%s'" % name)
 
+class ParameterHandler(object):
+    """Handle application parameters.
+
+    The ParameterHandler interfaces between the abstract parameters
+    defined by an application and the actual source of configuration
+    information. This source may be the run-time arguments passed to
+    the application (sys.argv), the execution environment
+    (os.environ) or even a configuration file. 
+    
+    In each case, the Handler interprets the source according to the
+    Parameters it's been given.
+    """
+    pass
+
 class CommandLineApp(object):
     """A command-line application.
 
