@@ -60,7 +60,18 @@ class CLILogger(logging.Logger):
         self.level = level
 
 class Value(object):
-    pass
+    option_factory = optparse.Option
+
+    def __init__(self, name, default=None, help='', coerce=str, **kwargs):
+        self.name = name
+        self.default = default
+        self.help = help
+        self.coerce = coerce
+        self.kwargs = kwargs
+
+    @property
+    def short(self):
+        return "-%s" % self.name[0]
 
 class RawValue(UserDict):
     option_factory = optparse.Option

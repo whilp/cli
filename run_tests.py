@@ -52,9 +52,8 @@ class ValueTest(BaseTest):
                 action="store", default="notfoo")
     ]
 
-    def test_optparse_compatibility(self):
-        for value, option in self.options.items():
-            self.assertEqual(value, option)
+    def test_short(self):
+        self.assertEqual(Value("foo").short, "-f")
 
 def run_tests(app, *args, **kwargs):
     """[options]
