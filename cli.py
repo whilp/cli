@@ -70,6 +70,13 @@ class CLILogger(logging.Logger):
         self.level = level
 
 class Parameter(object):
+    """An application run-time parameter.
+
+    Parameters influence the way an application runs and allow users
+    to adjust general behavior. The Parameter abstraction collapses
+    any number of configuration sources into a single tree of
+    parameters.
+    """
 
     def __init__(self, name, default=None, help=""):
         if isinstance(name, Parameter):
