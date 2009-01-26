@@ -102,6 +102,18 @@ class ValueTest(BaseTest):
                 "dest": "foo_bar"}),
     ]
 
+    def assertEqualOptions(self, first, second):
+        """Fail if the attributes for two optparse.Option objects aren't identical.
+
+        optparse.Option doesn't define __hash__, so we get to
+        iterate through the .ATTRS attribute for each, checking
+        first against second.
+        """
+        attrs = set(first.ATTRS + second.ATTRS)
+        for attr in attrs:
+            if not getattr(first, attr) == getattr(second, attr):
+                raise self.failureException("%s != %s" % (first, second))
+
     def _test_inputs(self, inputs):
         for kwargs, attrs in inputs:
             value = Value(**kwargs)
@@ -122,6 +134,24 @@ class ValueTest(BaseTest):
 
     def test_dest(self):
         self._test_inputs(self.dest_inputs)
+
+    option_inputs = [
+            ({"name": "foo"}, 
+               {"name": "foo",
+                "dest": "foobar"}),
+    ]
+
+    def test_option(self):
+        option = optparse.Option("-v", "--verbose",
+                dest="verbose",
+                action="count",
+                default=0,
+                help="raise the verbosity")
+        value = Value("verbose", 
+                action="count",
+                default=0,
+                help="raise the verbosity")
+        self.assertEqualOptions(option, value.option)
 
 def run_tests(app, *args, **kwargs):
     """[options]

@@ -99,6 +99,14 @@ class Value(object):
     def long(self):
         return "--%s" % self.fmt_arg(self.kwargs.get("long", self.name))
 
+    @property
+    def option(self):
+        return self.option_factory(self.short, self.long,
+                dest=self.dest,
+                default=self.default,
+                action=self.action,
+                help=self.help)
+
 class RawValue(UserDict):
     option_factory = optparse.Option
 
