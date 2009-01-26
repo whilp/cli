@@ -7,6 +7,7 @@ from UserDict import UserDict
 from inspect import getargs
 from logging import Formatter, StreamHandler
 from operator import itemgetter
+from string import letters
 
 """
 Copyright (c) 2008 Will Maier <will@m.aier.us>
@@ -24,6 +25,8 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
+
+VALUE_CHARACTERS = letters + "-_"
 
 class Error(Exception):
     pass
@@ -63,17 +66,25 @@ class Value(object):
     option_factory = optparse.Option
 
     def __init__(self, name, default=None, help='', coerce=str, **kwargs):
-        self._name = name.strip("-_").replace(' ', '_')
+        # Do very strict checking of name attribute. This is in our
+        # interest because so many of the properties are generated
+        # from name. If we check once here, we don't have to check
+        # again and again later in the class.
+        if [x for x in name if x not in VALUE_CHARACTERS]:
+            raise TypeError("'name' (%s) has invalid characters" % name)
+
+        self.name = name.lstrip('-')
         self.default = default
         self.help = help
         self.coerce = coerce
+
+        # Simply accept kwargs. It's assumed that the caller knows
+        # what she's doing if she puts goofy stuff in kwargs.
         self.kwargs = kwargs
 
-    @property
-    def name(self):
-        name = self._name.strip("-_ ")
-        name = name.replace(' ', '_')
-        return name
+    def fmt_arg(self, arg):
+        """Return 'arg' formatted as a standard option name."""
+        return arg.lstrip('-').replace('_', '-')
 
     @property
     def dest(self):
@@ -81,11 +92,11 @@ class Value(object):
 
     @property
     def short(self):
-        return "-%s" % self.kwargs.get("short", self.name[0])
+        return "-%s" % self.fmt_arg(self.kwargs.get("short", self.name[0]))
 
     @property
     def long(self):
-        return "--%s" % self.kwargs.get("long", self.name).replace('_', '-')
+        return "--%s" % self.fmt_arg(self.kwargs.get("long", self.name))
 
 class RawValue(UserDict):
     option_factory = optparse.Option
