@@ -53,21 +53,41 @@ class ValueTest(BaseTest):
     ]
 
     def test_short(self):
-        self.assertEqual(Value("foo").short, "-f")
-        self.assertEqual(Value("Foo").short, "-F")
+        simple = [
+                ("foo", "-f"),
+                ("Foo", "-F")
+        ]
+
+        for name, result in simple:
+            self.assertEqual(Value(name).short, result)
 
         # Test override, too.
-        value = Value("foo", short="F")
-        self.assertEqual(value.short, "-F")
+        override = [
+                ("F", "-F"),
+        ]
+
+        for short, result in override:
+            value = Value("foo", short=short)
+            self.assertEqual(value.short, result)
 
     def test_long(self):
-        self.assertEqual(Value("foo").long, "--foo")
-        self.assertEqual(Value("foo-bar").long, "--foo-bar")
-        self.assertEqual(Value("foo_bar").long, "--foo-bar")
+        simple = [
+                ("foo", "--foo"),
+                ("foo-bar", "--foo-bar"),
+                ("foo_bar", "--foo-bar")
+        ]
+
+        for name, result in simple:
+            self.assertEqual(Value(name).long, result)
 
         # Test overrride.
-        value = Value("foo", long="long-foo")
-        self.assertEqual(value.long, "--long-foo")
+        override = [
+                ("long-foo", "--long-foo")
+        ]
+
+        for long, result in override:
+            value = Value("foo", long=long)
+            self.assertEqual(value.long, result)
 
     def test_dest(self):
         self.assertEqual(Value("foo").dest, "foo")
