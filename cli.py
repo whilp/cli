@@ -77,6 +77,10 @@ class Value(object):
     def short(self):
         return "-%s" % self.name[0]
 
+    @property
+    def long(self):
+        return "--%s" % self.name.replace('_', '-')
+
 class RawValue(UserDict):
     option_factory = optparse.Option
 
