@@ -184,6 +184,7 @@ class CommandLineApp(object):
         self.stderr = stderr and stderr or sys.stderr
 
         self.params = self.param_factory("root")
+        self.param_handlers = []
 
         try:
             self.setup()
@@ -200,6 +201,17 @@ class CommandLineApp(object):
     def add_param(self, name, default=None, help=''):
         """Add a parameter."""
         self.params.append(name, default, help)
+
+    def handle_params(self):
+        """Apply each handler to the list of parameters.
+
+        Each handler should define a .handle() method which takes as
+        its single argument a list of Parameter objects. It should
+        attempt to find a value for each parameter in its source and
+        update the parameter objects accordingly.
+        """
+        for handler in self.param_handlers:
+            handler.handle(self.params)
 
     @property
     def args(self):
