@@ -6,7 +6,7 @@ from ConfigParser import ConfigParser
 from UserDict import UserDict
 from inspect import getargs
 from logging import Formatter, StreamHandler
-from operator import itemgetter
+from operator import itemgetter, attrgetter
 from string import letters
 
 """
@@ -27,6 +27,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
 VALUE_CHARACTERS = letters + "-_"
+
+def fmt_arg(arg):
+    """Return 'arg' formatted as a standard option name."""
+    return arg.lstrip('-').replace('_', '-')
 
 class Error(Exception):
     pass
@@ -66,6 +70,11 @@ class Value(object):
     option_factory = optparse.Option
 
     def __init__(self, name, default=None, help='', coerce=str, **kwargs):
+        # Grab and tweak locals() before they're polluted with other junk...
+        data = locals().copy()
+        data.pop("self")
+        data.pop("kwargs")
+
         # Do very strict checking of name attribute. This is in our
         # interest because so many of the properties are generated
         # from name. If we check once here, we don't have to check
@@ -74,38 +83,46 @@ class Value(object):
             raise TypeError("'name' (%s) has invalid characters" % name)
 
         self.name = name.lstrip('-')
-        self.default = default
-        self.help = help
-        self.coerce = coerce
+        data.update(kwargs)
+        self.data = data
 
-        # Simply accept kwargs. It's assumed that the caller knows
-        # what she's doing if she puts goofy stuff in kwargs.
-        self.kwargs = kwargs
+    def getter(item, default_getter=None, formatter=None):
+        """Returns a property that gets (and optionally formats) a value.
+        
+        If the item isn't found, getter() will apply the
+        'default_getter' to the self instance.
+        """
+        Default = object()
+        def getter(self):
+            value = self.data.get(item, Default)
+            if value is Default and callable(default_getter):
+                value = default_getter(self)
+            if formatter is not None:
+                value = formatter(value)
+            return value
 
-    def fmt_arg(self, arg):
-        """Return 'arg' formatted as a standard option name."""
-        return arg.lstrip('-').replace('_', '-')
+        return property(getter)
 
-    @property
-    def dest(self):
-        return self.kwargs.get("dest", self.name).replace('-', '_')
-        return self.name.replace('-', '_')
-
-    @property
-    def short(self):
-        return "-%s" % self.fmt_arg(self.kwargs.get("short", self.name[0]))
-
-    @property
-    def long(self):
-        return "--%s" % self.fmt_arg(self.kwargs.get("long", self.name))
+    dest = getter("dest", attrgetter("name"), lambda x: x.replace('-', '_'))
+    short = getter("short", attrgetter("name"), lambda x: "-%s" % fmt_arg(x)[0])
+    long = getter("long", attrgetter("name"), lambda x: "--%s" % fmt_arg(x))
+    default = getter("default")
+    action = getter("action")
+    help = getter("help")
 
     @property
     def option(self):
-        return self.option_factory(self.short, self.long,
-                dest=self.dest,
-                default=self.default,
-                action=self.action,
-                help=self.help)
+        kwargs = {
+                "dest": self.dest,
+                "default": self.default,
+                "action": self.action,
+                "help": self.help,
+        }
+        kwargs.update(self.data)
+        kwargs = dict((k, v) for k, v in kwargs.items() \
+                if k in self.option_factory.ATTRS)
+
+        return self.option_factory(self.short, self.long, **kwargs)
 
 class RawValue(UserDict):
     option_factory = optparse.Option
