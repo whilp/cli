@@ -38,6 +38,9 @@ class Error(Exception):
 class MainError(Error):
     pass
 
+class ParameterError(Error):
+    pass
+
 class CLILogger(logging.Logger):
     """Provide extra configuration smarts for loggers.
 
@@ -120,10 +123,18 @@ class Parameter(object):
         If 'parameter' is not a Parameter instance, a new parameter
         will be created with that name (and the other arguments). If
         'parameter' is a Parameter instance, it will be added (and
-        the other arguments will be ignored).
+        the other arguments will be ignored). In any case, if the
+        object to be added already exists and is not a Parameter
+        instance, add() will raise ParameterError.
         """
         if not isinstance(parameter, Parameter):
             parameter = Parameter(parameter, default, help)
+
+        try:
+            self.remove(parameter)
+        except ParameterError:
+            raise ParameterError("Can't overwrite non-Parameter "
+                    "child '%s'" % parameter.name)
 
         setattr(self, parameter.name, parameter)
 
@@ -133,11 +144,20 @@ class Parameter(object):
         If 'parameter' is a Parameter instance, its 'name' attribute
         will be used to find the correct parameter to remove.
         Otherwise, the parameter with the name 'parameter' will be
-        removed.
+        removed. If the object to be removed isn't a Parameter
+        instance, remove() will raise ParameterError.
         """
+        Nothing = object()
         name = getattr(parameter, 'name', parameter)
+        current = getattr(self, name, Nothing)
 
-        delattr(self, name)
+        if isinstance(current, Parameter):
+            delattr(self, name)
+        elif current is Nothing:
+            pass
+        else:
+            raise ParameterError("Can't remove non-Parameter child "
+                    "'%s'" % name)
 
 class CommandLineApp(object):
     """A command-line application.
@@ -171,7 +191,7 @@ class CommandLineApp(object):
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
 
-        self.params = self.param_factory()
+        self.params = self.param_factory("root")
 
         try:
             self.setup()

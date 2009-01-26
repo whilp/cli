@@ -3,7 +3,7 @@ import optparse
 import unittest
 import sys
 
-from cli import Parameter
+from cli import Parameter, ParameterError
 
 class TestFailed(Exception):
     pass
@@ -63,6 +63,13 @@ class ParameterTests(BaseTest):
         foo.add("baz")
         self.assertTrue("baz" in [x.name for x in foo.children])
 
+        # The .name attribute should always exist.
+        self.assertRaises(ParameterError, foo.add, "name")
+
+        # Test re-writing existing children.
+        foo.add(bar)
+        self.assertEquals(bar, foo.bar)
+
     def test_remove(self):
         spam = Parameter("spam")
         eggs = Parameter("eggs")
@@ -80,6 +87,9 @@ class ParameterTests(BaseTest):
         self.assertEqual(len(spam.children), 0)
         self.assertRaises(AttributeError, operator.attrgetter("bacon"), spam)
         self.assertFalse("eggs" in [x.name for x in spam.children])
+
+        # .name is non-Parameter attribute which we can't remove.
+        self.assertRaises(ParameterError, spam.remove, "name")
 
     def test_tree(self):
         root = Parameter("root")
