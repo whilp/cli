@@ -90,6 +90,18 @@ class ValueTest(BaseTest):
                 "short": "-f"}),
     ]
 
+    dest_inputs = [
+            ({"name": "foo", "dest": "foobar"}, 
+               {"name": "foo",
+                "dest": "foobar"}),
+            ({"name": "foo", "dest": "foo_bar"}, 
+               {"name": "foo",
+                "dest": "foo_bar"}),
+            ({"name": "foo", "dest": "foo-bar"}, 
+               {"name": "foo",
+                "dest": "foo_bar"}),
+    ]
+
     def _test_inputs(self, inputs):
         for kwargs, attrs in inputs:
             value = Value(**kwargs)
@@ -107,18 +119,6 @@ class ValueTest(BaseTest):
 
     def test_long(self):
         self._test_inputs(self.long_inputs)
-
-    dest_inputs = [
-            ({"name": "foo", "dest": "foobar"}, 
-               {"name": "foo",
-                "dest": "foobar"}),
-            ({"name": "foo", "dest": "foo_bar"}, 
-               {"name": "foo",
-                "dest": "foo_bar"}),
-            ({"name": "foo", "dest": "foo-bar"}, 
-               {"name": "foo",
-                "dest": "foo_bar"}),
-    ]
 
     def test_dest(self):
         self._test_inputs(self.dest_inputs)
