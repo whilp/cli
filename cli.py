@@ -144,7 +144,12 @@ class ParameterHandler(object):
     In each case, the Handler interprets the source according to the
     Parameters it's been given.
     """
-    pass
+
+    def __init__(self, source):
+        self.source = source
+
+    def handle(self, parameters):
+        raise NotImplementedError
 
 class CommandLineApp(object):
     """A command-line application.
