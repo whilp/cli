@@ -1,8 +1,9 @@
+import operator
 import optparse
 import unittest
 import sys
 
-from cli import Value
+from cli import Parameter
 
 class TestFailed(Exception):
     pass
@@ -45,113 +46,49 @@ def run_unittest(*classes):
             suite.addTest(unittest.makeSuite(cls))
     run_suite(suite)
 
-class ValueTest(BaseTest):
-    name_inputs = [
-            # ({kwarg:value}, {attr:result})
-            ({"name": "-foo"}, 
-               {"name": "foo",
-                "dest": "foo",
-                "short": "-f",
-                "long": "--foo"}),
-            ({"name": "Foo"},
-               {"name": "Foo",
-                "dest": "Foo",
-                "short": "-F",
-                "long": "--Foo"}),
-            ({"name": "foo-bar"},
-               {"name": "foo-bar",
-                "dest": "foo_bar",
-                "long": "--foo-bar"}),
-            ({"name": "foo_bar"},
-               {"name": "foo_bar",
-                "dest": "foo_bar",
-                "long": "--foo-bar"}),
-    ]
+class ParameterTests(BaseTest):
 
-    short_inputs = [
-            ({"name": "foo", "short": "F"}, 
-               {"name": "foo",
-                "long": "--foo",
-                "short": "-F"}),
-            ({"name": "foo", "short": "-F"}, 
-               {"name": "foo",
-                "long": "--foo",
-                "short": "-F"}),
-    ]
+    def test_attributes(self):
+        parameter = Parameter("foo")
+        self.assertEqual(parameter.name, "foo")
 
-    long_inputs = [
-            ({"name": "foo", "long": "foobar"}, 
-               {"name": "foo",
-                "long": "--foobar",
-                "short": "-f"}),
-            ({"name": "foo", "long": "Foobar"}, 
-               {"name": "foo",
-                "long": "--Foobar",
-                "short": "-f"}),
-    ]
+    def test_add(self):
+        foo = Parameter("foo")
+        bar = Parameter("bar")
+        foo.add(bar)
 
-    dest_inputs = [
-            ({"name": "foo", "dest": "foobar"}, 
-               {"name": "foo",
-                "dest": "foobar"}),
-            ({"name": "foo", "dest": "foo_bar"}, 
-               {"name": "foo",
-                "dest": "foo_bar"}),
-            ({"name": "foo", "dest": "foo-bar"}, 
-               {"name": "foo",
-                "dest": "foo_bar"}),
-    ]
+        self.assertEqual(foo.bar, bar)
+        self.assertEqual(len(foo.children), 1)
 
-    def assertEqualOptions(self, first, second):
-        """Fail if the attributes for two optparse.Option objects aren't identical.
+        foo.add("baz")
+        self.assertTrue("baz" in [x.name for x in foo.children])
 
-        optparse.Option doesn't define __hash__, so we get to
-        iterate through the .ATTRS attribute for each, checking
-        first against second.
-        """
-        attrs = set(first.ATTRS + second.ATTRS)
-        for attr in attrs:
-            if not getattr(first, attr) == getattr(second, attr):
-                raise self.failureException("%s != %s" % (first, second))
+    def test_remove(self):
+        spam = Parameter("spam")
+        eggs = Parameter("eggs")
+        spam.add(eggs)
+        spam.add("bacon")
 
-    def _test_inputs(self, inputs):
-        for kwargs, attrs in inputs:
-            value = Value(**kwargs)
-            for attr, result in attrs.items():
-                attr = getattr(value, attr)
-                self.assertEqual(attr, result)
+        self.assertEqual(len(spam.children), 2)
 
-    def test_name(self):
-        self._test_inputs(self.name_inputs)
+        spam.remove(eggs)
+        self.assertEqual(len(spam.children), 1)
+        self.assertRaises(AttributeError, operator.attrgetter("eggs"), spam)
+        self.assertFalse("eggs" in [x.name for x in spam.children])
 
-        self.assertRaises(TypeError, Value, "foo bar")
+        spam.remove("bacon")
+        self.assertEqual(len(spam.children), 0)
+        self.assertRaises(AttributeError, operator.attrgetter("bacon"), spam)
+        self.assertFalse("eggs" in [x.name for x in spam.children])
 
-    def test_short(self):
-        self._test_inputs(self.short_inputs)
+    def test_tree(self):
+        root = Parameter("root")
+        root.add("bar")
+        self.assertEqual(len(root.children), 1)
 
-    def test_long(self):
-        self._test_inputs(self.long_inputs)
-
-    def test_dest(self):
-        self._test_inputs(self.dest_inputs)
-
-    option_inputs = [
-            ({"name": "foo"}, 
-               {"name": "foo",
-                "dest": "foobar"}),
-    ]
-
-    def test_option(self):
-        option = optparse.Option("-v", "--verbose",
-                dest="verbose",
-                action="count",
-                default=0,
-                help="raise the verbosity")
-        value = Value("verbose", 
-                action="count",
-                default=0,
-                help="raise the verbosity")
-        self.assertEqualOptions(option, value.option)
+        spam = Parameter("spam")
+        root.bar.add(spam)
+        self.assertEqual(root.bar.spam, spam)
 
 def run_tests(app, *args, **kwargs):
     """[options]
@@ -161,6 +98,7 @@ def run_tests(app, *args, **kwargs):
     run_unittest(__name__)
 
 if __name__ == "__main__":
-    from cli import App
-    app = App(run_tests)
-    app.run()
+    run_unittest(__name__)
+    #from cli import App
+    #app = App(run_tests)
+    #app.run()
