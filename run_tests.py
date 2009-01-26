@@ -46,11 +46,42 @@ def run_unittest(*classes):
     run_suite(suite)
 
 class ValueTest(BaseTest):
-    values = ['']
-    options = [
-            optparse.Option("-f", "--foo", dest="foo",
-                action="store", default="notfoo")
+    name_inputs = [
+            # ({kwarg:value}, {attr:result})
+            ({"name": "-foo"}, 
+               {"name": "foo",
+                "dest": "foo",
+                "short": "-f",
+                "long": "--foo"}),
+            ({"name": "foo-"},
+               {"name": "foo",
+                "dest": "foo",
+                "short": "-f",
+                "long": "--foo"}),
+            ({"name": "Foo"},
+               {"name": "Foo",
+                "dest": "Foo",
+                "short": "-F",
+                "long": "--Foo"}),
+            ({"name": "foo-bar"},
+               {"name": "foo-bar",
+                "dest": "foo_bar",
+                "long": "--foo-bar"}),
+            ({"name": "foo_bar"},
+               {"name": "foo_bar",
+                "dest": "foo_bar",
+                "long": "--foo-bar"}),
     ]
+
+    def _test_inputs(self, inputs):
+        for kwargs, attrs in inputs:
+            value = Value(**kwargs)
+            for attr, result in attrs.items():
+                attr = getattr(value, attr)
+                self.assertEqual(attr, result)
+
+    def test_name(self):
+        self._test_inputs(self.name_inputs)
 
     def test_short(self):
         simple = [

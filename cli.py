@@ -63,11 +63,17 @@ class Value(object):
     option_factory = optparse.Option
 
     def __init__(self, name, default=None, help='', coerce=str, **kwargs):
-        self.name = name
+        self._name = name.strip("-_").replace(' ', '_')
         self.default = default
         self.help = help
         self.coerce = coerce
         self.kwargs = kwargs
+
+    @property
+    def name(self):
+        name = self._name.strip("-_ ")
+        name = name.replace(' ', '_')
+        return name
 
     @property
     def dest(self):
