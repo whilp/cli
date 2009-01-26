@@ -70,6 +70,10 @@ class Value(object):
         self.kwargs = kwargs
 
     @property
+    def dest(self):
+        return self.name.replace('-', '_')
+
+    @property
     def short(self):
         return "-%s" % self.name[0]
 

@@ -54,6 +54,12 @@ class ValueTest(BaseTest):
 
     def test_short(self):
         self.assertEqual(Value("foo").short, "-f")
+        self.assertEqual(Value("Foo").short, "-F")
+
+    def test_dest(self):
+        self.assertEqual(Value("foo").dest, "foo")
+        self.assertEqual(Value("foo-bar").dest, "foo_bar")
+        self.assertEqual(Value("foo_bar").dest, "foo_bar")
 
 def run_tests(app, *args, **kwargs):
     """[options]
