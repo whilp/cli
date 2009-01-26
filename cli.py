@@ -149,6 +149,10 @@ class ParameterHandler(object):
         self.source = source
 
     def handle(self, parameters):
+        for parameter in parameters:
+            self.handle_parameter(parameter)
+
+    def handle_parameter(self, parameter):
         raise NotImplementedError
 
 class CommandLineApp(object):
