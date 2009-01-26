@@ -40,3 +40,15 @@ def run_unittest(*classes):
         else:
             suite.addTest(unittest.makeSuite(cls))
     run_suite(suite)
+
+def run_tests(app, *args, **kwargs):
+    """[options]
+
+    Run unit tests.
+    """
+    pass
+
+if __name__ == "__main__":
+    from cli import App
+    app = App(run_tests)
+    app.run()
