@@ -101,7 +101,43 @@ class Values(optparse.Values, UserDict):
         parent._update_loose({name: value})
 
 class Parameter(object):
-    pass
+
+    def __init__(self, name, default=None, help=""):
+        if isinstance(name, Parameter):
+            self = name
+        else:
+            self.name = name
+            self.default = default
+            self.help = help
+
+    @property
+    def children(self):
+        return [v for k, v in vars(self).items() if isinstance(v, Parameter)]
+
+    def add(self, parameter, default=None, help=""):
+        """Add a parameter.
+
+        If 'parameter' is not a Parameter instance, a new parameter
+        will be created with that name (and the other arguments). If
+        'parameter' is a Parameter instance, it will be added (and
+        the other arguments will be ignored).
+        """
+        if not isinstance(parameter, Parameter):
+            parameter = Parameter(parameter, default, help)
+
+        setattr(self, parameter.name, parameter)
+
+    def remove(self, parameter):
+        """Remove a parameter.
+
+        If 'parameter' is a Parameter instance, its 'name' attribute
+        will be used to find the correct parameter to remove.
+        Otherwise, the parameter with the name 'parameter' will be
+        removed.
+        """
+        name = getattr(parameter, 'name', parameter)
+
+        delattr(self, name)
 
 class CommandLineApp(object):
     """A command-line application.
