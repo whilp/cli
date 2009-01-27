@@ -107,6 +107,24 @@ class ParameterTests(BaseTest):
         self.assertFalse(isinstance(getattr(self.params, "keys"), Parameter))
         self.assertTrue(self.params["keys"] is keys_parameter)
 
+    def test_value(self):
+        self.params.add("test")
+        self.params.test.value = "foo"
+
+        self.assertEqual(self.params.test.value, "foo")
+
+        self.params.test.value = 0
+        self.assertEqual(self.params.test.value, "0")
+
+        self.params.add("bar", default=0, coerce=int)
+        self.assertEqual(self.params.bar.value, 0)
+        
+        self.params.bar.value = 10
+        self.assertEqual(self.params.bar.value, 10)
+
+        self.params.bar.value = "ten"
+        self.assertEqual(self.params.bar.value, "ten")
+
 class EnvironParameterHandlerTests(BaseTest):
     environ = {
             'TEST_TEST_TEST': 'foo'}
