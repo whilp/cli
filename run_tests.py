@@ -108,7 +108,8 @@ class ParameterTests(BaseTest):
         self.assertTrue(root["keys"] is keys_parameter)
 
 class EnvironParameterHandlerTests(BaseTest):
-    environ = {}
+    environ = {
+            'TEST_TEST_TEST': 'foo'}
 
     def setUp(self):
         self.params = Parameter("root")
@@ -119,6 +120,9 @@ class EnvironParameterHandlerTests(BaseTest):
     def test_foo(self):
         handler = EnvironParameterHandler(self.environ)
         handler.handle(self.params)
+
+        self.assertEqual(self.params.test.test.test.value,
+                self.environ['TEST_TEST_TEST'])
 
 def run_tests(app, *args, **kwargs):
     """[options]

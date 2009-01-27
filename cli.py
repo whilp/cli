@@ -202,13 +202,17 @@ class ParameterHandler(object):
         raise NotImplementedError
 
 class EnvironParameterHandler(ParameterHandler):
+    delim = '_'
 
     def __init__(self, environ):
         self.environ = environ
 
     def handle_parameter(self, parameter):
-        # Convert parameter name to something useful.
-        print parameter
+        # Convert parameter name to something useful. 
+        # foo.bar.baz -> FOO_BAR_BAZ
+        name = parameter.path.replace(parameter.delim, self.delim).upper()
+
+        parameter.value = self.environ.get(name, None)
 
 class CommandLineApp(object):
     """A command-line application.
