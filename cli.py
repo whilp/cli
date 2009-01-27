@@ -102,12 +102,14 @@ class Parameter(AttributeDict):
     """
     delim = '.'
 
-    def __init__(self, name, default=None, help="", parent=None):
+    def __init__(self, name, default=None, help="", coerce=str,
+            parent=None):
         if isinstance(name, Parameter):
             self = name
         else:
             self.name = name
             self.default = default
+            self.coerce = str
             self.help = help
             self.data = {}
             self.raw_value = None
