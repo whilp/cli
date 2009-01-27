@@ -269,7 +269,7 @@ class CommandLineApp(object):
 
     def add_param(self, name, default=None, help=''):
         """Add a parameter."""
-        self.params.append(name, default, help)
+        self.params.add(name, default, help)
 
     def handle_params(self):
         """Apply each handler to the list of parameters.
@@ -328,9 +328,9 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).__init__(main, **kwargs)
 
         # Add logging-related options.
-        self.add_option("verbose", 0, "raise the verbosity", "count")
-        self.add_option("quiet", 0, "decrease the verbosity", "count")
-        self.add_option("silent", False, "only log warnings", "store_true")
+        self.add_param("verbose", 0, "raise the verbosity")
+        self.add_param("quiet", 0, "decrease the verbosity")
+        self.add_param("silent", False, "only log warnings")
 
         # Create logger.
         logging.setLoggerClass(CLILogger)
