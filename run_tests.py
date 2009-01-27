@@ -123,7 +123,7 @@ class ParameterTests(BaseTest):
         self.assertEqual(self.params.bar.value, 10)
 
         self.params.bar.value = "ten"
-        self.assertEqual(self.params.bar.value, "ten")
+        self.assertRaises(ValueError, getattr, self.params.bar, "value")
 
 class EnvironParameterHandlerTests(BaseTest):
     environ = {
