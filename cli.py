@@ -109,7 +109,7 @@ class Parameter(AttributeDict):
         else:
             self.name = name
             self.default = default
-            self.coerce = str
+            self.coerce = coerce
             self.help = help
             self.data = {}
             self.raw_value = Nothing
