@@ -49,63 +49,63 @@ def run_unittest(*classes):
 
 class ParameterTests(BaseTest):
 
+    def setUp(self):
+        self.params = Parameter("root")
+
     def test_attributes(self):
-        parameter = Parameter("foo")
-        self.assertEqual(parameter.name, "foo")
+        self.assertEqual(self.params.name, "root")
 
     def test_add(self):
-        foo = Parameter("foo")
         bar = Parameter("bar")
-        foo.add(bar)
+        self.params.add(bar)
 
-        self.assertEqual(foo.bar, bar)
-        self.assertEqual(len(foo.children), 1)
+        self.assertEqual(self.params.bar, bar)
+        self.assertEqual(len(self.params.children), 1)
 
-        foo.add("baz")
-        self.assertTrue("baz" in [x.name for x in foo.children])
+        self.params.add("baz")
+        self.assertTrue("baz" in [x.name for x in self.params.children])
 
         # Test re-writing existing children.
-        foo.add(bar)
-        self.assertEquals(bar, foo.bar)
+        self.params.add(bar)
+        self.assertEquals(bar, self.params.bar)
 
     def test_remove(self):
-        spam = Parameter("spam")
         eggs = Parameter("eggs")
-        spam.add(eggs)
-        spam.add("bacon")
+        self.params.add(eggs)
+        self.params.add("bacon")
 
-        self.assertEqual(len(spam.children), 2)
+        self.assertEqual(len(self.params.children), 2)
 
-        spam.remove(eggs)
-        self.assertEqual(len(spam.children), 1)
-        self.assertRaises(AttributeError, operator.attrgetter("eggs"), spam)
-        self.assertFalse("eggs" in [x.name for x in spam.children])
+        self.params.remove(eggs)
+        self.assertEqual(len(self.params.children), 1)
+        self.assertRaises(AttributeError,
+                operator.attrgetter("eggs"), self.params)
+        self.assertFalse("eggs" in [x.name for x in self.params.children])
 
-        spam.remove("bacon")
-        self.assertEqual(len(spam.children), 0)
-        self.assertRaises(AttributeError, operator.attrgetter("bacon"), spam)
-        self.assertFalse("eggs" in [x.name for x in spam.children])
+        self.params.remove("bacon")
+        self.assertEqual(len(self.params.children), 0)
+        self.assertRaises(AttributeError,
+                operator.attrgetter("bacon"), self.params)
+        self.assertFalse("eggs" in [x.name for x in self.params.children])
 
     def test_tree(self):
-        root = Parameter("root")
-        root.add("bar")
-        self.assertEqual(len(root.children), 1)
+        self.params.add("bar")
+        self.assertEqual(len(self.params.children), 1)
 
         spam = Parameter("spam")
-        root.bar.add(spam)
-        self.assertEqual(root.bar.spam, spam)
+        self.params.bar.add(spam)
+        self.assertEqual(self.params.bar.spam, spam)
 
-        self.assertEqual(root.bar.path, "bar")
-        self.assertEqual(root.bar.spam.path, "bar.spam")
+        self.assertEqual(self.params.bar.path, "bar")
+        self.assertEqual(self.params.bar.spam.path, "bar.spam")
 
     def test_attributes(self):
-        root = Parameter("root")
-        self.assertFalse(isinstance(getattr(root, "keys"), Parameter))
+        self.assertFalse(isinstance(getattr(self.params, "keys"), Parameter))
 
         keys_parameter = Parameter("keys")
-        root.add(keys_parameter)
-        self.assertFalse(isinstance(getattr(root, "keys"), Parameter))
-        self.assertTrue(root["keys"] is keys_parameter)
+        self.params.add(keys_parameter)
+        self.assertFalse(isinstance(getattr(self.params, "keys"), Parameter))
+        self.assertTrue(self.params["keys"] is keys_parameter)
 
 class EnvironParameterHandlerTests(BaseTest):
     environ = {
