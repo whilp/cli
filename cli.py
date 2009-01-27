@@ -267,9 +267,9 @@ class CommandLineApp(object):
     def name(self):
         return getattr(self.main, 'func_name', self.main.__class__.__name__)
 
-    def add_param(self, name, default=None, help=''):
+    def add_param(self, *args, **kwargs):
         """Add a parameter."""
-        self.params.add(name, default, help)
+        self.params.add(*args, **kwargs)
 
     def handle_params(self):
         """Apply each handler to the list of parameters.
