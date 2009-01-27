@@ -279,7 +279,7 @@ class CommandLineApp(object):
         """Add a parameter."""
         self.params.add(*args, **kwargs)
 
-    def handle_params(self):
+    def handle_parameters(self):
         """Apply each handler to the list of parameters.
 
         Each handler should define a .handle() method which takes as
@@ -298,6 +298,18 @@ class CommandLineApp(object):
     def usage(self):
         return '%prog ' + (self.main.__doc__ or '')
 
+    def pre_run(self):
+        """Perform actions before .main() is run."""
+        # Update parameters.
+        self.handle_parameters()
+
+    def post_run(self, returned):
+        """Perform actions after .main() is run."""
+        if self.exit_after_main:
+            sys.exit(returned)
+        else:
+            return returned
+
     def run(self):
         """Run the application's callable.
 
@@ -306,13 +318,15 @@ class CommandLineApp(object):
         object. If the App.exit_after_main is True, call sys.exit()
         with the return value of the application's callable.
         Otherwise, return the result.
+
+        This behavior can be customized by redefining the
+        {pre,post}_run methods.
         """
+        self.pre_run()
+
         returned = self.main(self, *self.args, **self.opts)
 
-        if self.exit_after_main:
-            sys.exit(returned)
-        else:
-            return returned
+        return self.post_run(returned)
 
 class LoggingApp(CommandLineApp):
     """A command-line application that knows how to log.
