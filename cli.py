@@ -112,7 +112,7 @@ class Parameter(AttributeDict):
             self.coerce = str
             self.help = help
             self.data = {}
-            self.raw_value = None
+            self.raw_value = Nothing
 
         self.parent = parent
 
@@ -127,9 +127,17 @@ class Parameter(AttributeDict):
         return "Parameter(name=%s, default=%s, help=%s, parent=%s)" % (
                 self.name, self.default, self.help, self.parent)
 
-    value = property(fget=lambda self: self.coerce(self.raw_value), 
+    def get_value(self):
+        value = self.default
+        if self.raw_value is not Nothing:
+            value = self.raw_value
+
+        return self.coerce(value)
+
+    value = property(fget=get_value,
             fset=lambda self, new: setattr(self, "raw_value", new),
             doc="""Provide a coerced version of .raw_value.""")
+    del(get_value)
 
     @property
     def path(self):
