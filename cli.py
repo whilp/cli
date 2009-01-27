@@ -110,12 +110,20 @@ class Parameter(AttributeDict):
             self.default = default
             self.help = help
             self.data = {}
+            self.value = None
 
         self.parent = parent
 
     def __iter__(self):
         """Iterate on children, not data itself."""
         return iter(self.children)
+
+    def __str__(self):
+        return "<Parameter %s/%s>" % (self.path, self.value)
+
+    def __repr__(self):
+        return "Parameter(name=%s, default=%s, help=%s, parent=%s)" % (
+                self.name, self.default, self.help, self.parent)
 
     @property
     def path(self):
