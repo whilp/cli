@@ -327,7 +327,6 @@ class LoggingApp(CommandLineApp):
         self.date_format = date_format
         super(LoggingApp, self).__init__(main, **kwargs)
 
-    def setup(self):
         # Add logging-related options.
         self.add_option("verbose", 0, "raise the verbosity", "count")
         self.add_option("quiet", 0, "decrease the verbosity", "count")
