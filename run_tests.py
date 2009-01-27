@@ -113,6 +113,8 @@ class EnvironParameterHandlerTests(BaseTest):
     def setUp(self):
         self.params = Parameter("root")
         self.params.add("test")
+        self.params.test.add("test")
+        self.params.test.test.add("test")
 
     def test_foo(self):
         handler = EnvironParameterHandler(self.environ)

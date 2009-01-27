@@ -186,6 +186,10 @@ class ParameterHandler(object):
         for parameter in parameters:
             self.handle_parameter(parameter)
 
+            # Recurse into children if present.
+            if parameter.children:
+                self.handle(parameter.children)
+
     def handle_parameter(self, parameter):
         raise NotImplementedError
 
