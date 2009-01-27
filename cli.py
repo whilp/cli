@@ -113,6 +113,10 @@ class Parameter(AttributeDict):
 
         self.parent = parent
 
+    def __iter__(self):
+        """Iterate on children, not data itself."""
+        return iter(self.children)
+
     @property
     def path(self):
         parent = getattr(self.parent, "path", None)
