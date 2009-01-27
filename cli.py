@@ -263,13 +263,12 @@ class CommandLineApp(object):
         self.params = self.param_factory("root")
         self.param_handlers = []
 
-        try:
-            self.setup()
-        except NotImplementedError:
-            pass
+        self.setup()
 
     def setup(self):
-        raise NotImplementedError
+        # Set up param handlers.
+        environ_handler = EnvironParameterHandler(self.env)
+        self.param_handlers.append(environ_handler)
 
     @property
     def name(self):
@@ -348,6 +347,9 @@ class LoggingApp(CommandLineApp):
         self.message_format = message_format
         self.date_format = date_format
         super(LoggingApp, self).__init__(main, **kwargs)
+
+    def setup(self):
+        super(LoggingApp, self).setup()
 
         # Add logging-related options.
         self.add_param("verbose", 0, "raise the verbosity")
