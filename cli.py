@@ -151,7 +151,7 @@ class Parameter(AttributeDict):
     def children(self):
         return self.data.values()
 
-    def add(self, parameter, default=None, help=""):
+    def add(self, parameter, *args, **kwargs):
         """Add a parameter.
 
         If 'parameter' is not a Parameter instance, a new parameter
@@ -166,7 +166,7 @@ class Parameter(AttributeDict):
             >>> foo.bar
         """
         if not isinstance(parameter, Parameter):
-            parameter = Parameter(parameter, default, help)
+            parameter = Parameter(parameter, *args, **kwargs)
 
         parameter.parent = self
 
