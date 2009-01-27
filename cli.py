@@ -28,6 +28,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 VALUE_CHARACTERS = letters + "-_"
 
+Nothing = object()
+
 def fmt_arg(arg):
     """Return 'arg' formatted as a standard option name."""
     return arg.lstrip('-').replace('_', '-')
@@ -69,7 +71,28 @@ class CLILogger(logging.Logger):
 
         self.level = level
 
-class Parameter(object):
+class AttributeDict(UserDict, object):
+    """A dict that maps its keys to attributes."""
+
+    def __getattribute__(self, attr):
+        """Fetch an attribute.
+
+        If the instance has the requested attribute, return it. If
+        not, look for the attribute in the .data dict. If the
+        requested attribute can't be found in either location, raise
+        AttributeError.
+        """
+        try:
+            value = super(AttributeDict, self).__getattribute__(attr)
+        except AttributeError:
+            data = super(AttributeDict, self).__getattribute__("data")
+            value = data.get(attr, Nothing)
+            if value is Nothing:
+                raise
+
+        return value
+
+class Parameter(AttributeDict):
     """An application run-time parameter.
 
     Parameters influence the way an application runs and allow users
@@ -86,6 +109,7 @@ class Parameter(object):
             self.name = name
             self.default = default
             self.help = help
+            self.data = {}
 
         self.parent = parent
 
@@ -99,7 +123,7 @@ class Parameter(object):
 
     @property
     def children(self):
-        return [v for k, v in vars(self).items() if isinstance(v, Parameter)]
+        return self.data.values()
 
     def add(self, parameter, default=None, help=""):
         """Add a parameter.
@@ -107,22 +131,22 @@ class Parameter(object):
         If 'parameter' is not a Parameter instance, a new parameter
         will be created with that name (and the other arguments). If
         'parameter' is a Parameter instance, it will be added (and
-        the other arguments will be ignored). In any case, if the
-        object to be added already exists and is not a Parameter
-        instance, add() will raise ParameterError.
+        the other arguments will be ignored). The child can be
+        accessed as an attribute of the parent. This allows access
+        to children as follows:
+
+            >>> foo = Parameter("foo")
+            >>> foo.add("bar")
+            >>> foo.bar
         """
         if not isinstance(parameter, Parameter):
             parameter = Parameter(parameter, default, help)
 
         parameter.parent = self
 
-        try:
-            self.remove(parameter)
-        except ParameterError:
-            raise ParameterError("Can't overwrite non-Parameter "
-                    "child '%s'" % parameter.name)
-
-        setattr(self, parameter.name, parameter)
+        # Always update self.data -- this is the One True register
+        # of children.
+        self.data[parameter.name] = parameter
 
     def remove(self, parameter):
         """Remove a parameter.
@@ -130,20 +154,13 @@ class Parameter(object):
         If 'parameter' is a Parameter instance, its 'name' attribute
         will be used to find the correct parameter to remove.
         Otherwise, the parameter with the name 'parameter' will be
-        removed. If the object to be removed isn't a Parameter
-        instance, remove() will raise ParameterError.
+        removed. In both cases, the parameter will no longer be
+        accessible as an attribute of the parent.
         """
-        Nothing = object()
         name = getattr(parameter, 'name', parameter)
-        current = getattr(self, name, Nothing)
 
-        if isinstance(current, Parameter):
-            delattr(self, name)
-        elif current is Nothing:
-            pass
-        else:
-            raise ParameterError("Can't remove non-Parameter child "
-                    "'%s'" % name)
+        # Clean up self.data
+        self.data.pop(name)
 
 class ParameterHandler(object):
     """Handle application parameters.

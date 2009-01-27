@@ -63,9 +63,6 @@ class ParameterTests(BaseTest):
         foo.add("baz")
         self.assertTrue("baz" in [x.name for x in foo.children])
 
-        # The .name attribute should always exist.
-        self.assertRaises(ParameterError, foo.add, "name")
-
         # Test re-writing existing children.
         foo.add(bar)
         self.assertEquals(bar, foo.bar)
@@ -88,9 +85,6 @@ class ParameterTests(BaseTest):
         self.assertRaises(AttributeError, operator.attrgetter("bacon"), spam)
         self.assertFalse("eggs" in [x.name for x in spam.children])
 
-        # .name is non-Parameter attribute which we can't remove.
-        self.assertRaises(ParameterError, spam.remove, "name")
-
     def test_tree(self):
         root = Parameter("root")
         root.add("bar")
@@ -102,6 +96,15 @@ class ParameterTests(BaseTest):
 
         self.assertEqual(root.bar.path, "bar")
         self.assertEqual(root.bar.spam.path, "bar.spam")
+
+    def test_attributes(self):
+        root = Parameter("root")
+        self.assertFalse(isinstance(getattr(root, "keys"), Parameter))
+
+        keys_parameter = Parameter("keys")
+        root.add(keys_parameter)
+        self.assertFalse(isinstance(getattr(root, "keys"), Parameter))
+        self.assertTrue(root["keys"] is keys_parameter)
 
 def run_tests(app, *args, **kwargs):
     """[options]
