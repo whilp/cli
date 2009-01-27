@@ -4,6 +4,7 @@ import unittest
 import sys
 
 from cli import Parameter, ParameterError
+from cli import EnvironParameterHandler
 
 class TestFailed(Exception):
     pass
@@ -105,6 +106,17 @@ class ParameterTests(BaseTest):
         root.add(keys_parameter)
         self.assertFalse(isinstance(getattr(root, "keys"), Parameter))
         self.assertTrue(root["keys"] is keys_parameter)
+
+class EnvironParameterHandlerTests(BaseTest):
+    environ = {}
+
+    def setUp(self):
+        self.params = Parameter("root")
+        self.params.add("test")
+
+    def test_foo(self):
+        handler = EnvironParameterHandler(self.environ)
+        handler.handle(self.params)
 
 def run_tests(app, *args, **kwargs):
     """[options]

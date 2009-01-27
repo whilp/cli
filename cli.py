@@ -189,6 +189,15 @@ class ParameterHandler(object):
     def handle_parameter(self, parameter):
         raise NotImplementedError
 
+class EnvironParameterHandler(ParameterHandler):
+
+    def __init__(self, environ):
+        self.environ = environ
+
+    def handle_parameter(self, parameter):
+        # Convert parameter name to something useful.
+        print parameter
+
 class CommandLineApp(object):
     """A command-line application.
 
