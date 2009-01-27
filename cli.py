@@ -77,14 +77,25 @@ class Parameter(object):
     any number of configuration sources into a single tree of
     parameters.
     """
+    delim = '.'
 
-    def __init__(self, name, default=None, help=""):
+    def __init__(self, name, default=None, help="", parent=None):
         if isinstance(name, Parameter):
             self = name
         else:
             self.name = name
             self.default = default
             self.help = help
+
+        self.parent = parent
+
+    @property
+    def path(self):
+        parent = getattr(self.parent, "path", None)
+        if parent is not None:
+            return self.delim.join((parent, self.name)).lstrip(self.delim)
+        else:
+            return ''
 
     @property
     def children(self):
@@ -102,6 +113,8 @@ class Parameter(object):
         """
         if not isinstance(parameter, Parameter):
             parameter = Parameter(parameter, default, help)
+
+        parameter.parent = self
 
         try:
             self.remove(parameter)

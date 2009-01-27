@@ -100,6 +100,9 @@ class ParameterTests(BaseTest):
         root.bar.add(spam)
         self.assertEqual(root.bar.spam, spam)
 
+        self.assertEqual(root.bar.path, "bar")
+        self.assertEqual(root.bar.spam.path, "bar.spam")
+
 def run_tests(app, *args, **kwargs):
     """[options]
 
