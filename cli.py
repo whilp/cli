@@ -126,6 +126,7 @@ class Parameter(AttributeDict):
     coerce_factories = {
             # {TYPE: FACTORY}
             bool: Boolean,
+            type(None): lambda x: x,
     }
 
     def __init__(self, name, default=None, help="", coerce=None,
@@ -160,8 +161,10 @@ class Parameter(AttributeDict):
 
         coerce = self.coerce
         if coerce is None:
-            value_type = type(value)
-            coerce = self.coerce_factories.get(value_type, value_type)
+            key = type(self.default)
+            if key not in self.coerce_factories:
+                key = type(None)
+            coerce = self.coerce_factories[key]
 
         return coerce(value)
 
