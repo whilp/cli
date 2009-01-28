@@ -143,6 +143,18 @@ class ParameterTests(BaseTest):
         self.params.foo.value = "yes"
         self.assertEqual(self.params.foo.value, True)
 
+        class NaughtyObject(object):
+            
+            def __init__(self, thing=None):
+                if isinstance(thing, NaughtyObject):
+                    raise TypeError
+
+        naughty = NaughtyObject()
+        self.params.add("spam", default=naughty)
+        self.assertEqual(self.params.spam.value, naughty)
+        self.params.spam.value = "foo"
+        self.assertEqual(self.params.spam.value, "foo")
+
     def test_paths(self):
         self.params.add("foo")
         self.params.foo.add("bar")
