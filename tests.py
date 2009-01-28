@@ -185,9 +185,3 @@ def run_tests(app, *args):
     """
     print app.params.verbose
     run_unittest(__name__)
-
-if __name__ == "__main__":
-    run_unittest(__name__)
-    #from cli import App
-    #app = App(run_tests)
-    #app.run()
