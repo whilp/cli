@@ -1,6 +1,7 @@
 import logging
 import optparse
 import sys
+import unittest
 
 from ConfigParser import ConfigParser
 from UserDict import UserDict
@@ -512,6 +513,48 @@ class LoggingApp(CommandLineApp):
         """Configure logging before running the app."""
         super(LoggingApp, self).pre_run()
         self.log.setLevel(opts=self.params)
+
+class AppTestLoader(unittest.TestLoader):
+
+    #def loadTestsFromName(self):
+    #    pass
+    #
+    #def loadTestsFromNames(self):
+    #    pass
+
+class AppTestRunner(object):
+    pass
+
+class AppTestResult(unittest.TestResult):
+    pass
+
+class AppTestCase(unittest.TestCase):
+
+    #def __call__(result):
+    #    result.startTest(case)
+    #    #result.addSuccess(case)
+    #    #-or-
+    #    #result.addError(case, sys.exc_info())
+    #    #-or-
+    #    #result.addFailure(case, sys.exc_info())
+    #    result.stopTest(case)
+
+    #def __str__(self):
+    #    pass
+
+    #def shortDescription(self):
+    #    pass
+
+class TestableApp(LoggingApp):
+
+    def __init__(self, main, tests, **kwargs):
+        self.tests = tests
+        super(TestableApp, self).__init__(main, **kwargs)
+
+    def setup(self):
+        super(TestableApp, self).setup()
+        self.add_param("silent", False, "only log warnings",
+                action="store_true")
 
 App = LoggingApp
 
