@@ -384,14 +384,6 @@ class LoggingApp(CommandLineApp):
 App = LoggingApp
 
 if __name__ == "__main__":
-    def test_app(app, *args, **kwargs):
-        """[options] foo
-
-        this is a test.
-        """
-        print args
-        print kwargs
-        print "test"
-
-    app = App(test_app)
+    from tests import run_tests
+    app = App(run_tests)
     app.run()
