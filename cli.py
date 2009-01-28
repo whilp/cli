@@ -245,7 +245,8 @@ class ParameterHandler(object):
     Parameters it's been given.
     """
 
-    def __init__(self, source):
+    def __init__(self, app, source):
+        self.app = app
         self.source = source
 
     def handle(self, parameters):
@@ -262,7 +263,8 @@ class ParameterHandler(object):
 class EnvironParameterHandler(ParameterHandler):
     delim = '_'
 
-    def __init__(self, environ):
+    def __init__(self, app, environ):
+        self.app = app
         self.environ = environ
 
     def handle_parameter(self, parameter):
@@ -313,7 +315,7 @@ class CommandLineApp(object):
 
     def setup(self):
         # Set up param handlers.
-        environ_handler = EnvironParameterHandler(self.env)
+        environ_handler = EnvironParameterHandler(self, self.env)
         self.param_handlers.append(environ_handler)
 
     @property
