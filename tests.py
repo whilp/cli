@@ -155,6 +155,10 @@ class ParameterTests(BaseTest):
         self.params.spam.value = "foo"
         self.assertEqual(self.params.spam.value, "foo")
 
+        self.params.add("eggs", default=naughty, coerce=NaughtyObject)
+        self.params.eggs.value = NaughtyObject()
+        self.assertRaises(TypeError, getattr, self.params.eggs, "value")
+
     def test_paths(self):
         self.params.add("foo")
         self.params.foo.add("bar")
