@@ -527,7 +527,7 @@ if __name__ == "__main__":
         if app.params.silent:
             verbosity = 0
 
-        tests.test_module(tests, verbosity=app.params.verbose)
+        tests.test_module(tests, verbosity=verbosity)
 
     app = App(run_tests)
     app.run()
