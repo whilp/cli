@@ -392,6 +392,7 @@ class LoggingApp(CommandLineApp):
 
     def pre_run(self):
         """Configure logging before running the app."""
+        super(LoggingApp, self).pre_run()
         self.log.setLevel(opts=self.params)
 
 App = LoggingApp
