@@ -178,18 +178,12 @@ class EnvironParameterHandlerTests(BaseTest):
         self.params.test.add("test")
         self.params.test.test.add("test")
 
-    def test_foo(self):
-        handler = EnvironParameterHandler(self.environ)
-        handler.handle(self.params)
-
-        self.assertEqual(self.params.test.test.test.value,
-                self.environ['TEST_TEST_TEST'])
-
-def run_tests(app, *args, **kwargs):
+def run_tests(app, *args):
     """[options]
 
     Run unit tests.
     """
+    print app.params.verbose
     run_unittest(__name__)
 
 if __name__ == "__main__":
