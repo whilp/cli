@@ -5,6 +5,7 @@ import sys
 
 from cli import Parameter, ParameterError
 from cli import EnvironParameterHandler
+from cli import Boolean
 
 class TestFailed(Exception):
     pass
@@ -46,6 +47,22 @@ def run_unittest(*classes):
         else:
             suite.addTest(unittest.makeSuite(cls))
     run_suite(suite)
+
+class BooleanTests(BaseTest):
+
+    def test_true(self):
+        self.assertEqual(Boolean("yes"), True)
+        self.assertEqual(Boolean("Yes"), True)
+        self.assertEqual(Boolean("y"), True)
+        self.assertEqual(Boolean("Y"), True)
+        self.assertEqual(Boolean(10), True)
+
+    def test_false(self):
+        self.assertEqual(Boolean(0), False)
+        self.assertEqual(Boolean("n"), False)
+        self.assertEqual(Boolean("f"), False)
+        self.assertEqual(Boolean("somethingelse"), False)
+        self.assertEqual(Boolean(0), False)
 
 class ParameterTests(BaseTest):
 
