@@ -96,8 +96,8 @@ class ParameterTests(BaseTest):
         self.params.bar.add(spam)
         self.assertEqual(self.params.bar.spam, spam)
 
-        self.assertEqual(self.params.bar.path, "bar")
-        self.assertEqual(self.params.bar.spam.path, "bar.spam")
+        self.assertEqual(str(self.params.bar.path), "bar")
+        self.assertEqual(str(self.params.bar.spam.path), "bar.spam")
 
     def test_attributes(self):
         self.assertFalse(isinstance(getattr(self.params, "keys"), Parameter))

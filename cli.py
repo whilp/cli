@@ -4,6 +4,7 @@ import sys
 
 from ConfigParser import ConfigParser
 from UserDict import UserDict
+from UserList import UserList
 from inspect import getargs
 from logging import Formatter, StreamHandler
 from operator import itemgetter, attrgetter
@@ -92,6 +93,13 @@ class AttributeDict(UserDict, object):
 
         return value
 
+class ParameterPath(UserList):
+
+    def __str__(self):
+        delim = Parameter.delim
+        path = [x.name for x in self.data]
+        return delim.join(path).lstrip(delim)
+
 class Parameter(AttributeDict):
     """An application run-time parameter.
 
@@ -101,6 +109,7 @@ class Parameter(AttributeDict):
     parameters.
     """
     delim = '.'
+    path_factory = ParameterPath
 
     def __init__(self, name, default=None, help="", coerce=str,
             parent=None):
@@ -143,9 +152,11 @@ class Parameter(AttributeDict):
     def path(self):
         parent = getattr(self.parent, "path", None)
         if parent is not None:
-            return self.delim.join((parent, self.name)).lstrip(self.delim)
+            path = parent + [self,]
         else:
-            return ''
+            path = []
+
+        return self.path_factory(path)
 
     @property
     def children(self):
@@ -224,7 +235,7 @@ class EnvironParameterHandler(ParameterHandler):
     def handle_parameter(self, parameter):
         # Convert parameter name to something useful. 
         # foo.bar.baz -> FOO_BAR_BAZ
-        name = parameter.path.replace(parameter.delim, self.delim).upper()
+        name = str(parameter.path).replace(parameter.delim, self.delim).upper()
 
         parameter.value = self.environ.get(name, None)
 
