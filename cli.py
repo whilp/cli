@@ -516,6 +516,18 @@ class LoggingApp(CommandLineApp):
 App = LoggingApp
 
 if __name__ == "__main__":
-    from tests import run_tests
+    import tests
+
+    def run_tests(app, *args):
+        """[options]
+
+        Run unit tests.
+        """
+        verbosity = app.params.verbose - app.params.quiet
+        if app.params.silent:
+            verbosity = 0
+
+        tests.test_module(tests, verbosity=app.params.verbose)
+
     app = App(run_tests)
     app.run()
