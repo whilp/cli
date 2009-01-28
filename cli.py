@@ -155,18 +155,26 @@ class Parameter(AttributeDict):
                 self.name, self.default, self.help, self.parent)
 
     def get_value(self):
+        """Get the "coerced" value of the Parameter.
+
+        If an explicit coercion method was supplied, use it. If none
+        was supplied, use the type of the .default attribute to find
+        it in the .coerce_factories attribute. If no value has been
+        set, simply return the (uncoerced) default value.
+        """
         value = self.default
         if self.raw_value is not Nothing:
             value = self.raw_value
 
-        coerce = self.coerce
-        if coerce is None:
-            key = type(self.default)
-            if key not in self.coerce_factories:
-                key = type(None)
-            coerce = self.coerce_factories[key]
+            coerce = self.coerce
+            if coerce is None:
+                key = type(self.default)
+                if key not in self.coerce_factories:
+                    key = type(None)
+                coerce = self.coerce_factories[key]
+            value = coerce(value)
 
-        return coerce(value)
+        return value
 
     value = property(fget=get_value,
             fset=lambda self, new: setattr(self, "raw_value", new),
