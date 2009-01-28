@@ -130,7 +130,7 @@ class Parameter(AttributeDict):
     }
 
     def __init__(self, name, default=None, help="", coerce=None,
-            parent=None):
+            parent=None, **kwargs):
         if isinstance(name, Parameter):
             self = name
         else:
@@ -140,6 +140,9 @@ class Parameter(AttributeDict):
             self.help = help
             self.data = {}
             self.raw_value = Nothing
+
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
         self.parent = parent
 
@@ -427,9 +430,12 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).setup()
 
         # Add logging-related options.
-        self.add_param("verbose", 0, "raise the verbosity")
-        self.add_param("quiet", 0, "decrease the verbosity")
-        self.add_param("silent", False, "only log warnings")
+        self.add_param("verbose", 0, "raise the verbosity",
+                action="count")
+        self.add_param("quiet", 0, "decrease the verbosity",
+                action="count")
+        self.add_param("silent", False, "only log warnings",
+                action="store_true")
 
         # Create logger.
         logging.setLoggerClass(CLILogger)
