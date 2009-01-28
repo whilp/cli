@@ -1,5 +1,7 @@
+import datetime
 import logging
 import optparse
+import os
 import sys
 import unittest
 
@@ -29,6 +31,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
 Nothing = object()
+
+def plural(number):
+    """Return 's' if number is != 1."""
+    return number != 1 and 's' or ''
 
 def Boolean(thing):
     """Decide if 'thing' is True or False.
@@ -514,47 +520,76 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).pre_run()
         self.log.setLevel(opts=self.params)
 
-class AppTestLoader(unittest.TestLoader):
+class AppTestLoader(object, unittest.TestLoader):
 
-    #def loadTestsFromName(self):
-    #    pass
-    #
-    #def loadTestsFromNames(self):
-    #    pass
+    def loadTestsFromDirectory(self, directory):
+        for dirpath, dirnames, filenames in os.walk(directory):
+            pass
+
+class AppTestResult(object, unittest.TestResult):
+
+    def __init__(self, app):
+        self.app = app
+        unittest.TestResult.__init__(self)
+
+    def startTest(self, test):
+        TestResult.addSuccess(self, test)
+        if not hasattr(test, "...description..."):
+            test.description = "DESCR"
+        elif not hasattr(test, "name"):
+            test.name = str(test)
+
+        self.app.debug("Starting %s (%s)", test.name, test.description)
+
+    def stopTest(self, test):
+        TestResult.stopTest(self, test)
+        self.app.debug("Finished %s", test.name)
+
+    def addSuccess(self, test):
+        TestResult.addSuccess(self, test)
+        self.app.log.info("%s ok", test.name)
+
+    def addFailure(self, test, err):
+        TestResult.addFailure(self, test, err)
+        self.app.log.info("%s failed", test.name)
+
+    def addError(self, test, err):
+        TestResult.addFailure(self, test, err)
+        self.app.log.info("%s errored", test.name)
+
+class AppTestCase(object, unittest.TestCase):
+    pass
 
 class AppTestRunner(object):
+    result_factory = AppTestResult
+
+    def __init__(self, app):
+        self.app = app
+        from timeit import default_timer
+        self.timer = default_timer
+
+    def run(self, test):
+        result = self.result_factory(self.app)
+
+        # Time and run the test.
+        start = self.timer()
+        test(result)
+        stop = self.timer()
+
+        tests = result.testsRun
+        time = datetime.timedelta(seconds=stop - start)
+        self.app.log.info("Ran %d test%s in %s", tests,
+                plural(tests), time)
+
+        if not result.wasSuccessful():
+            failed, errored = [len(x) for x in (results.failures, results.errors)]
+            self.app.log.error("%d failure%s, %d error%s", failed,
+                    plural(failed), errored, plural(errored))
+
+        return result
+
+def test(app, *args):
     pass
-
-class AppTestResult(unittest.TestResult):
-    pass
-
-class AppTestCase(unittest.TestCase):
-
-    #def __call__(result):
-    #    result.startTest(case)
-    #    #result.addSuccess(case)
-    #    #-or-
-    #    #result.addError(case, sys.exc_info())
-    #    #-or-
-    #    #result.addFailure(case, sys.exc_info())
-    #    result.stopTest(case)
-
-    #def __str__(self):
-    #    pass
-
-    #def shortDescription(self):
-    #    pass
-
-class TestableApp(LoggingApp):
-
-    def __init__(self, main, tests, **kwargs):
-        self.tests = tests
-        super(TestableApp, self).__init__(main, **kwargs)
-
-    def setup(self):
-        super(TestableApp, self).setup()
-        self.add_param("silent", False, "only log warnings",
-                action="store_true")
 
 App = LoggingApp
 
