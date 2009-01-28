@@ -279,6 +279,57 @@ class EnvironParameterHandler(ParameterHandler):
         if value is not None:
             parameter.value = value
 
+class CLIParameterHandler(ParameterHandler):
+    delim = '-'
+
+    def __init__(self, app, argv):
+        self.app = app
+        self.argv = argv
+        self.parser = optparse.OptionParser(
+                usage=self.app.usage,
+                version='',     # XXX: this would be nice
+                description='', # same here
+                epilog='',      # and here
+                )
+
+    def handle(self, parameters):
+        # XXX: we'll need to map option names to parameters here...
+        param_map = {}
+        for parameter in parameters:
+            name = self.handle_parameter(parameter)
+            param_map[name] = parameter
+
+            # Recurse into children if present.
+            if parameter.children:
+                self.handle(parameter.children)
+
+        # Parse argv.
+        opts, args = self.parser.parse_args(self.argv)
+
+        # Update the parameter tree.
+
+        # XXX: Unfortunately, there doesn't appear to be a nicer way
+        # to do this. optparse falls back on __dict__ in this case,
+        # too...
+        for name, opt in vars(opts).items():
+            parameter = param_map[name]
+            parameter.value = opt
+
+        # Set the application's args attribute.
+        self.app.args = args
+
+    def handle_parameter(self, parameter):
+        option_attrs = optparse.Option.ATTRS
+        name = str(parameter.path).replace(parameter.delim, self.delim)
+        short = "-%s" % name[0]
+        long = "--%s" % name
+        kwargs = dict((k, v) for k, v in vars(parameter).items() \
+                if k in option_attrs)
+        
+        self.parser.add_option(short, long, **kwargs)
+        
+        return name
+
 class CommandLineApp(object):
     """A command-line application.
 
@@ -310,6 +361,7 @@ class CommandLineApp(object):
         self.stdin = stdin and stdin or sys.stdin
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
+        self.args = []
 
         self.params = self.param_factory("root")
         self.param_handlers = []
@@ -319,7 +371,10 @@ class CommandLineApp(object):
     def setup(self):
         # Set up param handlers.
         environ_handler = EnvironParameterHandler(self, self.env)
+        cli_handler = CLIParameterHandler(self, self.argv)
+
         self.param_handlers.append(environ_handler)
+        self.param_handlers.append(cli_handler)
 
     @property
     def name(self):
@@ -366,11 +421,6 @@ class CommandLineApp(object):
             parent = getattr(parent, node.name)
         setattr(parent, parameter.name, parameter.value)
 
-
-    @property
-    def args(self):
-        raise NotImplementedError
-
     @property
     def usage(self):
         return '%prog ' + (self.main.__doc__ or '')
@@ -401,7 +451,7 @@ class CommandLineApp(object):
         """
         self.pre_run()
 
-        returned = self.main(self, *self.args, **self.opts)
+        returned = self.main(self, *self.args)
 
         return self.post_run(returned)
 
