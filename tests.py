@@ -122,6 +122,10 @@ class ParameterTests(BaseTest):
         self.params.bar.value = "ten"
         self.assertRaises(ValueError, getattr, self.params.bar, "value")
 
+        self.params.add("foo", default=False)
+        self.params.foo.value = "yes"
+        self.assertEqual(self.params.foo.value, True)
+
     def test_paths(self):
         self.params.add("foo")
         self.params.foo.add("bar")
