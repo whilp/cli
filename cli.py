@@ -237,7 +237,9 @@ class EnvironParameterHandler(ParameterHandler):
         # foo.bar.baz -> FOO_BAR_BAZ
         name = str(parameter.path).replace(parameter.delim, self.delim).upper()
 
-        parameter.value = self.environ.get(name, None)
+        value = self.environ.get(name, None)
+        if value is not None:
+            parameter.value = value
 
 class CommandLineApp(object):
     """A command-line application.
@@ -259,7 +261,7 @@ class CommandLineApp(object):
     optparser_factory = optparse.OptionParser
     param_factory = Parameter
 
-    def __init__(self, main, config_file=None, argv=None, env=None,
+    def __init__(self, main, config_file=None, argv=None, env={},
             exit_after_main=True, stdin=None, stdout=None,
             stderr=None):
         self.main = main
