@@ -111,7 +111,7 @@ class ParameterTests(BaseTest):
         self.assertEqual(self.params.test.value, "foo")
 
         self.params.test.value = 0
-        self.assertEqual(self.params.test.value, "0")
+        self.assertEqual(self.params.test.value, 0)
 
         self.params.add("bar", default=0, coerce=int)
         self.assertEqual(self.params.bar.value, 0)
