@@ -30,9 +30,16 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 Nothing = object()
 
 def Boolean(thing):
+    """Decide if 'thing' is True or False.
+
+    If thing is a string, convert it to lower case and, if it starts
+    with 'y' or 't' (as in 'yes' or 'true'), return True. If it
+    starts with some other character, return False. Otherwise,
+    return True if 'thing' is True (in the Pythonic sense).
+    """
     if callable(getattr(thing, 'lower', None)):
         thing = thing.lower()
-        if thing.startswith('y'):
+        if thing[0] in 'yt':
             return True
         else:
             return False
