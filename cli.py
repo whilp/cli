@@ -297,10 +297,37 @@ class CommandLineApp(object):
         Each handler should define a .handle() method which takes as
         its single argument a list of Parameter objects. It should
         attempt to find a value for each parameter in its source and
-        update the parameter objects accordingly.
+        update the parameter objects accordingly. Once all parameter
+        handlers have been run, replace all leaves in the parameter
+        tree with their values.
         """
         for handler in self.param_handlers:
             handler.handle(self.params)
+
+        self.resolve_parameters(self.params)
+
+    def resolve_parameters(self, parameters):
+        """Walk the parameter tree, replacing leaves with their values.
+
+        Parameters that aren't leaves will remain untouched.
+        In cases where a parameter's name is the same as an
+        attribute of its parent (for example, 'keys'), the parent's
+        attribute will be overridden.
+        """
+        for parameter in parameters:
+            if parameter.children:
+                self.resolve_parameters(parameter.children)
+            else:
+                self.resolve_parameter(parameter)
+
+    def resolve_parameter(self, parameter):
+        """Replace the parameter in the tree with its value."""
+        path = [x.name for x in parameter.path]
+        parent = self.params
+        for node in path[:-1]:
+            parent = getattr(parent, node.name)
+        setattr(parent, parameter.name, parameter.value)
+
 
     @property
     def args(self):
@@ -365,9 +392,9 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).setup()
 
         # Add logging-related options.
-        self.add_param("verbose", 0, "raise the verbosity")
-        self.add_param("quiet", 0, "decrease the verbosity")
-        self.add_param("silent", False, "only log warnings")
+        self.add_param("verbose", 0, "raise the verbosity", coerce=int)
+        self.add_param("quiet", 0, "decrease the verbosity", coerce=int)
+        self.add_param("silent", False, "only log warnings", coerce=bool)
 
         # Create logger.
         logging.setLoggerClass(CLILogger)
