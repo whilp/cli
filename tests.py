@@ -96,9 +96,6 @@ class ParameterTests(BaseTest):
         self.params.bar.add(spam)
         self.assertEqual(self.params.bar.spam, spam)
 
-        self.assertEqual(str(self.params.bar.path), "bar")
-        self.assertEqual(str(self.params.bar.spam.path), "bar.spam")
-
     def test_attributes(self):
         self.assertFalse(isinstance(getattr(self.params, "keys"), Parameter))
 
@@ -124,6 +121,15 @@ class ParameterTests(BaseTest):
 
         self.params.bar.value = "ten"
         self.assertRaises(ValueError, getattr, self.params.bar, "value")
+
+    def test_paths(self):
+        self.params.add("foo")
+        self.params.foo.add("bar")
+        self.params.foo.bar.add("baz")
+
+        self.assertEqual(str(self.params.foo.path), "foo")
+        self.assertEqual(str(self.params.foo.bar.path), "foo.bar")
+        self.assertTrue(len(self.params.foo.bar.path) == 2)
 
 class EnvironParameterHandlerTests(BaseTest):
     environ = {
