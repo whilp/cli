@@ -35,6 +35,18 @@ def fmt_arg(arg):
     """Return 'arg' formatted as a standard option name."""
     return arg.lstrip('-').replace('_', '-')
 
+def Boolean(thing):
+    if callable(getattr(thing, 'lower', None)):
+        thing = thing.lower()
+        if thing.startswith('y'):
+            return True
+        else:
+            return False
+    elif thing:
+        return True
+    else:
+        return False
+
 class Error(Exception):
     pass
 
@@ -110,8 +122,12 @@ class Parameter(AttributeDict):
     """
     delim = '.'
     path_factory = ParameterPath
+    coerce_factories = {
+            # {TYPE: FACTORY}
+            bool: Boolean,
+    }
 
-    def __init__(self, name, default=None, help="", coerce=str,
+    def __init__(self, name, default=None, help="", coerce=None,
             parent=None):
         if isinstance(name, Parameter):
             self = name
@@ -141,7 +157,12 @@ class Parameter(AttributeDict):
         if self.raw_value is not Nothing:
             value = self.raw_value
 
-        return self.coerce(value)
+        coerce = self.coerce
+        if coerce is None:
+            value_type = type(value)
+            coerce = self.coerce_factories.get(value_type, value_type)
+
+        return coerce(value)
 
     value = property(fget=get_value,
             fset=lambda self, new: setattr(self, "raw_value", new),
@@ -392,9 +413,9 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).setup()
 
         # Add logging-related options.
-        self.add_param("verbose", 0, "raise the verbosity", coerce=int)
-        self.add_param("quiet", 0, "decrease the verbosity", coerce=int)
-        self.add_param("silent", False, "only log warnings", coerce=bool)
+        self.add_param("verbose", 0, "raise the verbosity")
+        self.add_param("quiet", 0, "decrease the verbosity")
+        self.add_param("silent", False, "only log warnings")
 
         # Create logger.
         logging.setLoggerClass(CLILogger)
