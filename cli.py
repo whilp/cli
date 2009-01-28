@@ -27,13 +27,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
-VALUE_CHARACTERS = letters + "-_"
-
 Nothing = object()
-
-def fmt_arg(arg):
-    """Return 'arg' formatted as a standard option name."""
-    return arg.lstrip('-').replace('_', '-')
 
 def Boolean(thing):
     if callable(getattr(thing, 'lower', None)):
