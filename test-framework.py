@@ -39,12 +39,24 @@ class AppTestCase(unittest.TestCase, object):
         return inspect.getsourcefile(self.testmethod)
 
     @property
+    def module(self):
+        return inspect.getmodule(self.testmethod)
+
+    @property
     def classname(self):
-        return "class"
+        im_class = getattr(self.testmethod, "im_class", None)
+        if im_class is not None:
+            return im_class
+        else:
+            return inspect.getmodulename(self.filename)
 
     @property
     def methodname(self):
-        return "method"
+        func = getattr(self.testmethod, "im_func", None)
+        if func is None:
+            func = self.testmethod
+
+        return func.func_name
 
 class AppTestSuite(unittest.TestSuite, object):
     pass
