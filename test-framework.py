@@ -279,22 +279,6 @@ class AppTestLoader(unittest.TestLoader, object):
 
         setattr(testcase, name, staticmethod(function))
 
-    @staticmethod
-    def wrap_class(testcase, cls):
-        noop = lambda s: None
-        setup_method = getattr(cls, "setup_method", noop)
-        setUp = getattr(cls, "setUp", noop)
-        teardown_method = getattr(cls, "teardown_method", noop)
-        tearDown = getattr(cls, "tearDown", noop)
-
-        tests = [(n, m) for n, m in vars(cls).items() if \
-                n.startswith("test_")]
-
-        for name, method in tests:
-            def wrapped_method(self):
-
-                method()
-
 class AppTestResult(unittest.TestResult, object):
     """Extend the base unittest.TestResult.
 
