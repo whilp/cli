@@ -3,12 +3,13 @@ import logging
 import optparse
 import os
 import sys
+import types
 import unittest
 
 from ConfigParser import ConfigParser
 from UserDict import UserDict
 from UserList import UserList
-from inspect import getargs
+from inspect import getargs, isclass, isfunction
 from logging import Formatter, StreamHandler
 from operator import itemgetter, attrgetter
 from string import letters
@@ -521,10 +522,63 @@ class LoggingApp(CommandLineApp):
         self.log.setLevel(opts=self.params)
 
 class AppTestLoader(object, unittest.TestLoader):
+    ignore_dirs = '.'
+    module_extension = ".py"
+    module_prefix = "test_"
+    module_suffix = "_test"
+    func_prefix = "test_"
+    class_prefix = "Test"
 
     def loadTestsFromDirectory(self, directory):
-        for dirpath, dirnames, filenames in os.walk(directory):
-            pass
+        suite = self.suiteClass()
+
+        root = directory
+        for dirpath, dirnames, filenames in os.walk(root):
+            # Trim directories list.
+            dirnames = [x for x in dirnames \
+                    if not x.startswith(self.ignore_dirs)]
+
+            # Search for candidate files.
+            candidates = [x for x in filenames if \
+                    x.startswith(self.module_prefix) or \
+                    x.endswith(self.module_suffix + self.module_extension)]
+
+            for candidate in candidates:
+                fullpath = os.path.join(dirpath, candidate)
+                suite.addTests(self.loadTestsFromFile(fullpath))
+
+        return suite
+
+    def loadTestsFromFile(self, filename):
+        name, _ = os.path.splitext(os.path.basename(filename))
+        dirname = os.path.dirname(filename)
+        sys.path.insert(0, dirname)
+        module = __import__(name)
+        return self.loadTestsFromModule(module)
+
+    def loadTestsFromModule(self, module):
+        tests = []
+        for name, obj in vars(module):
+            test = None
+
+            if isclass(obj) and name.startswith(self.class_prefix):
+                if issubclass(obj, unittest.TestCase):
+                    test = self.loadTestsFromTestCase(obj)
+                else:
+                    test = self.loadTestsFromTestClass(obj)
+            elif isfunction(obj) and name.startswith(self.func_prefix):
+                test = self.loadTestsFromTestFunc(obj)
+
+            if test is not None:
+                tests.append(test)
+
+        return tests
+
+    def loadTestsFromTestClass(self, obj):
+        pass
+
+    def loadTestsFromTestFunc(self, obj):
+        pass
 
 class AppTestResult(object, unittest.TestResult):
 
