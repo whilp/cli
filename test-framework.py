@@ -23,7 +23,22 @@ def timer(callable, *args, **kwargs):
     return returned, duration
 
 class AppTestCase(unittest.TestCase, object):
-    pass
+
+    @property
+    def filename(self):
+        return "file"
+
+    @property
+    def lineno(self):
+        return 0
+
+    @property
+    def classname(self):
+        return "class"
+
+    @property
+    def methodname(self):
+        return "method"
 
 class AppTestSuite(unittest.TestSuite, object):
     pass
@@ -80,7 +95,7 @@ class AppTestLoader(unittest.TestLoader, object):
 
     def loadTestsFromModule(self, module):
         tests = []
-        class TestCase(unittest.TestCase):
+        class TestCase(AppTestCase):
             """To collect module-level tests."""
             # XXX: fix class naming.
         
@@ -135,6 +150,21 @@ class AppTestResult(unittest.TestResult, object):
         self.start = 0
         self.stop = 0
 
+    def status_message(self, test, status):
+        time = self.time
+        fields = {
+                "seconds": time.seconds,
+                "microseconds": time.microseconds,
+                "filename": test.filename,
+                "lineno": test.lineno,
+                "classname": test.classname,
+                "methodname": test.methodname,
+        }
+
+        format = "%(seconds)d.%(microseconds)03d %(filename)s:" \
+                "%(lineno)-10d %(classname)s.%(methodname)s()"
+        return format % fields
+
     @property
     def time(self):
         return datetime.timedelta(seconds=self.stop - self.start)
@@ -156,7 +186,7 @@ class AppTestResult(unittest.TestResult, object):
     def addSuccess(self, test):
         self.stop = default_timer()
         unittest.TestResult.addSuccess(self, test)
-        self.app.log.info("%s %s ok", self.time, test.name)
+        self.app.log.info(self.status_message(test, "ok"))
 
     def addFailure(self, test, err):
         self.stop = default_timer()
