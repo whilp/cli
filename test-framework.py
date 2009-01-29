@@ -8,6 +8,18 @@ from timeit import default_timer
 
 plural = lambda n: n != 1 and 's' or ''
 
+class DummyApp(object):
+
+    def __init__(self, main):
+        import logging
+        logging.basicConfig(format="%(message)s")
+        self.log = logging.getLogger()
+        self.log.warning("cli.App not found, falling back to DummyApp")
+        self.main = main
+
+    def run(self):
+        sys.exit(self.main(self))
+
 def timer(callable, *args, **kwargs):
     """Time and run callable with args and kwargs.
 
@@ -338,6 +350,10 @@ def test(app, *args):
     runner.run(suite)
 
 if __name__ == "__main__":
-    from cli import App
+    try:
+        from dcli import App
+    except ImportError:
+        App = DummyApp
+
     app = App(test)
     app.run()
