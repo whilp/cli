@@ -212,12 +212,12 @@ class AppTestResult(unittest.TestResult, object):
     def addFailure(self, test, err):
         self.stop = default_timer()
         unittest.TestResult.addFailure(self, test, err)
-        self.app.log.info(self.status_message(test, "fail"))
+        self.app.log.warning(self.status_message(test, "fail"))
 
     def addError(self, test, err):
         self.stop = default_timer()
         unittest.TestResult.addFailure(self, test, err)
-        self.app.log.info(self.status_message(test, "error"))
+        self.app.log.error(self.status_message(test, "error"))
 
 class AppTestRunner(object):
     result_factory = AppTestResult
