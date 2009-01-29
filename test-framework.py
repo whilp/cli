@@ -1,9 +1,9 @@
 import datetime
+import inspect
 import os
 import sys
 import unittest
 
-from inspect import isclass, isfunction
 from timeit import default_timer
 
 plural = lambda n: n != 1 and 's' or ''
@@ -23,12 +23,20 @@ def timer(callable, *args, **kwargs):
     return returned, duration
 
 class AppTestCase(unittest.TestCase, object):
-    module = None
-    lineno = 0
+
+    @property
+    def testmethod(self):
+        name = getattr(self, "_testMethodName", None)
+        method = getattr(self, name, None)
+        return method
+
+    @property
+    def lineno(self):
+        return inspect.getsourcelines(self.testmethod)[1]
 
     @property
     def filename(self):
-        return self.module.__file__
+        return inspect.getsourcefile(self.testmethod)
 
     @property
     def classname(self):
@@ -100,10 +108,10 @@ class AppTestLoader(unittest.TestLoader, object):
         TestCase.module = module
         
         for name, obj in vars(module).items():
-            if name.startswith("test_") and isfunction(obj):
+            if name.startswith("test_") and inspect.isfunction(obj):
                 self.app.log.debug("Adding function %s", name)
                 self.wrap_function(TestCase, obj)
-            elif name.startswith("Test") and isclass(obj):
+            elif name.startswith("Test") and inspect.isclass(obj):
                 self.app.log.debug("XXX: ignoring class %s for now", name)
                 if issubclass(unittest.TestCase, obj):
                     #TestCase = obj
