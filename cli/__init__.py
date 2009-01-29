@@ -17,6 +17,17 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 __version__ = "0.2"
 __license__ = "BSD"
+__todo__ = """\
+* cli.app:
+    * more tests
+    * re-add config support (via ParameterHandler)
+    * add Windows registry/OS X plist support (sekhmet)
+* cli.test:
+    * doctest support
+    * {setup,teardown}_module support?
+    * verify py.test hook functionality
+    * tests
+"""
 
 # Import API-level elements.
 from app import *
