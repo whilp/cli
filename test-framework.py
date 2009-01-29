@@ -182,7 +182,7 @@ class AppTestResult(unittest.TestResult, object):
                 "methodname": test.methodname,
         }
 
-        format = "%(seconds)d.%(microseconds)03.d %(status)s %(filename)s:" \
+        format = "%(seconds)d.%(microseconds)03.d %(status)5s %(filename)s:" \
                 "%(lineno)-10d %(classname)s.%(methodname)s()"
         return format % fields
 
@@ -212,12 +212,12 @@ class AppTestResult(unittest.TestResult, object):
     def addFailure(self, test, err):
         self.stop = default_timer()
         unittest.TestResult.addFailure(self, test, err)
-        self.app.log.info("%s failed", test.name)
+        self.app.log.info(self.status_message(test, "fail"))
 
     def addError(self, test, err):
         self.stop = default_timer()
         unittest.TestResult.addFailure(self, test, err)
-        self.app.log.info("%s errored", test.name)
+        self.app.log.info(self.status_message(test, "error"))
 
 class AppTestRunner(object):
     result_factory = AppTestResult
@@ -236,7 +236,7 @@ class AppTestRunner(object):
                 plural(tests), time)
 
         if not result.wasSuccessful():
-            failed, errored = [len(x) for x in (results.failures, results.errors)]
+            failed, errored = [len(x) for x in (result.failures, result.errors)]
             self.app.log.error("%d failure%s, %d error%s", failed,
                     plural(failed), errored, plural(errored))
 
