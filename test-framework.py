@@ -197,15 +197,27 @@ class AppTestLoader(unittest.TestLoader, object):
 
             TestCase.module = module
             if name.startswith("test_") and inspect.isfunction(obj):
+                # This is a plain old function, so we make it into a
+                # method and attach it to the dummy TestCase.
                 self.app.log.debug("Adding function %s", name)
                 self.wrap_function(TestCase, obj)
+
             elif inspect.isclass(obj):
                 if issubclass(obj, unittest.TestCase):
+                    # This is a standard unittest.TestCase.
+                    # Transport the necessary properties from our
+                    # testcase (so that the Results and Runner
+                    # classes can work with it) and replace the
+                    # dummy TestCase with it.
                     TestCase = obj
                     for name, member in vars(self.testcase_factory).items():
                         if isinstance(member, property):
                             setattr(TestCase, name, member)
+
                 elif name.startswith("Test"):
+                    # This is a plain test class that doesn't
+                    # subclass unittest.TestCase. Transport its
+                    # attributes over to our dummy TestCase.
                     for name, attr in vars(obj).items():
                         if not hasattr(TestCase, name):
                             # XXX: Cross our fingers here and hope
@@ -213,6 +225,7 @@ class AppTestLoader(unittest.TestLoader, object):
                             setattr(TestCase, name, attr)
                     TestCase.__name__ = obj.__name__
 
+            # Add the TestCase to the list of tests.
             tests.insert(0, self.loadTestsFromTestCase(TestCase))
 
         return tests
