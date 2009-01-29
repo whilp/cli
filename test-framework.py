@@ -44,11 +44,13 @@ class AppTestCase(unittest.TestCase, object):
 
     @property
     def classname(self):
-        im_class = getattr(self.testmethod, "im_class", None)
-        if im_class is not None:
-            return im_class
-        else:
-            return inspect.getmodulename(self.filename)
+        delim = '.'
+        im_class = getattr(self.testmethod, "im_class", "")
+        classname = inspect.getmodulename(self.filename)
+        if im_class:
+            classname = delim.join((classname, im_class.__name__))
+
+        return classname
 
     @property
     def methodname(self):
@@ -176,7 +178,7 @@ class AppTestLoader(unittest.TestLoader, object):
     def loadTestsFromModule(self, module):
         """Discover valid test cases within a module."""
         tests = []
-        class TestCase(AppTestCase):
+        class TestCase(self.testcase_factory):
             """To collect module-level tests."""
             # XXX: fix class naming.
 
@@ -186,12 +188,13 @@ class AppTestLoader(unittest.TestLoader, object):
             if name.startswith("test_") and inspect.isfunction(obj):
                 self.app.log.debug("Adding function %s", name)
                 self.wrap_function(TestCase, obj)
-            elif name.startswith("Test") and inspect.isclass(obj):
-                self.app.log.debug("XXX: ignoring class %s for now", name)
-                if issubclass(unittest.TestCase, obj):
-                    #TestCase = obj
-                    pass
-                else:
+            elif inspect.isclass(obj):
+                if issubclass(obj, unittest.TestCase):
+                    TestCase = obj
+                    for name, member in vars(self.testcase_factory).items():
+                        if isinstance(member, property):
+                            setattr(TestCase, name, member)
+                elif name.startswith("Test"):
                     #TestCase.something()
                     pass
         tests.insert(0, self.loadTestsFromTestCase(TestCase))
