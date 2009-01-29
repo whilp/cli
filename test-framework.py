@@ -74,10 +74,36 @@ class AppTestLoader(unittest.TestLoader, object):
     # Unittest synonyms.
     suiteClass = testsuite_factory
     testMethodPrefix = func_prefix
-    sortMethodsUsing = None
+    sortTestMethodsUsing = None
 
     def __init__(self, app):
         self.app = app
+
+    @staticmethod
+    def sort_methods(cls, x, y):
+        """Sort objects based on their appearance in a source file.
+        
+        If they both were defined in the same file, the object which
+        was defined earlier is considered "less than" the object
+        which was defined later. If they were defined in different
+        source files, the source filenames will be compared
+        alphabetically.
+        """
+        args = [getattr(cls, name) for name in x, y]
+        x_file, y_file = [inspect.getsourcefile(obj) for obj in args]
+        if x_file == y_file:
+            x, y = [inspect.getsourcelines(obj)[1] for obj in args]
+        else:
+            x, y = x_file, y_file
+        return cmp(x, y)
+
+    def getTestCaseNames(self, testCaseClass):
+        names = unittest.TestLoader.getTestCaseNames(self, testCaseClass)
+        def sorter(x, y):
+            return self.sort_methods(testCaseClass, x, y)
+        names.sort(sorter)
+
+        return names
 
     def loadTestsFromDirectory(self, directory):
         directory = os.path.abspath(directory)
