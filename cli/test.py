@@ -1,3 +1,20 @@
+"""cli.test - simple test framework
+
+Copyright (c) 2009 Will Maier <will@m.aier.us>
+
+Permission to use, copy, modify, and distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+"""
+
 import datetime
 import inspect
 import os
@@ -6,19 +23,7 @@ import unittest
 
 from timeit import default_timer
 
-plural = lambda n: n != 1 and 's' or ''
-
-class DummyApp(object):
-
-    def __init__(self, main):
-        import logging
-        logging.basicConfig(format="%(message)s")
-        self.log = logging.getLogger()
-        self.log.warning("cli.App not found, falling back to DummyApp")
-        self.main = main
-
-    def run(self):
-        sys.exit(self.main(self))
+from app import plural
 
 def timer(callable, *args, **kwargs):
     """Time and run callable with args and kwargs.
