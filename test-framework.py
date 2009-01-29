@@ -121,7 +121,7 @@ class AppTestResult(unittest.TestResult, object):
         unittest.TestResult.addSuccess(self, test)
         if not hasattr(test, "...description..."):
             test.description = "DESCR"
-        elif not hasattr(test, "name"):
+        if not hasattr(test, "name"):
             test.name = str(test)
 
         self.app.log.debug("Starting %s (%s)", test.name, test.description)
