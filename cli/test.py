@@ -376,10 +376,30 @@ class AppTestRunner(object):
         self.app.log.info("Ran %d test%s in %s", tests,
                 plural(tests), time)
 
+        # If we failed, dump tracebacks and other helpful
+        # information.
         if not result.wasSuccessful():
             failed, errored = [len(x) for x in (result.failures, result.errors)]
             self.app.log.error("%d failure%s, %d error%s", failed,
                     plural(failed), errored, plural(errored))
+
+            if result.errors:
+                self.app.stderr.write('\n%s\n' % (70 * '='))
+                self.app.stderr.write("Errors:\n".upper())
+                for test, traceback in result.errors:
+                    self.app.stderr.write(70 * '-' + '\n')
+                    self.app.stderr.write("%s:%d\n\n" % (test.filename, test.lineno))
+                    self.app.stderr.write(traceback)
+                    self.app.stderr.write("\n")
+
+            if result.failures:
+                self.app.stderr.write('\n%s\n' % (70 * '='))
+                self.app.stderr.write("Failures:\n".upper())
+                for test, traceback in result.failures:
+                    self.app.stderr.write(70 * '-' + '\n')
+                    self.app.stderr.write("%s:%d\n\n" % (test.filename, test.lineno))
+                    self.app.stderr.write(traceback)
+                    self.app.stderr.write("\n")
 
         return result
 
