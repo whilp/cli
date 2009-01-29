@@ -175,13 +175,14 @@ class AppTestResult(unittest.TestResult, object):
         fields = {
                 "seconds": time.seconds,
                 "microseconds": time.microseconds,
+                "status": status,
                 "filename": test.filename,
                 "lineno": test.lineno,
                 "classname": test.classname,
                 "methodname": test.methodname,
         }
 
-        format = "%(seconds)d.%(microseconds)03d %(filename)s:" \
+        format = "%(seconds)d.%(microseconds)03.d %(status)s %(filename)s:" \
                 "%(lineno)-10d %(classname)s.%(methodname)s()"
         return format % fields
 
