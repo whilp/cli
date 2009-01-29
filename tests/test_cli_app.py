@@ -3,12 +3,9 @@ import optparse
 import unittest
 import sys
 
-from cli import Parameter, ParameterError
-from cli import EnvironParameterHandler
-from cli import Boolean
-
-class TestFailed(Exception):
-    pass
+from cli.app import Parameter, ParameterError
+from cli.app import EnvironParameterHandler
+from cli.app import Boolean
 
 class BaseTest(unittest.TestCase):
 
@@ -18,38 +15,7 @@ class BaseTest(unittest.TestCase):
     def tearDown(self):
         pass
 
-def run_suite(runner, suite):
-    """Stolen from Python/Lib/test/test_support."""
-    result = runner.run(suite)
-    if not result.wasSuccessful():
-        if len(result.errors) == 1 and not result.failures:
-            err = result.errors[0][1]
-        elif len(result.failures) == 1 and not result.errors:
-            err = result.failures[0][1]
-        else:
-            err = "errors occurred; run in verbose mode for details"
-        raise TestFailed(err)
-
-def test_module(module, runner=None, verbosity=2, stream=sys.stdout):
-    """Run a module's unittests.
-
-    Inspired by Python/Lib/test/test_support.
-    """
-    valid_types = (unittest.TestSuite, unittest.TestCase)
-    suite = unittest.TestSuite()
-    test_cases = unittest.findTestCases(module)
-    suite.addTest(test_cases)
-    if runner is None:
-        runner = unittest.TextTestRunner(stream, verbosity=verbosity)
-    run_suite(runner, suite)
-
-def test_boolean_true():
-    assert Boolean("yes") == True
-
-def test_boolean_false():
-    assert Boolean("no") == False
-
-class BooleanTests(BaseTest):
+class TestBoolean(BaseTest):
 
     def test_true(self):
         self.assertEqual(Boolean("yes"), True)
@@ -65,7 +31,7 @@ class BooleanTests(BaseTest):
         self.assertEqual(Boolean("somethingelse"), False)
         self.assertEqual(Boolean(0), False)
 
-class ParameterTests(BaseTest):
+class TestParameter(BaseTest):
 
     def setUp(self):
         self.params = Parameter("root")
@@ -169,7 +135,7 @@ class ParameterTests(BaseTest):
         self.assertEqual(str(self.params.foo.bar.path), "foo.bar")
         self.assertTrue(len(self.params.foo.bar.path) == 2)
 
-class EnvironParameterHandlerTests(BaseTest):
+class TestEnvironParameterHandler(BaseTest):
     environ = {
             'TEST_TEST_TEST': 'foo'}
 
@@ -178,3 +144,4 @@ class EnvironParameterHandlerTests(BaseTest):
         self.params.add("test")
         self.params.test.add("test")
         self.params.test.test.add("test")
+
