@@ -196,7 +196,7 @@ class AppTestLoader(unittest.TestLoader, object):
                 """To collect module-level tests."""
 
             TestCase.module = module
-            if name.startswith("test_") and inspect.isfunction(obj):
+            if name.startswith(self.func_prefix) and inspect.isfunction(obj):
                 # This is a plain old function, so we make it into a
                 # method and attach it to the dummy TestCase.
                 self.app.log.debug("Adding function %s", name)
@@ -214,7 +214,7 @@ class AppTestLoader(unittest.TestLoader, object):
                         if isinstance(member, property):
                             setattr(TestCase, name, member)
 
-                elif name.startswith("Test"):
+                elif name.startswith(self.class_prefix):
                     # This is a plain test class that doesn't
                     # subclass unittest.TestCase. Transport its
                     # attributes over to our dummy TestCase.
