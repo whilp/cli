@@ -21,6 +21,12 @@ class AppTestLoader(unittest.TestLoader, object):
     func_prefix = "test_"
     class_prefix = "Test"
     testcase_factory = AppTestCase
+    testsuite_factory = AppTestSuite
+
+    # Unittest synonyms.
+    suiteClass = testsuite_factory
+    testMethodPrefix = func_prefix
+    sortMethodsUsing = None
 
     def __init__(self, app):
         self.app = app
@@ -62,10 +68,10 @@ class AppTestLoader(unittest.TestLoader, object):
         class TestCase(unittest.TestCase):
             """To collect module-level tests."""
             # XXX: fix class naming.
-
         
         for name, obj in vars(module).items():
             if name.startswith("test_") and isfunction(obj):
+                self.app.log.debug("Adding function %s", name)
                 self.wrap_function(TestCase, obj)
             elif name.startswith("Test") and isclass(obj):
                 self.app.log.debug("XXX: ignoring class %s for now", name)
@@ -75,6 +81,7 @@ class AppTestLoader(unittest.TestLoader, object):
                 else:
                     #TestCase.something()
                     pass
+        tests.insert(0, self.loadTestsFromTestCase(TestCase))
 
         return tests
 
@@ -111,28 +118,28 @@ class AppTestResult(unittest.TestResult, object):
         unittest.TestResult.__init__(self)
 
     def startTest(self, test):
-        TestResult.addSuccess(self, test)
+        unittest.TestResult.addSuccess(self, test)
         if not hasattr(test, "...description..."):
             test.description = "DESCR"
         elif not hasattr(test, "name"):
             test.name = str(test)
 
-        self.app.debug("Starting %s (%s)", test.name, test.description)
+        self.app.log.debug("Starting %s (%s)", test.name, test.description)
 
     def stopTest(self, test):
-        TestResult.stopTest(self, test)
-        self.app.debug("Finished %s", test.name)
+        unittest.TestResult.stopTest(self, test)
+        self.app.log.debug("Finished %s", test.name)
 
     def addSuccess(self, test):
-        TestResult.addSuccess(self, test)
+        unittest.TestResult.addSuccess(self, test)
         self.app.log.info("%s ok", test.name)
 
     def addFailure(self, test, err):
-        TestResult.addFailure(self, test, err)
+        unittest.TestResult.addFailure(self, test, err)
         self.app.log.info("%s failed", test.name)
 
     def addError(self, test, err):
-        TestResult.addFailure(self, test, err)
+        unittest.TestResult.addFailure(self, test, err)
         self.app.log.info("%s errored", test.name)
 
 class AppTestRunner(object):
@@ -177,16 +184,3 @@ if __name__ == "__main__":
     from cli import App
     app = App(test)
     app.run()
-
-"""
-    if name.startswith("test_") and isfunction(obj):
-        TestCase.wrap_function(TestCase, obj)
-    elif name.startswith("Test") and isclass(obj):
-        if issubclass(unittest.TestCase, obj):
-            TestCase = obj
-        else:
-            #TestCase.something()
-            pass
-    suite.addTests(loader.loadTestsFromTestCase(TestCase))
-unittest.TextTestRunner(verbosity=2).run(suite)
-"""
