@@ -202,6 +202,16 @@ class AppTestLoader(unittest.TestLoader, object):
                 self.app.log.debug("Adding function %s", name)
                 self.wrap_function(TestCase, obj)
 
+                # Check the module for py.test hooks.
+                setup_class = getattr(module, "setup_class", None)
+                teardown_class = getattr(module, "teardown_class", None)
+
+                # Translate py.test hooks into unittest hooks.
+                if callable(setup_class):
+                    setattr(TestCase, "setUp", self.wrap_function(setup_class))
+                if callable(teardown_class):
+                    setattr(TestCase, "tearDown", self.wrap_function(teardown_class))
+
             elif inspect.isclass(obj):
                 if issubclass(obj, unittest.TestCase):
                     # This is a standard unittest.TestCase.
@@ -223,6 +233,16 @@ class AppTestLoader(unittest.TestLoader, object):
                             # XXX: Cross our fingers here and hope
                             # we don't skip anything crucial.
                             setattr(TestCase, name, attr)
+                    setup_method = getattr(obj, "setup_method", None)
+                    teardown_method = getattr(obj, "setup_method", None)
+                    if callable(setup_method):
+                        def setUp(self):
+                            return setup_method(self, self.testmethod)
+                        setattr(TestCase, "setUp", setUp)
+                    if callable(teardown_method):
+                        def tearDown(self):
+                            return teardown_method(self, self.testmethod)
+                        setattr(TestCase, "tearDown", tearDown)
                     TestCase.__name__ = obj.__name__
 
             # Add the TestCase to the list of tests.
