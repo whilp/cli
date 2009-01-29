@@ -21,10 +21,15 @@ class AppTestLoader(unittest.TestLoader, object):
     class_prefix = "Test"
     testcase_factory = AppTestCase
 
+    def __init__(self, app):
+        self.app = app
+
     def loadTestsFromDirectory(self, directory):
+        directory = os.path.abspath(directory)
         suite = self.suiteClass()
 
         root = directory
+        self.app.log.debug("Examining %s", root)
         for dirpath, dirnames, filenames in os.walk(root):
             # Trim directories list.
             dirnames = [x for x in dirnames \
@@ -168,7 +173,7 @@ class AppTestRunner(object):
 def test(app, *args):
     runner = AppTestRunner(app)
     suite = AppTestSuite()
-    loader = AppTestLoader()
+    loader = AppTestLoader(app)
 
     directory = args and args[0] or '.'
 
