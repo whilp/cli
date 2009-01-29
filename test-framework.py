@@ -37,9 +37,11 @@ class AppTestLoader(unittest.TestLoader, object):
                     if not x.startswith(self.ignore_dirs)]
 
             # Search for candidate files.
-            candidates = [x for x in filenames if \
-                    x.startswith(self.module_prefix) or \
-                    x.endswith(self.module_suffix + self.module_extension)]
+            candidates = [full for base, ext, full in \
+                    [os.path.splitext(x) + (x,) for x in filenames] \
+                    if ext == self.module_extension and \
+                    base.startswith(self.module_prefix) or \
+                    base.endswith(self.module_suffix)]
 
             for candidate in candidates:
                 fullpath = os.path.join(dirpath, candidate)
