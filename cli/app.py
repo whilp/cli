@@ -32,34 +32,12 @@ from logging import Formatter, StreamHandler
 from operator import itemgetter, attrgetter
 from string import letters
 
+from util import AttributeDict, Boolean, plural
 
 __all__ = ["App", "EnvironParameterHandler", "CLIParameterHandler",
         "CommandLineApp", "LoggingApp"]
 
 Nothing = object()
-
-def plural(number):
-    """Return 's' if number is != 1."""
-    return number != 1 and 's' or ''
-
-def Boolean(thing):
-    """Decide if 'thing' is True or False.
-
-    If thing is a string, convert it to lower case and, if it starts
-    with 'y' or 't' (as in 'yes' or 'true'), return True. If it
-    starts with some other character, return False. Otherwise,
-    return True if 'thing' is True (in the Pythonic sense).
-    """
-    if callable(getattr(thing, 'lower', None)):
-        thing = thing.lower()
-        if thing[0] in 'yt':
-            return True
-        else:
-            return False
-    elif thing:
-        return True
-    else:
-        return False
 
 class Error(Exception):
     pass
@@ -97,27 +75,6 @@ class CLILogger(logging.Logger):
             level = logging.DEBUG
 
         self.level = level
-
-class AttributeDict(UserDict, object):
-    """A dict that maps its keys to attributes."""
-
-    def __getattribute__(self, attr):
-        """Fetch an attribute.
-
-        If the instance has the requested attribute, return it. If
-        not, look for the attribute in the .data dict. If the
-        requested attribute can't be found in either location, raise
-        AttributeError.
-        """
-        try:
-            value = super(AttributeDict, self).__getattribute__(attr)
-        except AttributeError:
-            data = super(AttributeDict, self).__getattribute__("data")
-            value = data.get(attr, Nothing)
-            if value is Nothing:
-                raise
-
-        return value
 
 class ParameterPath(UserList):
 

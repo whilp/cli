@@ -23,7 +23,7 @@ import unittest
 
 from timeit import default_timer
 
-from app import plural
+from util import plural
 
 def timer(callable, *args, **kwargs):
     """Time and run callable with args and kwargs.
