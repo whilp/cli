@@ -62,6 +62,30 @@ class AppTestSuite(unittest.TestSuite, object):
     pass
 
 class AppTestLoader(unittest.TestLoader, object):
+    """Extend the base unittest.TestLoader.
+
+    AppTestLoaders know about app and its facilties and can
+    therefore log or adjust their behavior based on parameters.
+    Additionally, the AppTestLoader incorporates the following
+    behaviors:
+        
+        * Within tests are sorted by their position in their source
+          files. Two tests from the same sourcefile will be compared
+          by the line number on which each object is defined;
+          otherwise, the filenames of the source files are compared.
+        * Additional .loadTestsFromDirectory() method to discover
+          and load tests found by walking a path.
+        * Additional .loadTestsFromModule() method which discovers
+          tests defined in a module. These tests are not limited to
+          classic unittest.TestCase subclasses. Instead, plain
+          functions and plain classes that follow a generic naming
+          convention are considered in addition to
+          unittest.TestCases.
+
+    None of the above extensions break standard unittest
+    functionality. Many of them are intended to replicate the ease
+    of use of py.test without the addition of black magic.
+    """
     ignore_dirs = '.'
     module_extension = ".py"
     module_prefix = "test_"
@@ -98,6 +122,7 @@ class AppTestLoader(unittest.TestLoader, object):
         return cmp(x, y)
 
     def getTestCaseNames(self, testCaseClass):
+        """Sort the test case names using .sort_methods()."""
         names = unittest.TestLoader.getTestCaseNames(self, testCaseClass)
         def sorter(x, y):
             return self.sort_methods(testCaseClass, x, y)
@@ -106,6 +131,16 @@ class AppTestLoader(unittest.TestLoader, object):
         return names
 
     def loadTestsFromDirectory(self, directory):
+        """Load tests from a directory.
+
+        The directory may be a relative or absolute path. All
+        modules found under that directory with the
+        .module_extension and matching either the .module_prefix or
+        .module_suffix attributes will be considered. Within those
+        modules, functions matching the .func_prefix attribute,
+        classes matching the .class_prefix attribute or
+        unittest.TestCase subclasses will be loaded.
+        """
         directory = os.path.abspath(directory)
         suite = self.suiteClass()
 
@@ -131,6 +166,7 @@ class AppTestLoader(unittest.TestLoader, object):
         return suite
 
     def loadTestsFromFile(self, filename):
+        """Load a module, discovering valid test cases within it."""
         name, _ = os.path.splitext(os.path.basename(filename))
         dirname = os.path.dirname(filename)
         sys.path.insert(0, dirname)
@@ -138,6 +174,7 @@ class AppTestLoader(unittest.TestLoader, object):
         return self.loadTestsFromModule(module)
 
     def loadTestsFromModule(self, module):
+        """Discover valid test cases within a module."""
         tests = []
         class TestCase(AppTestCase):
             """To collect module-level tests."""
@@ -166,6 +203,7 @@ class AppTestLoader(unittest.TestLoader, object):
 
     @staticmethod
     def wrap_function(testcase, function):
+        """Wrap a plain function to make it a useful TestCase method."""
         name = function.func_name
         doc = function.__doc__
 
@@ -188,6 +226,16 @@ class AppTestLoader(unittest.TestLoader, object):
                 method()
 
 class AppTestResult(unittest.TestResult, object):
+    """Extend the base unittest.TestResult.
+
+    In addition to the standard unittest behavior, AppTestResults
+    can:
+        
+        * Generate useful-yet-brief status messages.
+        * Report the running time for each test.
+
+    Most of these features were inspired by py.test.
+    """
 
     def __init__(self, app):
         self.app = app
@@ -246,6 +294,15 @@ class AppTestResult(unittest.TestResult, object):
         self.app.log.error(self.status_message(test, "error"))
 
 class AppTestRunner(object):
+    """Extend the base unittest.TextTestRunner.
+
+    AppTestRunner can do the following in addition to the standard
+    behavior:
+
+        * Log via app.log channels.
+        * Generate AppTestResults and use their extended
+          capabilities.
+    """
     result_factory = AppTestResult
 
     def __init__(self, app):
