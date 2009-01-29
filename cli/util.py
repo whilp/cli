@@ -17,6 +17,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 from UserDict import UserDict
 
+Nothing = object()
+
 class AttributeDict(UserDict, object):
     """A dict that maps its keys to attributes."""
 

@@ -32,7 +32,7 @@ from logging import Formatter, StreamHandler
 from operator import itemgetter, attrgetter
 from string import letters
 
-from util import AttributeDict, Boolean, plural
+from util import AttributeDict, Boolean, Nothing, plural
 
 __all__ = ["App", "EnvironParameterHandler", "CLIParameterHandler",
         "CommandLineApp", "LoggingApp"]
