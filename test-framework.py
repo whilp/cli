@@ -190,13 +190,12 @@ class AppTestLoader(unittest.TestLoader, object):
     def loadTestsFromModule(self, module):
         """Discover valid test cases within a module."""
         tests = []
-        class TestCase(self.testcase_factory):
-            """To collect module-level tests."""
-            # XXX: fix class naming.
-
-        TestCase.module = module
         
         for name, obj in vars(module).items():
+            class TestCase(self.testcase_factory):
+                """To collect module-level tests."""
+
+            TestCase.module = module
             if name.startswith("test_") and inspect.isfunction(obj):
                 self.app.log.debug("Adding function %s", name)
                 self.wrap_function(TestCase, obj)
@@ -207,9 +206,13 @@ class AppTestLoader(unittest.TestLoader, object):
                         if isinstance(member, property):
                             setattr(TestCase, name, member)
                 elif name.startswith("Test"):
-                    #TestCase.something()
-                    pass
-        tests.insert(0, self.loadTestsFromTestCase(TestCase))
+                    for name, attr in vars(obj).items():
+                        if not hasattr(TestCase, name):
+                            # XXX: Cross our fingers here and hope
+                            # we don't skip anything crucial.
+                            setattr(TestCase, name, attr)
+
+            tests.insert(0, self.loadTestsFromTestCase(TestCase))
 
         return tests
 
