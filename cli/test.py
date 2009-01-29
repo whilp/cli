@@ -384,6 +384,12 @@ class AppTestRunner(object):
         return result
 
 def test(app, *args):
+    """[options] [directory]
+
+    Collect and run unit tests. If 'directory' is specified,
+    collect all unit tests under that directory. If it is not
+    specified, collect all tests under the current directory.
+    """
     runner = AppTestRunner(app)
     suite = AppTestSuite()
     loader = AppTestLoader(app)

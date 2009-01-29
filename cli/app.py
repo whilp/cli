@@ -530,18 +530,6 @@ def test(app, *args):
 App = LoggingApp
 
 if __name__ == "__main__":
-    import tests
-
-    def run_tests(app, *args):
-        """[options]
-
-        Run unit tests.
-        """
-        verbosity = app.params.verbose - app.params.quiet
-        if app.params.silent:
-            verbosity = 0
-
-        tests.test_module(tests, verbosity=verbosity)
-
-    app = App(run_tests)
+    from test import test
+    app = App(test)
     app.run()
