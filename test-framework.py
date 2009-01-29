@@ -4,8 +4,23 @@ import sys
 import unittest
 
 from inspect import isclass, isfunction
+from timeit import default_timer
 
 plural = lambda n: n != 1 and 's' or ''
+
+def timer(callable, *args, **kwargs):
+    """Time and run callable with args and kwargs.
+
+    Returns a tuple (timedelta, returned), where 'timedelta' is a
+    datetime.timedelta object representing the time it took to run
+    the callable and 'returned' is the output from callable.
+    """
+    start = default_timer()
+    returned = callable(*args, **kwargs)
+    stop = default_timer()
+    duration = datetime.timedelta(seconds=stop - start)
+
+    return returned, duration
 
 class AppTestCase(unittest.TestCase, object):
     pass
@@ -117,28 +132,39 @@ class AppTestResult(unittest.TestResult, object):
         self.app = app
         unittest.TestResult.__init__(self)
 
+        self.start = 0
+        self.stop = 0
+
+    @property
+    def time(self):
+        return datetime.timedelta(seconds=self.stop - self.start)
+
     def startTest(self, test):
-        unittest.TestResult.addSuccess(self, test)
+        unittest.TestResult.startTest(self, test)
         if not hasattr(test, "...description..."):
             test.description = "DESCR"
         if not hasattr(test, "name"):
             test.name = str(test)
 
         self.app.log.debug("Starting %s (%s)", test.name, test.description)
+        self.start = default_timer()
 
     def stopTest(self, test):
         unittest.TestResult.stopTest(self, test)
         self.app.log.debug("Finished %s", test.name)
 
     def addSuccess(self, test):
+        self.stop = default_timer()
         unittest.TestResult.addSuccess(self, test)
-        self.app.log.info("%s ok", test.name)
+        self.app.log.info("%s %s ok", self.time, test.name)
 
     def addFailure(self, test, err):
+        self.stop = default_timer()
         unittest.TestResult.addFailure(self, test, err)
         self.app.log.info("%s failed", test.name)
 
     def addError(self, test, err):
+        self.stop = default_timer()
         unittest.TestResult.addFailure(self, test, err)
         self.app.log.info("%s errored", test.name)
 
@@ -147,19 +173,14 @@ class AppTestRunner(object):
 
     def __init__(self, app):
         self.app = app
-        from timeit import default_timer
-        self.timer = default_timer
 
     def run(self, test):
         result = self.result_factory(self.app)
 
         # Time and run the test.
-        start = self.timer()
-        test(result)
-        stop = self.timer()
+        _, time = timer(test, result)
 
         tests = result.testsRun
-        time = datetime.timedelta(seconds=stop - start)
         self.app.log.info("Ran %d test%s in %s", tests,
                 plural(tests), time)
 
