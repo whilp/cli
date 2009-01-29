@@ -15,7 +15,7 @@ from operator import itemgetter, attrgetter
 from string import letters
 
 """
-Copyright (c) 2008 Will Maier <will@m.aier.us>
+Copyright (c) 2008-2009 Will Maier <will@m.aier.us>
 
 Permission to use, copy, modify, and distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
