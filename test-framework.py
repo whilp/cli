@@ -190,72 +190,91 @@ class AppTestLoader(unittest.TestLoader, object):
     def loadTestsFromModule(self, module):
         """Discover valid test cases within a module."""
         tests = []
-        
-        for name, obj in vars(module).items():
-            class TestCase(self.testcase_factory):
-                """To collect module-level tests."""
 
-            if name.startswith(self.func_prefix) and inspect.isfunction(obj):
-                # This is a plain old function, so we make it into a
-                # method and attach it to the dummy TestCase.
-                self.app.log.debug("Adding function %s", name)
-                self.wrap_function(TestCase, obj)
+        objects = vars(module).items()
+        functions = [(name, obj) for name, obj in objects if \
+                name.startswith(self.func_prefix) and inspect.isfunction(obj)]
+        unittests = [(name, obj) for name, obj in objects if \
+                inspect.isclass(obj) and issubclass(obj, unittest.TestCase)]
+        classes = [(name, obj) for name, obj in objects if \
+                (inspect.isclass(obj) and not issubclass(obj, unittest.TestCase))
+                and name.startswith(self.class_prefix)]
 
-                # Check the module for py.test hooks.
-                setup_class = getattr(module, "setup_class", None)
-                teardown_class = getattr(module, "teardown_class", None)
+        functions = [self.loadTestCaseFromFunction(f) for _, f in functions]
+        unittests = [self.loadTestCaseFromUnittest(u) for _, u in unittests]
+        classes = [self.loadTestCaseFromTestClass(c) for _, c in classes]
 
-                # Translate py.test hooks into unittest hooks.
-                if callable(setup_class):
-                    setattr(TestCase, "setUp", self.wrap_function(setup_class))
-                if callable(teardown_class):
-                    setattr(TestCase, "tearDown", self.wrap_function(teardown_class))
-
-            elif inspect.isclass(obj):
-                if issubclass(obj, unittest.TestCase):
-                    # This is a standard unittest.TestCase.
-                    # Transport the necessary properties from our
-                    # testcase (so that the Results and Runner
-                    # classes can work with it) and replace the
-                    # dummy TestCase with it.
-                    TestCase = obj
-                    for name, member in vars(self.testcase_factory).items():
-                        if isinstance(member, property):
-                            setattr(TestCase, name, member)
-
-                elif name.startswith(self.class_prefix):
-                    # This is a plain test class that doesn't
-                    # subclass unittest.TestCase. Transport its
-                    # attributes over to our dummy TestCase.
-                    for name, attr in vars(obj).items():
-                        if not hasattr(TestCase, name):
-                            # XXX: Cross our fingers here and hope
-                            # we don't skip anything crucial.
-                            setattr(TestCase, name, attr)
-                    setup_method = getattr(obj, "setup_method", None)
-                    teardown_method = getattr(obj, "setup_method", None)
-                    if callable(setup_method):
-                        def setUp(self):
-                            return setup_method(self, self.testmethod)
-                        setattr(TestCase, "setUp", setUp)
-                    if callable(teardown_method):
-                        def tearDown(self):
-                            return teardown_method(self, self.testmethod)
-                        setattr(TestCase, "tearDown", tearDown)
-                    TestCase.__name__ = obj.__name__
-
-            # Add the TestCase to the list of tests.
-            tests.insert(0, self.loadTestsFromTestCase(TestCase))
+        tests = unittests + classes + functions
+        tests = [self.loadTestsFromTestCase(x) for x in tests]
 
         return tests
 
-    def loadTestsFromTestClass(self, obj):
-        pass
+    def loadTestCaseFromFunction(self, function):
+        """Generate a TestCase for a plain function."""
+        class FunctionTestCase(self.testcase_factory):
+            """To collect module-level tests."""
+        module = inspect.getmodule(function)
+
+        # This is a plain old function, so we make it into a
+        # method and attach it to the dummy TestCase.
+        self.wrap_function(FunctionTestCase, function)
+
+        # Check the module for py.test hooks.
+        setup_class = getattr(module, "setup_class", None)
+        teardown_class = getattr(module, "teardown_class", None)
+
+        # Translate py.test hooks into unittest hooks.
+        if callable(setup_class):
+            self.wrap_function(FunctionTestCase, setup_class, "setUp")
+        if callable(teardown_class):
+            self.wrap_function(FunctionTestCase, teardown_class, "tearDown")
+
+        return FunctionTestCase
+
+    def loadTestCaseFromUnittest(self, unittest):
+        """Generate a useful TestCase from a plain unittest.TestCase."""
+        # This is a standard unittest.TestCase.  Transport the
+        # necessary properties from our testcase (so that the
+        # Results and Runner classes can work with it) and
+        # replace the dummy TestCase with it.
+        for name, member in vars(self.testcase_factory).items():
+            if isinstance(member, property):
+                setattr(unittest, name, member)
+
+        return unittest
+    
+    def loadTestCaseFromTestClass(self, cls):
+        """Generate a TestCase from a non-Unittest test class."""
+        class PlainTestCase(self.testcase_factory):
+            """To collect plain class-based tests."""
+
+        # This is a plain test class that doesn't subclass
+        # unittest.TestCase. Transport its attributes over to our
+        # dummy TestCase.
+        for name, attr in vars(cls).items():
+            if not hasattr(PlainTestCase, name):
+                # XXX: Cross our fingers here and hope we don't skip
+                # anything crucial.
+                setattr(PlainTestCase, name, attr)
+        setup_method = getattr(cls, "setup_method", None)
+        teardown_method = getattr(cls, "setup_method", None)
+        if callable(setup_method):
+            def setUp(self):
+                return setup_method(self, self.testmethod)
+            setattr(PlainTestCase, "setUp", setUp)
+        if callable(teardown_method):
+            def tearDown(self):
+                return teardown_method(self, self.testmethod)
+            setattr(PlainTestCase, "tearDown", tearDown)
+        PlainTestCase.__name__ = cls.__name__
+
+        return PlainTestCase
 
     @staticmethod
-    def wrap_function(testcase, function):
+    def wrap_function(testcase, function, name=""):
         """Wrap a plain function to make it a useful TestCase method."""
-        name = function.func_name
+        if not name:
+            name = function.func_name
         doc = function.__doc__
 
         setattr(testcase, name, staticmethod(function))
