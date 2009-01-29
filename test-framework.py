@@ -195,7 +195,6 @@ class AppTestLoader(unittest.TestLoader, object):
             class TestCase(self.testcase_factory):
                 """To collect module-level tests."""
 
-            TestCase.module = module
             if name.startswith(self.func_prefix) and inspect.isfunction(obj):
                 # This is a plain old function, so we make it into a
                 # method and attach it to the dummy TestCase.
