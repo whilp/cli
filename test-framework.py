@@ -211,6 +211,7 @@ class AppTestLoader(unittest.TestLoader, object):
                             # XXX: Cross our fingers here and hope
                             # we don't skip anything crucial.
                             setattr(TestCase, name, attr)
+                    TestCase.__name__ = obj.__name__
 
             tests.insert(0, self.loadTestsFromTestCase(TestCase))
 
