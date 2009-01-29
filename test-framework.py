@@ -353,10 +353,7 @@ def test(app, *args):
     runner.run(suite)
 
 if __name__ == "__main__":
-    try:
-        from dcli import App
-    except ImportError:
-        App = DummyApp
+    from cli import App
 
     app = App(test)
     app.run()
