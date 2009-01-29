@@ -43,6 +43,12 @@ def test_module(module, runner=None, verbosity=2, stream=sys.stdout):
         runner = unittest.TextTestRunner(stream, verbosity=verbosity)
     run_suite(runner, suite)
 
+def test_boolean_true():
+    assert Boolean("yes") == True
+
+def test_boolean_false():
+    assert Boolean("no") == False
+
 class BooleanTests(BaseTest):
 
     def test_true(self):
