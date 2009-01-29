@@ -15,5 +15,8 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
+__version__ = "0.2"
+__license__ = "BSD"
+
 # Import API-level elements.
 from app import *
