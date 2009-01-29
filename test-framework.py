@@ -1,14 +1,18 @@
+import datetime
+import os
 import unittest
 
 from inspect import isclass, isfunction
 
-suite = unittest.TestSuite()
-loader = unittest.TestLoader()
+plural = lambda n: n != 1 and 's' or ''
 
-class AppTestCase(object, unittest.TestCase):
+class AppTestCase(unittest.TestCase, object):
     pass
 
-class AppTestLoader(object, unittest.TestLoader):
+class AppTestSuite(unittest.TestSuite, object):
+    pass
+
+class AppTestLoader(unittest.TestLoader, object):
     ignore_dirs = '.'
     module_extension = ".py"
     module_prefix = "test_"
@@ -102,7 +106,7 @@ class AppTestLoader(object, unittest.TestLoader):
         return staticmethod(wrappedfunc)
 
 
-class AppTestResult(object, unittest.TestResult):
+class AppTestResult(unittest.TestResult, object):
 
     def __init__(self, app):
         self.app = app
@@ -161,7 +165,22 @@ class AppTestRunner(object):
 
         return result
 
+def test(app, *args):
+    runner = AppTestRunner(app)
+    suite = AppTestSuite()
+    loader = AppTestLoader()
 
+    directory = args and args[0] or '.'
+
+    suite.addTests(loader.loadTestsFromDirectory(directory))
+    runner.run(suite)
+
+if __name__ == "__main__":
+    from cli import App
+    app = App(test)
+    app.run()
+
+"""
 for name, obj in locals().items():
     class TestCase(unittest.TestCase):
         # XXX: fix class naming.
@@ -199,3 +218,4 @@ for name, obj in locals().items():
             pass
     suite.addTests(loader.loadTestsFromTestCase(TestCase))
 unittest.TextTestRunner(verbosity=2).run(suite)
+"""
