@@ -23,14 +23,12 @@ def timer(callable, *args, **kwargs):
     return returned, duration
 
 class AppTestCase(unittest.TestCase, object):
+    module = None
+    lineno = 0
 
     @property
     def filename(self):
-        return "file"
-
-    @property
-    def lineno(self):
-        return 0
+        return self.module.__file__
 
     @property
     def classname(self):
@@ -98,6 +96,8 @@ class AppTestLoader(unittest.TestLoader, object):
         class TestCase(AppTestCase):
             """To collect module-level tests."""
             # XXX: fix class naming.
+
+        TestCase.module = module
         
         for name, obj in vars(module).items():
             if name.startswith("test_") and isfunction(obj):
