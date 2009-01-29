@@ -9,7 +9,7 @@ import unittest
 from ConfigParser import ConfigParser
 from UserDict import UserDict
 from UserList import UserList
-from inspect import getargs, isclass, isfunction
+from inspect import getargs, isclass, isfunction, ismethod
 from logging import Formatter, StreamHandler
 from operator import itemgetter, attrgetter
 from string import letters
@@ -521,6 +521,9 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).pre_run()
         self.log.setLevel(opts=self.params)
 
+class AppTestCase(object, unittest.TestCase):
+    pass
+
 class AppTestLoader(object, unittest.TestLoader):
     ignore_dirs = '.'
     module_extension = ".py"
@@ -528,6 +531,7 @@ class AppTestLoader(object, unittest.TestLoader):
     module_suffix = "_test"
     func_prefix = "test_"
     class_prefix = "Test"
+    testcase_factory = AppTestCase
 
     def loadTestsFromDirectory(self, directory):
         suite = self.suiteClass()
@@ -578,7 +582,41 @@ class AppTestLoader(object, unittest.TestLoader):
         pass
 
     def loadTestsFromTestFunc(self, obj):
-        pass
+        class TestFunctionWrapper(self.testcase_factory):
+            pass
+
+        name = obj.func_name
+        method = self.wrapFunc(obj)
+        method.func_name = name
+        method.__doc__ = obj.__doc__
+        setattr(TestFunctionWrapper, name, method)
+
+        return self.loadTestsFromTestCase(TestFunctionWrapper)
+
+    def wrapFunc(self, func):
+        name = func.func_name
+        doc = func.__doc__
+
+        def wrappedfunc():
+            try:
+                result = func()
+            except AssertionError:
+                # XXX: Do something special here.
+                pass
+            except:
+                # XXX: Do something else here?
+                raise
+
+            # XXX: check for generator; do something like py.test
+            # here?
+            if hasattr(result, "next"):
+                pass
+
+        wrappedfunc.func_name = name
+        wrappedfunc.__doc__ = doc
+
+        return staticmethod(wrappedfunc)
+
 
 class AppTestResult(object, unittest.TestResult):
 
@@ -610,9 +648,6 @@ class AppTestResult(object, unittest.TestResult):
     def addError(self, test, err):
         TestResult.addFailure(self, test, err)
         self.app.log.info("%s errored", test.name)
-
-class AppTestCase(object, unittest.TestCase):
-    pass
 
 class AppTestRunner(object):
     result_factory = AppTestResult
