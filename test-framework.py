@@ -250,8 +250,7 @@ class AppTestResult(unittest.TestResult, object):
     def status_message(self, test, status):
         time = self.time
         fields = {
-                "seconds": time.seconds,
-                "microseconds": time.microseconds,
+                "seconds": time.seconds + (time.microseconds/10.0**6),
                 "status": status,
                 "filename": test.filename,
                 "lineno": test.lineno,
@@ -259,7 +258,7 @@ class AppTestResult(unittest.TestResult, object):
                 "methodname": test.methodname,
         }
 
-        format = "%(seconds)d.%(microseconds)03.d %(status)5s %(filename)s:" \
+        format = "%(seconds)3.3f %(status)5s %(filename)s:" \
                 "%(lineno)-10d %(classname)s.%(methodname)s()"
         return format % fields
 
