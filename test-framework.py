@@ -57,61 +57,50 @@ class AppTestLoader(unittest.TestLoader, object):
 
     def loadTestsFromModule(self, module):
         tests = []
-        for name, obj in vars(module):
-            test = None
+        class TestCase(unittest.TestCase):
+            """To collect module-level tests."""
+            # XXX: fix class naming.
 
-            if isclass(obj) and name.startswith(self.class_prefix):
-                if issubclass(obj, unittest.TestCase):
-                    test = self.loadTestsFromTestCase(obj)
+        
+        for name, obj in vars(module).items():
+            if name.startswith("test_") and isfunction(obj):
+                self.wrap_function(TestCase, obj)
+            elif name.startswith("Test") and isclass(obj):
+                self.app.log.debug("XXX: ignoring class %s for now", name)
+                if issubclass(unittest.TestCase, obj):
+                    #TestCase = obj
+                    pass
                 else:
-                    test = self.loadTestsFromTestClass(obj)
-            elif isfunction(obj) and name.startswith(self.func_prefix):
-                test = self.loadTestsFromTestFunc(obj)
-
-            if test is not None:
-                tests.append(test)
+                    #TestCase.something()
+                    pass
 
         return tests
 
     def loadTestsFromTestClass(self, obj):
         pass
 
-    def loadTestsFromTestFunc(self, obj):
-        class TestFunctionWrapper(self.testcase_factory):
-            pass
+    @staticmethod
+    def wrap_function(testcase, function):
+        name = function.func_name
+        doc = function.__doc__
 
-        name = obj.func_name
-        method = self.wrapFunc(obj)
-        method.func_name = name
-        method.__doc__ = obj.__doc__
-        setattr(TestFunctionWrapper, name, method)
+        setattr(testcase, name, staticmethod(function))
 
-        return self.loadTestsFromTestCase(TestFunctionWrapper)
+    @staticmethod
+    def wrap_class(testcase, cls):
+        noop = lambda s: None
+        setup_method = getattr(cls, "setup_method", noop)
+        setUp = getattr(cls, "setUp", noop)
+        teardown_method = getattr(cls, "teardown_method", noop)
+        tearDown = getattr(cls, "tearDown", noop)
 
-    def wrapFunc(self, func):
-        name = func.func_name
-        doc = func.__doc__
+        tests = [(n, m) for n, m in vars(cls).items() if \
+                n.startswith("test_")]
 
-        def wrappedfunc():
-            try:
-                result = func()
-            except AssertionError:
-                # XXX: Do something special here.
-                pass
-            except:
-                # XXX: Do something else here?
-                raise
+        for name, method in tests:
+            def wrapped_method(self):
 
-            # XXX: check for generator; do something like py.test
-            # here?
-            if hasattr(result, "next"):
-                pass
-
-        wrappedfunc.func_name = name
-        wrappedfunc.__doc__ = doc
-
-        return staticmethod(wrappedfunc)
-
+                method()
 
 class AppTestResult(unittest.TestResult, object):
 
@@ -188,33 +177,6 @@ if __name__ == "__main__":
     app.run()
 
 """
-for name, obj in locals().items():
-    class TestCase(unittest.TestCase):
-        # XXX: fix class naming.
-
-        @staticmethod
-        def wrap_function(testcase, function):
-            name = function.func_name
-            doc = function.__doc__
-
-            setattr(testcase, name, staticmethod(function))
-
-        @staticmethod
-        def wrap_class(testcase, cls):
-            noop = lambda s: None
-            setup_method = getattr(cls, "setup_method", noop)
-            setUp = getattr(cls, "setUp", noop)
-            teardown_method = getattr(cls, "teardown_method", noop)
-            tearDown = getattr(cls, "tearDown", noop)
-
-            tests = [(n, m) for n, m in vars(cls).items() if \
-                    n.startswith("test_")]
-
-            for name, method in tests:
-                def wrapped_method(self):
-
-                    method()
-
     if name.startswith("test_") and isfunction(obj):
         TestCase.wrap_function(TestCase, obj)
     elif name.startswith("Test") and isclass(obj):
