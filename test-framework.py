@@ -1,5 +1,6 @@
 import datetime
 import os
+import sys
 import unittest
 
 from inspect import isclass, isfunction
@@ -42,6 +43,7 @@ class AppTestLoader(unittest.TestLoader, object):
 
             for candidate in candidates:
                 fullpath = os.path.join(dirpath, candidate)
+                self.app.log.debug("Adding %s", fullpath)
                 suite.addTests(self.loadTestsFromFile(fullpath))
 
         return suite
