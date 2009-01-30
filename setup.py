@@ -16,6 +16,7 @@ class TestCommand(Command):
         from cli import App
         from cli.test import test
         app = App(test, argv=[os.getcwd()])
+        app.params.verbose.default = self.verbose
         app.run()
 
 docs = [os.path.join('docs', x) for x in os.listdir('docs')]
