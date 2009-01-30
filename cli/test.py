@@ -21,6 +21,7 @@ import os
 import sys
 import unittest
 
+from fnmatch import fnmatch
 from timeit import default_timer
 
 from util import plural
@@ -61,14 +62,8 @@ class AppTestCase(unittest.TestCase, object):
         return inspect.getmodule(self.testmethod)
 
     @property
-    def classname(self):
-        delim = '.'
-        im_class = getattr(self.testmethod, "im_class", "")
-        classname = inspect.getmodulename(self.filename)
-        if im_class:
-            classname = delim.join((classname, im_class.__name__))
-
-        return classname
+    def cls(self):
+        return getattr(self.testmethod, "im_class", None)
 
     @property
     def methodname(self):
@@ -77,6 +72,15 @@ class AppTestCase(unittest.TestCase, object):
             func = self.testmethod
 
         return func.func_name
+
+    @property
+    def name(self):
+        delim = '.'
+        name = [inspect.getmodulename(self.filename), self.methodname]
+        if self.cls:
+            name.insert(1, self.cls.__name__)
+
+        return delim.join(name) + "()"
 
     def run(self, result=None):
         """Run the test.
@@ -93,7 +97,25 @@ class AppTestCase(unittest.TestCase, object):
             unittest.TestCase.run(self, result)
 
 class AppTestSuite(unittest.TestSuite, object):
-    pass
+
+    def addTest(self, test):
+        matches = True
+        filename = getattr(test, "filename", None)
+
+        if filename is not None and self.keyword:
+            classname = test.cls.__name__
+            modulename = test.module.__name__
+
+            tests = [
+                    os.path.basename(test.filename),
+                    classname,
+                    modulename,
+                    test.methodname
+            ]
+            matches = [x for x in tests if fnmatch(x, self.keyword)]
+
+        if matches:
+            unittest.TestSuite.addTest(self, test)
 
 class AppTestLoader(unittest.TestLoader, object):
     """Extend the base unittest.TestLoader.
@@ -134,8 +156,9 @@ class AppTestLoader(unittest.TestLoader, object):
     testMethodPrefix = func_prefix
     sortTestMethodsUsing = None
 
-    def __init__(self, app):
+    def __init__(self, app, keyword=""):
         self.app = app
+        self.suiteClass.keyword = keyword
 
     @staticmethod
     def sort_methods(cls, x, y):
@@ -327,12 +350,11 @@ class AppTestResult(unittest.TestResult, object):
                 "status": status,
                 "filename": test.filename,
                 "lineno": test.lineno,
-                "classname": test.classname,
-                "methodname": test.methodname,
+                "name": test.name,
         }
 
         format = "%(seconds)3.3f %(status)5s %(filename)s:" \
-                "%(lineno)-10d %(classname)s.%(methodname)s()"
+                "%(lineno)-10d %(name)s"
         return format % fields
 
     @property
@@ -341,17 +363,10 @@ class AppTestResult(unittest.TestResult, object):
 
     def startTest(self, test):
         unittest.TestResult.startTest(self, test)
-        if not hasattr(test, "...description..."):
-            test.description = "DESCR"
-        if not hasattr(test, "name"):
-            test.name = str(test)
-
-        self.app.log.debug("Starting %s (%s)", test.name, test.description)
         self.start = default_timer()
 
     def stopTest(self, test):
         unittest.TestResult.stopTest(self, test)
-        self.app.log.debug("Finished %s", test.name)
 
     def addSuccess(self, test):
         self.stop = default_timer()
@@ -410,8 +425,7 @@ class AppTestRunner(object):
                 self.app.stderr.write("Skipped:\n".upper())
                 for test, message in result.skipped:
                     self.app.stderr.write(70 * '-' + '\n')
-                    self.app.stderr.write("%s.%s:\n" %
-                            (test.classname, test.methodname))
+                    self.app.stderr.write("%s.%s:\n" % test.name)
                     self.app.stderr.write("    file:\t%s:%d\n" %
                             (test.filename, test.lineno))
                     self.app.stderr.write("    reason:\t%s" % message)
@@ -446,7 +460,7 @@ def test(app, *args):
     """
     runner = AppTestRunner(app)
     suite = AppTestSuite()
-    loader = AppTestLoader(app)
+    loader = AppTestLoader(app, keyword=app.params.keyword)
 
     directory = args and args[0] or '.'
 

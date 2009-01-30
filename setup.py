@@ -4,10 +4,11 @@ from distutils.core import Command, setup
 import cli
 
 class TestCommand(Command):
-    user_options = []
+    user_options = [
+            ("keyword=", "k", "only run tests matching KEYWORD")]
 
     def initialize_options(self):
-        pass
+        self.keyword = ""
 
     def finalize_options(self):
         pass
@@ -17,6 +18,7 @@ class TestCommand(Command):
         from cli.test import test
         app = App(test, argv=[os.getcwd()])
         app.params.verbose.default = self.verbose
+        app.add_param("keyword", self.keyword, "only run tests matching KEYWORD")
         app.run()
 
 docs = [os.path.join('docs', x) for x in os.listdir('docs')]
