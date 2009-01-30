@@ -452,9 +452,3 @@ def test(app, *args):
 
     suite.addTests(loader.loadTestsFromDirectory(directory))
     runner.run(suite)
-
-if __name__ == "__main__":
-    from cli import App
-
-    app = App(test)
-    app.run()
