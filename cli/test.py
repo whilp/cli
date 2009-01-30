@@ -40,6 +40,7 @@ def timer(callable, *args, **kwargs):
     return returned, duration
 
 class AppTestCase(unittest.TestCase, object):
+    overridden_methods = ["run"]
 
     @property
     def testmethod(self):
@@ -76,6 +77,20 @@ class AppTestCase(unittest.TestCase, object):
             func = self.testmethod
 
         return func.func_name
+
+    def run(self, result=None):
+        """Run the test.
+        
+        Before running the test, check the test method for a
+        '.disabled' attribute. If that attribute is not false, skip
+        the test and call the result's .addSkip() method.
+        """
+        disabled = getattr(self.testmethod, "disabled", 
+            getattr(self, "disabled", None))
+        if disabled:
+            result.addSkip(self, disabled)
+        else:
+            unittest.TestCase.run(self, result)
 
 class AppTestSuite(unittest.TestSuite, object):
     pass
@@ -242,8 +257,9 @@ class AppTestLoader(unittest.TestLoader, object):
         # necessary properties from our testcase (so that the
         # Results and Runner classes can work with it) and
         # replace the dummy TestCase with it.
+        methods = self.testcase_factory.overridden_methods
         for name, member in vars(self.testcase_factory).items():
-            if isinstance(member, property):
+            if isinstance(member, property) or name in methods:
                 setattr(unittest, name, member)
 
         return unittest
@@ -300,6 +316,7 @@ class AppTestResult(unittest.TestResult, object):
         self.app = app
         unittest.TestResult.__init__(self)
 
+        self.skipped = []
         self.start = 0
         self.stop = 0
 
@@ -351,6 +368,10 @@ class AppTestResult(unittest.TestResult, object):
         unittest.TestResult.addFailure(self, test, err)
         self.app.log.error(self.status_message(test, "error"))
 
+    def addSkip(self, test, message):
+        self.app.log.info(self.status_message(test, "skip"))
+        self.skipped.append((test, message))
+
 class AppTestRunner(object):
     """Extend the base unittest.TextTestRunner.
 
@@ -378,10 +399,23 @@ class AppTestRunner(object):
 
         # If we failed, dump tracebacks and other helpful
         # information.
-        if not result.wasSuccessful():
-            failed, errored = [len(x) for x in (result.failures, result.errors)]
-            self.app.log.error("%d failure%s, %d error%s", failed,
-                    plural(failed), errored, plural(errored))
+        if not result.wasSuccessful() or result.skipped:
+            failed, errored, skipped = [len(x) for x in 
+                    (result.failures, result.errors, result.skipped)]
+            self.app.log.error("%d failure%s, %d error%s, %d skipped", failed,
+                    plural(failed), errored, plural(errored), skipped)
+
+            if result.skipped:
+                self.app.stderr.write('\n%s\n' % (70 * '='))
+                self.app.stderr.write("Skipped:\n".upper())
+                for test, message in result.skipped:
+                    self.app.stderr.write(70 * '-' + '\n')
+                    self.app.stderr.write("%s.%s:\n" %
+                            (test.classname, test.methodname))
+                    self.app.stderr.write("    file:\t%s:%d\n" %
+                            (test.filename, test.lineno))
+                    self.app.stderr.write("    reason:\t%s" % message)
+                    self.app.stderr.write("\n")
 
             if result.errors:
                 self.app.stderr.write('\n%s\n' % (70 * '='))

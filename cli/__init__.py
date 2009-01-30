@@ -24,7 +24,6 @@ __todo__ = """\
     * add Windows registry/OS X plist support (sekhmet)
 * cli.test:
     * support test selection (-k in py.test)
-    * support disabled tests
     * doctest support
     * {setup,teardown}_module support?
     * verify py.test hook functionality
