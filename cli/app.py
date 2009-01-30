@@ -487,8 +487,3 @@ def test(app, *args):
     pass
 
 App = LoggingApp
-
-if __name__ == "__main__":
-    from test import test
-    app = App(test)
-    app.run()
