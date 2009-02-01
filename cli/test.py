@@ -103,7 +103,10 @@ class AppTestSuite(unittest.TestSuite, object):
         filename = getattr(test, "filename", None)
 
         if filename is not None and self.keyword:
-            classname = test.cls.__name__
+            try:
+                classname = test.cls.__name__
+            except:
+                classname = ""
             modulename = test.module.__name__
 
             tests = [
