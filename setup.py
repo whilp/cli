@@ -1,25 +1,8 @@
 import os
-from distutils.core import Command, setup
+from distutils.core import setup
 
 import cli
-
-class TestCommand(Command):
-    user_options = [
-            ("keyword=", "k", "only run tests matching KEYWORD")]
-
-    def initialize_options(self):
-        self.keyword = ""
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        from cli import App
-        from cli.test import test
-        app = App(test, argv=[os.getcwd()])
-        app.params.verbose.default = self.verbose
-        app.add_param("keyword", self.keyword, "only run tests matching KEYWORD")
-        app.run()
+from cli.test import TestCommand
 
 docs = [os.path.join('docs', x) for x in os.listdir('docs')]
 examples = docs = [os.path.join('examples', x) for x in os.listdir('examples')]

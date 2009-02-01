@@ -21,6 +21,7 @@ import os
 import sys
 import unittest
 
+from distutils.core import Command
 from fnmatch import fnmatch
 from timeit import default_timer
 
@@ -468,4 +469,26 @@ def test(app, *args):
     directory = args and args[0] or '.'
 
     suite.addTests(loader.loadTestsFromDirectory(directory))
-    runner.run(suite)
+    result = runner.run(suite)
+
+    if not result.wasSuccessful():
+        return 1
+    else:
+        return 0
+
+class TestCommand(Command):
+    user_options = [
+            ("keyword=", "k", "only run tests matching KEYWORD")]
+
+    def initialize_options(self):
+        self.keyword = ""
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from cli import App
+        app = App(test, argv=[os.getcwd()])
+        app.params.verbose.default = self.verbose
+        app.add_param("keyword", self.keyword, "only run tests matching KEYWORD")
+        app.run()
