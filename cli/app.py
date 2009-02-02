@@ -243,7 +243,10 @@ class EnvironParameterHandler(ParameterHandler):
     def handle_parameter(self, parameter):
         # Convert parameter name to something useful. 
         # foo.bar.baz -> FOO_BAR_BAZ
-        name = str(parameter.path).replace(parameter.delim, self.delim).upper()
+        name = getattr(parameter, "var_name", None)
+
+        if name is None:
+            name = str(parameter.path).replace(parameter.delim, self.delim).upper()
 
         value = self.environ.get(name, None)
         if value is not None:

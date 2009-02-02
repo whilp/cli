@@ -19,6 +19,7 @@ import optparse
 import unittest
 import sys
 
+from cli.app import App
 from cli.app import Parameter, ParameterError
 from cli.app import EnvironParameterHandler
 from cli.app import Boolean
@@ -153,11 +154,22 @@ class TestParameter(BaseTest):
 
 class TestEnvironParameterHandler(BaseTest):
     environ = {
-            'TEST_TEST_TEST': 'foo'}
+            "FOO": "shouldntbefoo",
+            "non_default_name": "foo",
+            "BAR": "bar",
+    }
 
     def setUp(self):
+        self.app = App(lambda x: x)
         self.params = Parameter("root")
-        self.params.add("test")
-        self.params.test.add("test")
-        self.params.test.test.add("test")
+        self.handler = EnvironParameterHandler(self.app, self.environ)
 
+    def test_param_name(self):
+        self.params.add("foo", "notfoo", var_name="non_default_name")
+        self.params.add("bar", "notbar")
+
+        self.handler.handle_parameter(self.params.foo)
+        self.handler.handle_parameter(self.params.bar)
+
+        self.assertEqual(self.params.foo.value, "foo")
+        self.assertEqual(self.params.bar.value, "bar")
