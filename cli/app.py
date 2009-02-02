@@ -254,6 +254,8 @@ class EnvironParameterHandler(ParameterHandler):
 
 class CLIParameterHandler(ParameterHandler):
     delim = '-'
+    cmp = staticmethod(lambda x, y: \
+            cmp(getattr(x, "short", x.name), getattr(y, "short", y.name)))
 
     def __init__(self, app, argv):
         self.app = app
@@ -268,6 +270,8 @@ class CLIParameterHandler(ParameterHandler):
     def handle(self, parameters):
         # XXX: we'll need to map option names to parameters here...
         param_map = {}
+        if self.cmp:
+            parameters = sorted(parameters, self.cmp)
         for parameter in parameters:
             name = self.handle_parameter(parameter)
             param_map[name] = parameter
