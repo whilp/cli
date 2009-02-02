@@ -302,6 +302,7 @@ class CLIParameterHandler(ParameterHandler):
         long = getattr(parameter, "long", "--%s" % name)
         kwargs = dict((k, v) for k, v in vars(parameter).items() \
                 if k in option_attrs)
+        kwargs["dest"] = kwargs.get("dest", name)
         
         self.parser.add_option(short, long, **kwargs)
         
