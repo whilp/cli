@@ -18,5 +18,4 @@ setup(name="CLI",
         data_files=[
             ('share/doc/py-cli/', docs),
             ('share/examples/py-cli/', examples)],
-        py_modules=['cli'],
         cmdclass = {"test": TestCommand})
