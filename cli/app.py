@@ -294,8 +294,8 @@ class CLIParameterHandler(ParameterHandler):
     def handle_parameter(self, parameter):
         option_attrs = optparse.Option.ATTRS
         name = str(parameter.path).replace(parameter.delim, self.delim)
-        short = "-%s" % name[0]
-        long = "--%s" % name
+        short = getattr(parameter, "short", "-%s" % name[0])
+        long = getattr(parameter, "long", "--%s" % name)
         kwargs = dict((k, v) for k, v in vars(parameter).items() \
                 if k in option_attrs)
         
