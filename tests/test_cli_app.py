@@ -203,3 +203,16 @@ class TestCLIParameterHandler(BaseTest):
 
         long = foo._long_opts[0]
         self.assertEqual(long, "--bar")
+
+class TestApp:
+
+    def test_param_inheritance(self):
+        class FooParameter(Parameter):
+            pass
+
+        class TestApp(App):
+            param_factory = FooParameter
+
+        app = TestApp(lambda x:x)
+        app.add_param("foo")
+        assert isinstance(app.params.foo, FooParameter)

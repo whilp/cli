@@ -183,7 +183,8 @@ class Parameter(AttributeDict):
             >>> foo.bar
         """
         if not isinstance(parameter, Parameter):
-            parameter = Parameter(parameter, *args, **kwargs)
+            cls = type(self)
+            parameter = cls(parameter, *args, **kwargs)
 
         parameter.parent = self
 
