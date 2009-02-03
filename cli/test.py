@@ -429,7 +429,7 @@ class AppTestRunner(object):
                 self.app.stderr.write("Skipped:\n".upper())
                 for test, message in result.skipped:
                     self.app.stderr.write(70 * '-' + '\n')
-                    self.app.stderr.write("%s.%s:\n" % test.name)
+                    self.app.stderr.write("%s:\n" % test.name)
                     self.app.stderr.write("    file:\t%s:%d\n" %
                             (test.filename, test.lineno))
                     self.app.stderr.write("    reason:\t%s" % message)
