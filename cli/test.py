@@ -304,15 +304,20 @@ class AppTestLoader(unittest.TestLoader, object):
                 # XXX: Cross our fingers here and hope we don't skip
                 # anything crucial.
                 setattr(PlainTestCase, name, attr)
+
+        # Get the setup and teardown methods from the class'
+        # __dict__. This technique circumvents the type check on the
+        # methods so that they don't complain about getting TestCase
+        # instances.
         setup_method = getattr(cls, "setup_method", None)
-        teardown_method = getattr(cls, "setup_method", None)
-        if callable(setup_method):
-            def setUp(self):
-                return setup_method(self, self.testmethod)
+        teardown_method = getattr(cls, "teardown_method", None)
+        if callable(setup_method) and not hasattr(cls, "setUp"):
+            setUp = lambda s: cls.__dict__["setup_method"](s, s.testmethod)
+            setUp.__doc__ = setup_method.__doc__
             setattr(PlainTestCase, "setUp", setUp)
         if callable(teardown_method):
-            def tearDown(self):
-                return teardown_method(self, self.testmethod)
+            tearDown = lambda s: cls.__dict__["teardown_method"](s, s.testmethod)
+            tearDown.__doc__ = teardown_method.__doc__
             setattr(PlainTestCase, "tearDown", tearDown)
         PlainTestCase.__name__ = cls.__name__
 
