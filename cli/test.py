@@ -83,6 +83,19 @@ class AppTestCase(unittest.TestCase, object):
 
         return delim.join(name) + "()"
 
+    def setUp(self):
+        setup_method = getattr(self, "setup_method", None)
+        if callable(setup_method):
+            setup_method(self.testmethod)
+        unittest.TestCase.setUp(self)
+
+    def tearDown(self):
+        teardown_method = getattr(self, "teardown_method", None)
+        if callable(teardown_method):
+            teardown_method(self.testmethod)
+        else:
+            unittest.TestCase.tearDown(self)
+
     def run(self, result=None):
         """Run the test.
         
@@ -299,7 +312,8 @@ class AppTestLoader(unittest.TestLoader, object):
         # This is a plain test class that doesn't subclass
         # unittest.TestCase. Transport its attributes over to our
         # dummy TestCase.
-        for name, attr in vars(cls).items():
+        for name in dir(cls):
+            attr = getattr(cls, name)
             if not hasattr(PlainTestCase, name):
                 # XXX: Cross our fingers here and hope we don't skip
                 # anything crucial.
