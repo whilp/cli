@@ -264,7 +264,7 @@ class AppTestLoader(unittest.TestLoader, object):
 
         # This is a plain old function, so we make it into a
         # method and attach it to the dummy TestCase.
-        self.wrap_function(FunctionTestCase, function)
+        self.attach_function(FunctionTestCase, function)
 
         # Check the module for py.test hooks.
         setup_class = getattr(module, "setup_class", None)
@@ -272,9 +272,9 @@ class AppTestLoader(unittest.TestLoader, object):
 
         # Translate py.test hooks into unittest hooks.
         if callable(setup_class):
-            self.wrap_function(FunctionTestCase, setup_class, "setUp")
+            self.attach_function(FunctionTestCase, setup_class, "setUp")
         if callable(teardown_class):
-            self.wrap_function(FunctionTestCase, teardown_class, "tearDown")
+            self.attach_function(FunctionTestCase, teardown_class, "tearDown")
 
         return FunctionTestCase
 
@@ -303,7 +303,10 @@ class AppTestLoader(unittest.TestLoader, object):
             if not hasattr(PlainTestCase, name):
                 # XXX: Cross our fingers here and hope we don't skip
                 # anything crucial.
-                setattr(PlainTestCase, name, attr)
+                if callable(attr):
+                    self.attach_function(PlainTestCase, attr, name, cls)
+                else:
+                    setattr(PlainTestCase, name, attr)
 
         # Get the setup and teardown methods from the class'
         # __dict__. This technique circumvents the type check on the
@@ -311,26 +314,31 @@ class AppTestLoader(unittest.TestLoader, object):
         # instances.
         setup_method = getattr(cls, "setup_method", None)
         teardown_method = getattr(cls, "teardown_method", None)
-        if callable(setup_method) and not hasattr(cls, "setUp"):
-            setUp = lambda s: cls.__dict__["setup_method"](s, s.testmethod)
-            setUp.__doc__ = setup_method.__doc__
-            setattr(PlainTestCase, "setUp", setUp)
+        if callable(setup_method):
+            self.attach_function(PlainTestCase, setup_method, old=cls)
         if callable(teardown_method):
-            tearDown = lambda s: cls.__dict__["teardown_method"](s, s.testmethod)
-            tearDown.__doc__ = teardown_method.__doc__
-            setattr(PlainTestCase, "tearDown", tearDown)
+            self.attach_function(PlainTestCase, teardown_method, old=cls)
         PlainTestCase.__name__ = cls.__name__
 
         return PlainTestCase
 
     @staticmethod
-    def wrap_function(testcase, function, name=""):
+    def attach_function(new, function, name="", old=None):
         """Wrap a plain function to make it a useful TestCase method."""
         if not name:
             name = function.func_name
         doc = function.__doc__
 
-        setattr(testcase, name, staticmethod(function))
+        if old is None:
+            setattr(new, name, staticmethod(function))
+        else:
+            oldf = old.__dict__.get(name, None)
+            if oldf is None:
+                oldf = getattr(old, name)
+            f = lambda *a, **k: oldf(*a, **k)
+            f.__name__ = name
+            f.__doc__ = doc
+            setattr(new, name, f)
 
 class AppTestResult(unittest.TestResult, object):
     """Extend the base unittest.TestResult.
