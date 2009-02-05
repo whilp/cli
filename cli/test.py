@@ -52,15 +52,21 @@ class AppTestCase(unittest.TestCase, object):
 
     @property
     def lineno(self):
-        return inspect.getsourcelines(self.testmethod)[1]
+        lineno = getattr(self.testmethod, "lineno",
+                inspect.getsourcelines(self.testmethod)[1])
+        return lineno
 
     @property
     def filename(self):
-        return inspect.getsourcefile(self.testmethod)
+        filename = getattr(self.testmethod, "filename",
+                inspect.getsourcefile(self.testmethod))
+        return filename
 
     @property
     def module(self):
-        return inspect.getmodule(self.testmethod)
+        module = getattr(self.testmethod, "module",
+                inspect.getmodule(self.testmethod))
+        return module
 
     @property
     def cls(self):
@@ -358,6 +364,9 @@ class AppTestLoader(unittest.TestLoader, object):
             f = lambda *a, **k: oldf(*a, **k)
             f.__name__ = name
             f.__doc__ = doc
+            f.lineno = inspect.getsourcelines(function)[1]
+            f.filename = inspect.getsourcefile(function)
+            f.module = inspect.getmodule(function)
             setattr(new, name, f)
 
 class AppTestResult(unittest.TestResult, object):
