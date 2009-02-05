@@ -43,6 +43,7 @@ def timer(callable, *args, **kwargs):
 
 class AppTestCase(unittest.TestCase, object):
     overridden_methods = ["run"]
+    root = ''
 
     @property
     def testmethod(self):
@@ -179,8 +180,9 @@ class AppTestLoader(unittest.TestLoader, object):
     testMethodPrefix = func_prefix
     sortTestMethodsUsing = None
 
-    def __init__(self, app, keyword=""):
+    def __init__(self, app, root="", keyword=""):
         self.app = app
+        self.testcase_factory.root = root
         self.suiteClass.keyword = keyword
 
     @staticmethod
@@ -391,10 +393,13 @@ class AppTestResult(unittest.TestResult, object):
 
     def status_message(self, test, status):
         time = self.time
+        filename = test.filename
+        if filename.startswith(test.root):
+            filename = test.filename[len(test.root):].lstrip(os.path.sep)
         fields = {
                 "seconds": time.seconds + (time.microseconds/10.0**6),
                 "status": status,
-                "filename": test.filename,
+                "filename": filename,
                 "lineno": test.lineno,
                 "name": test.name,
         }
@@ -504,11 +509,11 @@ def test(app, *args):
     collect all unit tests under that directory. If it is not
     specified, collect all tests under the current directory.
     """
+    directory = args and args[0] or '.'
+
     runner = AppTestRunner(app)
     suite = AppTestSuite()
-    loader = AppTestLoader(app, keyword=app.params.keyword)
-
-    directory = args and args[0] or '.'
+    loader = AppTestLoader(app, root=directory, keyword=app.params.keyword)
 
     suite.addTests(loader.loadTestsFromDirectory(directory))
     result = runner.run(suite)
