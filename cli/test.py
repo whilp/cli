@@ -346,9 +346,15 @@ class AppTestLoader(unittest.TestLoader, object):
         if old is None:
             setattr(new, name, staticmethod(function))
         else:
-            oldf = old.__dict__.get(name, None)
-            if oldf is None:
-                oldf = getattr(old, name)
+            # Search the old class' mro for a __dict__ that contains
+            # the function. We need to do this to avoid the 'unbound
+            # instance requires...' TypeError.
+            oldf = None
+            for cls in inspect.getmro(old):
+                oldf = cls.__dict__.get(name, None)
+                if oldf is not None:
+                    break
+
             f = lambda *a, **k: oldf(*a, **k)
             f.__name__ = name
             f.__doc__ = doc
