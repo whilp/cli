@@ -41,6 +41,23 @@ def timer(callable, *args, **kwargs):
 
     return returned, duration
 
+def raises(exception, callable, *args, **kwargs):
+    """Return True if callable raises exception when passed args and kwargs.
+
+    If callable is a string and args and kwargs are empty, the
+    string will be passed to the exec statement. If any other
+    exception is raised, return False.
+    """
+    try:
+        if isinstance(callable, str) and not (args or kwargs):
+            exec(callable)
+        else:
+            callable(*args, **kwargs)
+    except exception:
+        return True
+    except:
+        return False
+
 class AppTestCase(unittest.TestCase, object):
     overridden_methods = ["run"]
     root = ''
