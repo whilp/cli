@@ -237,8 +237,8 @@ class AppTestLoader(unittest.TestLoader, object):
             candidates = [full for base, ext, full in \
                     [os.path.splitext(x) + (x,) for x in filenames] \
                     if ext == self.module_extension and \
-                    base.startswith(self.module_prefix) or \
-                    base.endswith(self.module_suffix)]
+                    (base.startswith(self.module_prefix) or \
+                    base.endswith(self.module_suffix))]
 
             for candidate in candidates:
                 fullpath = os.path.join(dirpath, candidate)
