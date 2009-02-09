@@ -309,6 +309,7 @@ class AppTestLoader(unittest.TestLoader, object):
         for name, member in vars(self.testcase_factory).items():
             if isinstance(member, property) or name in methods:
                 setattr(unittest, name, member)
+        unittest.root = self.testcase_factory.root
 
         return unittest
     
