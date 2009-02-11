@@ -38,6 +38,7 @@ __all__ = ["App", "EnvironParameterHandler", "CLIParameterHandler",
         "CommandLineApp", "LoggingApp"]
 
 Nothing = object()
+Default = object()
 
 class Error(Exception):
     pass
@@ -290,8 +291,9 @@ class CLIParameterHandler(ParameterHandler):
         # to do this. optparse falls back on __dict__ in this case,
         # too...
         for name, opt in vars(opts).items():
-            parameter = param_map[name]
-            parameter.value = opt
+            if opt is not Default:
+                parameter = param_map[name]
+                parameter.value = opt
 
         # Set the application's args attribute.
         self.app.args = args
@@ -304,6 +306,12 @@ class CLIParameterHandler(ParameterHandler):
         kwargs = dict((k, v) for k, v in vars(parameter).items() \
                 if k in option_attrs)
         kwargs["dest"] = kwargs.get("dest", name)
+
+        # Set a default sentinel since the parameter itself knows
+        # what the default is. Otherwise, we can't decide later
+        # whether to use the parameter's default or the option's
+        # value.
+        kwargs["default"] = Default
         
         self.parser.add_option(short, long, **kwargs)
         
