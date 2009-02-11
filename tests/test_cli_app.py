@@ -162,7 +162,7 @@ class TestEnvironParameterHandler(BaseTest):
     def setUp(self):
         self.app = App(lambda x: x)
         self.params = Parameter("root")
-        self.handler = EnvironParameterHandler(self.app, self.environ)
+        self.handler = EnvironParameterHandler(self.environ)
 
     def test_param_name(self):
         self.params.add("foo", "notfoo", var_name="non_default_name")
@@ -178,31 +178,7 @@ class TestCLIParameterHandler(BaseTest):
 
     def setUp(self):
         self.app = App(lambda x: x)
-        self.handler = CLIParameterHandler(self.app, [])
-
-    def test_param_defaults(self):
-        self.app.params.add("foo")
-        self.handler.handle_parameter(self.app.params.foo)
-        foo = self.handler.parser.option_list[-1]
-
-        short = foo._short_opts[0]
-        self.assertEqual(short, "-f")
-
-    def test_param_short(self):
-        self.app.params.add("foo", short="-g")
-        self.handler.handle_parameter(self.app.params.foo)
-        foo = self.handler.parser.option_list[-1]
-
-        short = foo._short_opts[0]
-        self.assertEqual(short, "-g")
-
-    def test_param_long(self):
-        self.app.params.add("foo", long="--bar")
-        self.handler.handle_parameter(self.app.params.foo)
-        foo = self.handler.parser.option_list[-1]
-
-        long = foo._long_opts[0]
-        self.assertEqual(long, "--bar")
+        self.handler = CLIParameterHandler([])
 
 class TestApp:
 
