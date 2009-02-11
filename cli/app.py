@@ -167,7 +167,11 @@ class Parameter(AttributeDict):
 
     @property
     def children(self):
-        return self.data.values()
+        children = []
+        for child in self.data.values():
+            children.append(child)
+            children.extend(child.children)
+        return children
 
     def add(self, parameter, *args, **kwargs):
         """Add a parameter.
