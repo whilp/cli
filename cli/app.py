@@ -245,6 +245,14 @@ class EnvironParameterHandler(ParameterHandler):
     def __init__(self, environ):
         self.environ = environ or os.environ
 
+    def handle(self, app, parameters):
+        super(EnvironParameterHandler, self).handle(app, parameters)
+
+        if [x for x in parameters]:
+            names = [self.get_param_name(x) for x in parameters]
+            app.epilog += "Environment variables:\n"
+            app.epilog += '\n'.join(names)
+
     def get_param_name(self, parameter):
         """Convert parameter name to something useful. 
        
@@ -276,7 +284,7 @@ class CLIParameterHandler(ParameterHandler):
                 usage=app.usage,
                 version='',     # XXX: this would be nice
                 description='', # same here
-                epilog='',      # and here
+                epilog=app.epilog,
                 )
 
         # XXX: we'll need to map option names to parameters here...
@@ -348,7 +356,7 @@ class CommandLineApp(object):
 
     def __init__(self, main, config_file=None, argv=None, env={},
             exit_after_main=True, stdin=None, stdout=None,
-            stderr=None):
+            stderr=None, epilog=""):
         self.main = main
         self.config_file = config_file
         self.argv = argv
@@ -358,6 +366,7 @@ class CommandLineApp(object):
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
         self.args = []
+        self.epilog = epilog
 
         self.params = self.param_factory("root")
         self.param_handlers = []
