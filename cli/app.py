@@ -271,16 +271,22 @@ class EnvironParameterHandler(ParameterHandler):
         if value is not None:
             parameter.value = value
 
+class OptionParser(optparse.OptionParser):
+
+    def format_epilog(self, formatter):
+        return "\n%s\n" % self.epilog
+
 class CLIParameterHandler(ParameterHandler):
     delim = '-'
     cmp = staticmethod(lambda x, y: \
             cmp(getattr(x, "short", x.name), getattr(y, "short", y.name)))
+    parser_factory = OptionParser
 
     def __init__(self, argv):
         self.argv = argv
 
     def handle(self, app, parameters):
-        self.parser = optparse.OptionParser(
+        self.parser = self.parser_factory(
                 usage=app.usage,
                 version='',     # XXX: this would be nice
                 description='', # same here
