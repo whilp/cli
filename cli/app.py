@@ -228,13 +228,13 @@ class ParameterHandler(object):
         self.app = app
         self.source = source
 
-    def handle(self, parameters):
+    def handle(self, app, parameters):
         for parameter in parameters:
             self.handle_parameter(parameter)
 
             # Recurse into children if present.
             if parameter.children:
-                self.handle(parameter.children)
+                self.handle(app, parameter.children)
 
     def handle_parameter(self, parameter):
         raise NotImplementedError
@@ -242,8 +242,7 @@ class ParameterHandler(object):
 class EnvironParameterHandler(ParameterHandler):
     delim = '_'
 
-    def __init__(self, app, environ):
-        self.app = app
+    def __init__(self, environ):
         self.environ = environ
 
     def handle_parameter(self, parameter):
@@ -263,17 +262,17 @@ class CLIParameterHandler(ParameterHandler):
     cmp = staticmethod(lambda x, y: \
             cmp(getattr(x, "short", x.name), getattr(y, "short", y.name)))
 
-    def __init__(self, app, argv):
-        self.app = app
+    def __init__(self, argv):
         self.argv = argv
+
+    def handle(self, app, parameters):
         self.parser = optparse.OptionParser(
-                usage=self.app.usage,
+                usage=app.usage,
                 version='',     # XXX: this would be nice
                 description='', # same here
                 epilog='',      # and here
                 )
 
-    def handle(self, parameters):
         # XXX: we'll need to map option names to parameters here...
         param_map = {}
         if self.cmp:
@@ -284,7 +283,7 @@ class CLIParameterHandler(ParameterHandler):
 
             # Recurse into children if present.
             if parameter.children:
-                self.handle(parameter.children)
+                self.handle(app, parameter.children)
 
         # Parse argv.
         opts, args = self.parser.parse_args(self.argv)
@@ -300,7 +299,7 @@ class CLIParameterHandler(ParameterHandler):
                 parameter.value = opt
 
         # Set the application's args attribute.
-        self.app.args = args
+        app.args = args
 
     def handle_parameter(self, parameter):
         option_attrs = optparse.Option.ATTRS
@@ -361,8 +360,8 @@ class CommandLineApp(object):
 
     def setup(self):
         # Set up param handlers.
-        environ_handler = EnvironParameterHandler(self, self.env)
-        cli_handler = CLIParameterHandler(self, self.argv)
+        environ_handler = EnvironParameterHandler(self.env)
+        cli_handler = CLIParameterHandler(self.argv)
 
         self.param_handlers.append(environ_handler)
         self.param_handlers.append(cli_handler)
@@ -386,7 +385,7 @@ class CommandLineApp(object):
         tree with their values.
         """
         for handler in self.param_handlers:
-            handler.handle(self.params)
+            handler.handle(self, self.params)
 
         self.resolve_parameters(self.params)
 
