@@ -248,10 +248,11 @@ class EnvironParameterHandler(ParameterHandler):
     def handle(self, app, parameters):
         super(EnvironParameterHandler, self).handle(app, parameters)
 
-        if [x for x in parameters]:
-            names = [self.get_param_name(x) for x in parameters]
+        pvars = [x for x in parameters if getattr(x, "var_name", None)]
+        if pvars:
             app.epilog += "Environment variables:\n"
-            app.epilog += '\n'.join(names)
+            names = [self.get_param_name(x) for x in pvars]
+            app.epilog += '\n'.join('  %s' % n for n in names)
 
     def get_param_name(self, parameter):
         """Convert parameter name to something useful. 
