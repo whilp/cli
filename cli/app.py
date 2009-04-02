@@ -38,7 +38,17 @@ __all__ = ["App", "EnvironParameterHandler", "CLIParameterHandler",
         "CommandLineApp", "LoggingApp"]
 
 Nothing = object()
-Default = object()
+
+class DefaultSentinel(int, object):
+    """A default sentinel.
+
+    DefaultSentinels are used to differentiate between actual
+    defaults and optparse defaults. Since optparse wants to call
+    default.__add__() when the action is 'count', DefaultSentinel
+    needs to inherit from int, too.
+    """
+
+Default = DefaultSentinel()
 
 class Error(Exception):
     pass
