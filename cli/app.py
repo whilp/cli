@@ -253,7 +253,7 @@ class EnvironParameterHandler(ParameterHandler):
     delim = '_'
 
     def __init__(self, environ):
-        self.environ = environ or os.environ
+        self.environ = environ
 
     def handle(self, app, parameters):
         super(EnvironParameterHandler, self).handle(app, parameters)
