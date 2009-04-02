@@ -563,7 +563,7 @@ class DaemonizingApp(LoggingApp):
         if os.fork(): sys.exit(0)
         os.umask(0) 
         os.setsid() 
-        if os.fork(): os.exit(0)
+        if os.fork(): sys.exit(0)
 
         self.stdout.flush()
         self.stderr.flush()
