@@ -28,7 +28,7 @@ from ConfigParser import ConfigParser
 from UserDict import UserDict
 from UserList import UserList
 from inspect import getargs, isclass, isfunction, ismethod
-from logging import Formatter, StreamHandler
+from logging import FileHandler, Formatter, StreamHandler
 from operator import itemgetter, attrgetter
 from string import letters
 
