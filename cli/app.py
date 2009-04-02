@@ -518,6 +518,60 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).pre_run()
         self.log.setLevel(opts=self.params)
 
+class DaemonizingApp(LoggingApp):
+    """A command-line application that knows how to daemonize.
+    """
+
+    def __init__(self, main, pidfile=None,
+            chdir='/', null="/dev/null", **kwargs):
+        self.pidfile = pidfile
+        self.chdir = chdir
+        self.null = null
+        super(DaemonizingApp, self).__init__(main, **kwargs)
+
+    def setup(self):
+        super(DaemonizingApp, self).setup()
+
+        # Add daemonizing options.
+        self.add_param("user", None, "change to USER[:GROUP] after daemonizing")
+        self.add_param("pidfile", None, "write PID to PIDFILE after daemonizing")
+
+    def daemonize(self):
+        """Daemonize the application."""
+        if os.fork(): os.exit(0)
+        os.umask(0) 
+        os.setsid() 
+        if os.fork(): os.exit(0)
+
+        self.stdout.flush()
+        self.stderr.flush()
+        si = open(self.null, 'r')
+        so = open(self.null, 'a+')
+        se = open(self.null, 'a+', 0)
+        os.dup2(si.fileno(), self.stdin.fileno())
+        os.dup2(so.fileno(), self.stdout.fileno())
+        os.dup2(se.fileno(), self.stderr.fileno())
+
+        if self.params.pidfile:
+            pidfile = open(self.params.pidfile, 'w')
+            pidfile.write('%i\n' % getpid())
+            pidfile.close()
+
+        if self.params.user:
+            import grp
+            import pwd
+            delim = ':'
+            user, sep, group = self.params.user.partition(delim)
+
+            # If group isn't specified, try to use the username as
+            # the group.
+            if delim != sep:
+                group = user
+            os.setuid(pwd.getpwnam(user).pw_uid)
+            os.setgid(grp.getgrnam(group).gr_gid)
+
+        os.chdir(self.chdir)
+
 def test(app, *args):
     pass
 
