@@ -543,6 +543,8 @@ class DaemonizingApp(LoggingApp):
         super(DaemonizingApp, self).setup()
 
         # Add daemonizing options.
+        self.add_param("daemonize", False, "run the application in the background", 
+                action="store_true")
         self.add_param("user", None, "change to USER[:GROUP] after daemonizing")
         self.add_param("pidfile", None, "write PID to PIDFILE after daemonizing")
 
