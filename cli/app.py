@@ -575,6 +575,7 @@ class DaemonizingApp(LoggingApp):
         os.dup2(se.fileno(), self.stderr.fileno())
 
         if self.params.pidfile:
+            self.log.debug("Writing pidfile %s", self.params.pidfile)
             pidfile = open(self.params.pidfile, 'w')
             pidfile.write('%i\n' % getpid())
             pidfile.close()
@@ -589,9 +590,11 @@ class DaemonizingApp(LoggingApp):
             # the group.
             if delim != sep:
                 group = user
+            self.log.debug("Changing to %s:%s", user, group)
             os.setuid(pwd.getpwnam(user).pw_uid)
             os.setgid(grp.getgrnam(group).gr_gid)
 
+        self.log.debug("Changing directory to %s", self.chdir)
         os.chdir(self.chdir)
 
         return True
