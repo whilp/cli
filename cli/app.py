@@ -549,8 +549,18 @@ class DaemonizingApp(LoggingApp):
         self.add_param("pidfile", None, "write PID to PIDFILE after daemonizing")
 
     def daemonize(self):
-        """Daemonize the application."""
-        if os.fork(): os.exit(0)
+        """Daemonize the application.
+        
+        If the 'daemonize' parameter is not True, daemonize()
+        returns False without doing anything. Otherwise, it sends
+        the application to the background, redirecting stdin/stdout
+        and changing its UID if requested.
+        """
+        if not self.params.daemonize:
+            return False
+
+        self.log.debug("Daemonizing")
+        if os.fork(): sys.exit(0)
         os.umask(0) 
         os.setsid() 
         if os.fork(): os.exit(0)
@@ -583,6 +593,8 @@ class DaemonizingApp(LoggingApp):
             os.setgid(grp.getgrnam(group).gr_gid)
 
         os.chdir(self.chdir)
+
+        return True
 
 def test(app, *args):
     pass
