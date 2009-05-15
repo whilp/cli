@@ -28,7 +28,7 @@ from ConfigParser import ConfigParser
 from UserDict import UserDict
 from UserList import UserList
 from inspect import getargs, isclass, isfunction, ismethod
-from logging import FileHandler, Formatter, StreamHandler
+from logging import Formatter, StreamHandler
 from operator import itemgetter, attrgetter
 from string import letters
 
@@ -58,6 +58,17 @@ class MainError(Error):
 
 class ParameterError(Error):
     pass
+
+class FileHandler(logging.FileHandler):
+
+    def close(self):
+        """Override close().
+        
+        We leave the file open because the application may have
+        multiple threads that still need to write to it. Python
+        should GC the fd when it goes out of scope, anyway.
+        """
+        pass
 
 class NullHandler(logging.Handler):
     """A blackhole handler.
