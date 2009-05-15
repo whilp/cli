@@ -39,6 +39,17 @@ __all__ = ["App", "EnvironParameterHandler", "CLIParameterHandler",
 
 Nothing = object()
 
+class DefaultSentinel(int, object):
+    """A default sentinel.
+
+    DefaultSentinels are used to differentiate between actual
+    defaults and optparse defaults. Since optparse wants to call
+    default.__add__() when the action is 'count', DefaultSentinel
+    needs to inherit from int, too.
+    """
+
+Default = DefaultSentinel()
+
 class Error(Exception):
     pass
 
@@ -96,6 +107,7 @@ class Parameter(AttributeDict):
     coerce_factories = {
             # {TYPE: FACTORY}
             bool: Boolean,
+            type(None): lambda x: x,
     }
 
     def __init__(self, name, default=None, help="", coerce=None,
@@ -141,7 +153,9 @@ class Parameter(AttributeDict):
             coerce = self.coerce
             if coerce is None:
                 key = type(self.default)
-                coerce = self.coerce_factories.get(key, key)
+                if key not in self.coerce_factories:
+                    key = type(None)
+                coerce = self.coerce_factories[key]
             value = coerce(value)
 
         return value
@@ -312,8 +326,8 @@ class CLIParameterHandler(ParameterHandler):
         # to do this. optparse falls back on __dict__ in this case,
         # too...
         for name, opt in vars(opts).items():
-            parameter = param_map[name]
-            if opt != parameter.default:
+            if opt is not Default:
+                parameter = param_map[name]
                 parameter.value = opt
 
         # Set the application's args attribute.
@@ -327,6 +341,12 @@ class CLIParameterHandler(ParameterHandler):
         kwargs = dict((k, v) for k, v in vars(parameter).items() \
                 if k in option_attrs)
         kwargs["dest"] = kwargs.get("dest", name)
+
+        # Set a default sentinel since the parameter itself knows
+        # what the default is. Otherwise, we can't decide later
+        # whether to use the parameter's default or the option's
+        # value.
+        kwargs["default"] = Default
         
         self.parser.add_option(short, long, **kwargs)
         
