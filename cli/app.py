@@ -516,6 +516,77 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).pre_run()
         self.log.setLevel(opts=self.params)
 
+class DaemonizingApp(LoggingApp):
+    """A command-line application that knows how to daemonize.
+    """
+
+    def __init__(self, main, pidfile=None,
+            chdir='/', null="/dev/null", **kwargs):
+        self.pidfile = pidfile
+        self.chdir = chdir
+        self.null = null
+        super(DaemonizingApp, self).__init__(main, **kwargs)
+
+    def setup(self):
+        super(DaemonizingApp, self).setup()
+
+        # Add daemonizing options.
+        self.add_param("daemonize", False, "run the application in the background", 
+                action="store_true")
+        self.add_param("user", None, "change to USER[:GROUP] after daemonizing")
+        self.add_param("pidfile", None, "write PID to PIDFILE after daemonizing")
+
+    def daemonize(self):
+        """Daemonize the application.
+        
+        If the 'daemonize' parameter is not True, daemonize()
+        returns False without doing anything. Otherwise, it sends
+        the application to the background, redirecting stdin/stdout
+        and changing its UID if requested.
+        """
+        if not self.params.daemonize:
+            return False
+
+        self.log.debug("Daemonizing")
+        if os.fork(): sys.exit(0)
+        os.umask(0) 
+        os.setsid() 
+        if os.fork(): sys.exit(0)
+
+        self.stdout.flush()
+        self.stderr.flush()
+        si = open(self.null, 'r')
+        so = open(self.null, 'a+')
+        se = open(self.null, 'a+', 0)
+        os.dup2(si.fileno(), self.stdin.fileno())
+        os.dup2(so.fileno(), self.stdout.fileno())
+        os.dup2(se.fileno(), self.stderr.fileno())
+
+        if self.params.pidfile:
+            self.log.debug("Writing pidfile %s", self.params.pidfile)
+            pidfile = open(self.params.pidfile, 'w')
+            pidfile.write('%i\n' % getpid())
+            pidfile.close()
+
+        if self.params.user:
+            import grp
+            import pwd
+            delim = ':'
+            user, sep, group = self.params.user.partition(delim)
+
+            # If group isn't specified, try to use the username as
+            # the group.
+            if delim != sep:
+                group = user
+            self.log.debug("Changing to %s:%s", user, group)
+            os.setuid(pwd.getpwnam(user).pw_uid)
+            os.setgid(grp.getgrnam(group).gr_gid)
+
+        self.log.debug("Changing directory to %s", self.chdir)
+        os.chdir(self.chdir)
+
+        return True
+
 def test(app, *args):
     pass
 
