@@ -59,6 +59,16 @@ class MainError(Error):
 class ParameterError(Error):
     pass
 
+class NullHandler(logging.Handler):
+    """A blackhole handler.
+
+    NullHandler simply ignores all messages it receives.
+    """
+
+    def emit(self, record):
+        """Ignore the record."""
+        pass
+
 class CLILogger(logging.Logger):
     """Provide extra configuration smarts for loggers.
 
@@ -513,21 +523,28 @@ class LoggingApp(CommandLineApp):
         # Create logger.
         logging.setLoggerClass(CLILogger)
         self.log = logging.getLogger(self.name)
-        
-        # Create handlers.
-        stream_handler = StreamHandler(self.stream)
-        handler = stream_handler
-        if self.logfile is not None:
-            file_handler = FileHandler(self.logfile)
-            handler = file_handler
 
         # Create formatters.
         message_formatter = Formatter(self.message_format)
         date_formatter = Formatter(self.date_format)
         verbose_formatter = Formatter()
         formatter = message_formatter
+        
+        # Create handlers.
+        if self.stream is not None:
+            stream_handler = StreamHandler(self.stream)
+            stream_handler.setFormatter(formatter)
+            self.log.addHandler(stream_handler)
 
-        handler.setFormatter(formatter)
+        if self.logfile is not None:
+            file_handler = FileHandler(self.logfile)
+            file_handler.setFormatter(formatter)
+            self.log.addHandler(file_handler)
+
+        # The null handler simply drops all messages.
+        if not self.log.handlers:
+            self.log.addHandler(NullHandler())
+
         self.log.setLevel(self.log.default_level)
         self.log.addHandler(handler)
 
