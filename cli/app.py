@@ -546,7 +546,6 @@ class LoggingApp(CommandLineApp):
             self.log.addHandler(NullHandler())
 
         self.log.setLevel(self.log.default_level)
-        self.log.addHandler(handler)
 
     def pre_run(self):
         """Configure logging before running the app."""
