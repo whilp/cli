@@ -20,7 +20,6 @@ import datetime
 import logging
 import optparse
 import os
-import signal
 import sys
 import types
 import unittest
@@ -488,13 +487,6 @@ class CommandLineApp(object):
         returned = self.main(self, *self.args)
 
         return self.post_run(returned)
-
-    def signal(self, signal, handler):
-        """Establish a signal handler.
-
-        See signal.signal() for more information.
-        """
-        signal.signal(signal, handler)
 
 class LoggingApp(CommandLineApp):
     """A command-line application that knows how to log.
