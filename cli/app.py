@@ -28,7 +28,7 @@ from ConfigParser import ConfigParser
 from UserDict import UserDict
 from UserList import UserList
 from inspect import getargs, isclass, isfunction, ismethod
-from logging import Formatter, StreamHandler
+from logging import FileHandler, Formatter, StreamHandler
 from operator import itemgetter, attrgetter
 from string import letters
 
@@ -528,22 +528,7 @@ class LoggingApp(CommandLineApp):
         message_formatter = Formatter(self.message_format)
         date_formatter = Formatter(self.date_format)
         verbose_formatter = Formatter()
-        formatter = message_formatter
-        
-        # Create handlers.
-        if self.stream is not None:
-            stream_handler = StreamHandler(self.stream)
-            stream_handler.setFormatter(formatter)
-            self.log.addHandler(stream_handler)
-
-        if self.logfile is not None:
-            file_handler = FileHandler(self.logfile)
-            file_handler.setFormatter(formatter)
-            self.log.addHandler(file_handler)
-
-        # The null handler simply drops all messages.
-        if not self.log.handlers:
-            self.log.addHandler(NullHandler())
+        self.formatter = message_formatter
 
         self.log.setLevel(self.log.default_level)
 
@@ -551,6 +536,20 @@ class LoggingApp(CommandLineApp):
         """Configure logging before running the app."""
         super(LoggingApp, self).pre_run()
         self.log.setLevel(opts=self.params)
+
+        logfile = self.params.logfile or self.logfile
+        if logfile is not None:
+            file_handler = FileHandler(logfile)
+            file_handler.setFormatter(self.formatter)
+            self.log.addHandler(file_handler)
+        elif self.stream is not None:
+            stream_handler = StreamHandler(self.stream)
+            stream_handler.setFormatter(self.formatter)
+            self.log.addHandler(stream_handler)
+
+        # The null handler simply drops all messages.
+        if not self.log.handlers:
+            self.log.addHandler(NullHandler())
 
 class DaemonizingApp(LoggingApp):
     """A command-line application that knows how to daemonize.
