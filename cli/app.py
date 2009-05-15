@@ -571,6 +571,7 @@ class DaemonizingApp(LoggingApp):
                 action="store_true")
         self.add_param("user", None, "change to USER[:GROUP] after daemonizing")
         self.add_param("pidfile", None, "write PID to PIDFILE after daemonizing")
+        self.add_param("logfile", None, "write logs to LOGFILE")
 
     def daemonize(self):
         """Daemonize the application.
