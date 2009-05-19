@@ -606,7 +606,7 @@ class DaemonizingApp(LoggingApp):
         if self.params.pidfile:
             self.log.debug("Writing pidfile %s", self.params.pidfile)
             pidfile = open(self.params.pidfile, 'w')
-            pidfile.write('%i\n' % getpid())
+            pidfile.write('%i\n' % os.getpid())
             pidfile.close()
 
         if self.params.user:
