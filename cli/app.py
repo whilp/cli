@@ -620,8 +620,8 @@ class DaemonizingApp(LoggingApp):
             if delim != sep:
                 group = user
             self.log.debug("Changing to %s:%s", user, group)
-            os.setuid(pwd.getpwnam(user).pw_uid)
             os.setgid(grp.getgrnam(group).gr_gid)
+            os.setuid(pwd.getpwnam(user).pw_uid)
 
         self.log.debug("Changing directory to %s", self.chdir)
         os.chdir(self.chdir)
