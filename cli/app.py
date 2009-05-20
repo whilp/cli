@@ -548,7 +548,7 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).pre_run()
         self.log.setLevel(opts=self.params)
 
-        logfile = self.params.logfile or self.logfile
+        logfile = getattr(self.params, "logfile", None) or self.logfile
         if logfile is not None:
             file_handler = FileHandler(logfile)
             file_handler.setFormatter(self.formatter)
