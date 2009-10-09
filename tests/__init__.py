@@ -2,7 +2,6 @@ import os
 import sys
 import unittest
 
-from __builtin__ import issubclass as _issubclass
 from glob import glob
 
 _import = lambda m: __import__(os.path.basename(os.path.splitext(m)[0]))
@@ -11,7 +10,7 @@ def issubclass(C, B):
     if C == B:
         return False
     try:
-        return _issubclass(C, B)
+        return __builtins__.issubclass(C, B)
     except TypeError:
         return False
 
