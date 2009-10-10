@@ -1,7 +1,7 @@
 from distutils.cmd import Command
 
 try:
-	from setuptools import setup
+    from setuptools import setup
 except ImportError:
     from distribute_setup import use_setuptools
     use_setuptools()
