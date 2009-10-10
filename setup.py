@@ -7,7 +7,7 @@ except ImportError:
     use_setuptools()
 
 from lib import __name__, __version__, __description__, \
-	__author__, __author_email__, __url__
+    __author__, __author_email__, __url__
 
 class test(Command):
     user_options = []
