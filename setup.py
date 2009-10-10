@@ -6,7 +6,7 @@ except ImportError:
     from distribute_setup import use_setuptools
     use_setuptools()
 
-from lib import __name__, __version__, __description__, \
+from lib import __package_name__, __version__, __description__, \
     __author__, __author_email__, __url__
 
 class test(Command):
@@ -23,7 +23,7 @@ class test(Command):
         tests.run_tests()
 
 setup_options = {
-    "name": __name__,
+    "name": __package_name__,
     "version": __version__,
     "description": __description__,
     "author": __author__,

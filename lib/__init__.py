@@ -1,4 +1,4 @@
-__name__ = ''
+__package_name__ = ''
 __version__ = ''
 __description__ = ''
 __author__ = ''
