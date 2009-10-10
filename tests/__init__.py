@@ -15,7 +15,7 @@ def issubclass(C, B):
         return False
 
 test_dir = os.path.abspath(os.path.dirname(__file__))
-test_modules = glob(test_dir + "/test_*.py")
+test_modules = glob(os.path.join(test_dir, "test_*.py")
 
 sys.path.insert(0, test_dir)
 test_modules = [_import(x) for x in test_modules]
