@@ -60,26 +60,24 @@ class MainError(Error):
 class ParameterError(Error):
     pass
 
-class profiler(object):
+class Profiler(object):
 
-    def __init__(self, stdout=None, deterministic=True):
+    def __init__(self, stdout=None, anonymous=False):
         self.stdout = stdout is None and sys.stdout or stdout
-        self.is_deterministic = deterministic
+        self.anonymous = anonymous
 
-    def __call__(self, func):
-        wrap = self.deterministic
-        if not self.is_deterministic:
-            wrap = self.statistical
+    def wrap(self, wrapper, wrapped):
+        update_wrapper(wrapper, wrapped)
 
-        wrapper = wrap(func)
-        update_wrapper(wrapper, func)
-        return wrapper
+        if self.anonymous:
+            return wrapper()
+        else:
+            return wrapper
 
     def deterministic(self, func):
         from pstats import Stats
 
         from cProfile import Profile
-        profiler = Profile()
         profiler = Profile()
 
         def wrapper(*args, **kwargs):
@@ -87,16 +85,12 @@ class profiler(object):
             stats = Stats(profiler, stream=self.stdout)
             stats.strip_dirs().sort_stats(-1).print_stats()
 
-        return wrapper
+        return self.wrap(wrapper, func)
 
     def statistical(self, func):
         raise NotImplementedError
 
-class anon_profiler(profiler):
-
-    def __call__(self, func):
-        wrapper = super(anon_profiler, self).__call__(func)
-        return wrapper()
+    __call__ = deterministic
 
 class FileHandler(logging.FileHandler):
 
