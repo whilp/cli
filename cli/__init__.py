@@ -15,7 +15,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __license__ = "BSD"
 __todo__ = """\
 * cli.app:
