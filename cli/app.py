@@ -120,7 +120,8 @@ class Profiler(object):
         profiler = Profile()
 
         def wrapper(*args, **kwargs):
-            profiler.runcall(func)
+            self.stdout.write("===> Profiling %s:\n" % func.func_name)
+            profiler.runcall(func, *args, **kwargs)
             stats = Stats(profiler, stream=self.stdout)
             stats.strip_dirs().sort_stats(-1).print_stats()
 
