@@ -69,10 +69,14 @@ class Profiler(object):
     def wrap(self, wrapper, wrapped):
         update_wrapper(wrapper, wrapped)
 
-        if self.anonymous:
+        if self.anonymous or self.isanon(wrapped.func_name):
             return wrapper()
         else:
             return wrapper
+
+    def isanon(self, func_name):
+        return func_name.startswith("__profiler_") or \
+            func_name == "anonymous"
 
     def deterministic(self, func):
         from pstats import Stats
