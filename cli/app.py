@@ -27,6 +27,7 @@ import unittest
 from ConfigParser import ConfigParser
 from UserDict import UserDict
 from UserList import UserList
+from functools import update_wrapper
 from inspect import getargs, isclass, isfunction, ismethod
 from logging import Formatter, StreamHandler
 from operator import itemgetter, attrgetter
@@ -58,6 +59,44 @@ class MainError(Error):
 
 class ParameterError(Error):
     pass
+
+class profiler(object):
+
+    def __init__(self, stdout=None, deterministic=True):
+        self.stdout = stdout is None and sys.stdout or stdout
+        self.is_deterministic = deterministic
+
+    def __call__(self, func):
+        wrap = self.deterministic
+        if not self.is_deterministic:
+            wrap = self.statistical
+
+        wrapper = wrap(func)
+        update_wrapper(wrapper, func)
+        return wrapper
+
+    def deterministic(self, func):
+        from pstats import Stats
+
+        from cProfile import Profile
+        profiler = Profile()
+        profiler = Profile()
+
+        def wrapper(*args, **kwargs):
+            profiler.runcall(func)
+            stats = Stats(profiler, stream=self.stdout)
+            stats.strip_dirs().sort_stats(-1).print_stats()
+
+        return wrapper
+
+    def statistical(self, func):
+        raise NotImplementedError
+
+class anon_profiler(profiler):
+
+    def __call__(self, func):
+        wrapper = super(anon_profiler, self).__call__(func)
+        return wrapper()
 
 class FileHandler(logging.FileHandler):
 
