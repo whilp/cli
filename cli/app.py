@@ -94,9 +94,11 @@ def fmtsec(seconds):
 
 class Profiler(object):
 
-    def __init__(self, stdout=None, anonymous=False):
+    def __init__(self, stdout=None, anonymous=False, count=1000, repeat=3):
         self.stdout = stdout is None and sys.stdout or stdout
         self.anonymous = anonymous
+        self.count = count
+        self.repeat = repeat
 
     def wrap(self, wrapper, wrapped):
         update_wrapper(wrapper, wrapped)
@@ -128,7 +130,31 @@ class Profiler(object):
         return self.wrap(wrapper, func)
 
     def statistical(self, func):
-        raise NotImplementedError
+        try:
+            from timeit import default_timer as timer
+        except ImportError:
+            from time import time as timer
+
+        def timeit(func, *args, **kwargs):
+            cumulative = 0
+            for i in range(self.count):
+                start = timer()
+                func(*args, **kwargs)
+                stop = timer()
+                cumulative += stop - start
+
+            return cumulative
+
+        def repeat(func, *args, **kwargs):
+            return [timeit(func, *args, **kwargs) for i in range(self.repeat)]
+
+        def wrapper(*args, **kwargs):
+            self.stdout.write("===> Profiling %s: " % func.func_name)
+            result = min(repeat(func, *args, **kwargs))
+            self.stdout.write("%d loops, best of %d: %s per loop\n" % (
+                self.count, self.repeat, fmtsec(result/self.count)))
+
+        return self.wrap(wrapper, func)
 
     __call__ = deterministic
 
