@@ -27,6 +27,7 @@ import unittest
 from ConfigParser import ConfigParser
 from UserDict import UserDict
 from UserList import UserList
+from functools import update_wrapper
 from inspect import getargs, isclass, isfunction, ismethod
 from logging import Formatter, StreamHandler
 from operator import itemgetter, attrgetter
@@ -58,6 +59,41 @@ class MainError(Error):
 
 class ParameterError(Error):
     pass
+
+class Profiler(object):
+
+    def __init__(self, stdout=None, anonymous=False):
+        self.stdout = stdout is None and sys.stdout or stdout
+        self.anonymous = anonymous
+
+    def wrap(self, wrapper, wrapped):
+        update_wrapper(wrapper, wrapped)
+
+        if self.anonymous:
+            return wrapper()
+        else:
+            return wrapper
+
+    def deterministic(self, func):
+        from pstats import Stats
+
+        try:
+            from cProfile import Profile
+        except ImportError:
+            from profile import Profile
+        profiler = Profile()
+
+        def wrapper(*args, **kwargs):
+            profiler.runcall(func)
+            stats = Stats(profiler, stream=self.stdout)
+            stats.strip_dirs().sort_stats(-1).print_stats()
+
+        return self.wrap(wrapper, func)
+
+    def statistical(self, func):
+        raise NotImplementedError
+
+    __call__ = deterministic
 
 class FileHandler(logging.FileHandler):
 
@@ -395,7 +431,7 @@ class CommandLineApp(object):
 
     def __init__(self, main, config_file=None, argv=None, env={},
             exit_after_main=True, stdin=None, stdout=None,
-            stderr=None, epilog=""):
+            stderr=None, epilog="", profiler=None):
         self.main = main
         self.config_file = config_file
         self.argv = argv
@@ -406,6 +442,10 @@ class CommandLineApp(object):
         self.stderr = stderr and stderr or sys.stderr
         self.args = []
         self.epilog = epilog
+
+        if profiler is None:
+            profiler = Profiler(self.stderr, anonymous=True)
+        self.profiler = profiler
 
         self.params = self.param_factory("root")
         self.param_handlers = []
