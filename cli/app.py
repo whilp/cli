@@ -77,7 +77,10 @@ class Profiler(object):
     def deterministic(self, func):
         from pstats import Stats
 
-        from cProfile import Profile
+        try:
+            from cProfile import Profile
+        except ImportError:
+            from profile import Profile
         profiler = Profile()
 
         def wrapper(*args, **kwargs):
