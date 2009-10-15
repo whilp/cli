@@ -428,7 +428,7 @@ class CommandLineApp(object):
 
     def __init__(self, main, config_file=None, argv=None, env={},
             exit_after_main=True, stdin=None, stdout=None,
-            stderr=None, epilog=""):
+            stderr=None, epilog="", profiler=None):
         self.main = main
         self.config_file = config_file
         self.argv = argv
@@ -439,6 +439,10 @@ class CommandLineApp(object):
         self.stderr = stderr and stderr or sys.stderr
         self.args = []
         self.epilog = epilog
+
+        if profiler is None:
+            profiler = Profiler(self.stderr, anonymous=True)
+        self.profiler = profiler
 
         self.params = self.param_factory("root")
         self.param_handlers = []
