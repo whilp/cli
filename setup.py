@@ -1,5 +1,7 @@
 import os
 
+from distutils.command.install import INSTALL_SCHEMES
+
 try:
     from setuptools import setup
 except ImportError:
@@ -10,6 +12,10 @@ from cli.test import TestCommand
 
 docs = [os.path.join('docs', x) for x in os.listdir('docs')]
 examples = docs = [os.path.join('examples', x) for x in os.listdir('examples')]
+tests = docs = [os.path.join('tests', x) for x in os.listdir('tests')]
+
+for scheme in INSTALL_SCHEMES.values():
+    scheme['data'] = scheme['purelib']
 
 setup(name="pyCLI",
         version=cli.__version__,
@@ -20,6 +26,7 @@ setup(name="pyCLI",
         license=cli.__license__,
         packages=["cli"],
         data_files=[
-            ('share/doc/py-cli/', docs),
-            ('share/examples/py-cli/', examples)],
+            ('docs', docs),
+            ('examples', examples),
+            ('tests', tests)],
         cmdclass = {"test": TestCommand})
