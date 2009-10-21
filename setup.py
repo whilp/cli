@@ -1,7 +1,6 @@
 import os
 
 from distutils.cmd import Command
-from distutils.command.install import INSTALL_SCHEMES
 
 try:
     from setuptools import setup
@@ -68,8 +67,5 @@ setup_options = {
     "license": __license__,
     "cmdclass": {"test": test},
 }
-
-from pprint import pprint
-pprint(setup_options)
 
 setup(**setup_options)
