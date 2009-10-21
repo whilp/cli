@@ -15,8 +15,14 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
+__package_name__ = "pyCLI"
 __version__ = "0.3.3"
+__description__ = "Simple, Object-Oriented approach to Python CLI apps"
+__author__ = "Will Maier"
+__author_email__ = "will@m.aier.us"
+__url__ = "http://code.lfod.us/cli"
 __license__ = "BSD"
+
 __todo__ = """\
 * cli.app:
     * more tests
@@ -27,6 +33,9 @@ __todo__ = """\
     * {setup,teardown}_module support?
     * verify py.test hook functionality
     * tests
+"""
+
+__long_description__ = """\
 """
 
 # Import API-level elements.
