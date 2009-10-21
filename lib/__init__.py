@@ -4,5 +4,10 @@ __description__ = ''
 __author__ = ''
 __author_email__ = ''
 __url__ = ''
+__license__ = ''
 
-__todo__ = """ """
+__todo__ = """\
+"""
+
+__long_description__ = """\
+"""

@@ -7,7 +7,8 @@ except ImportError:
     use_setuptools()
 
 from lib import __package_name__, __version__, __description__, \
-    __author__, __author_email__, __url__
+    __author__, __author_email__, __url__, __license__, \
+    __long_description__
 
 class test(Command):
     user_options = []
@@ -26,10 +27,12 @@ setup_options = {
     "name": __package_name__,
     "version": __version__,
     "description": __description__,
+    "long_description": __long_description__,
     "author": __author__,
     "author_email": __author_email__,
     "url": __url__,
-    "package_dir": {__name__: "lib"},
+    "package_dir": {__package_name__: "lib"},
+    "license": __license__,
     "cmdclass": {"test": test},
 }
 
