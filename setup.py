@@ -34,11 +34,12 @@ setup_options = {
     "name": __package_name__,
     "version": __version__,
     "description": __description__,
+    "long_description": __long_description__,
     "author": __author__,
     "author_email": __author_email__,
     "url": __url__,
-    "license": __license__,
     "package_dir": {__package_name__: "lib"},
+    "license": __license__,
     "cmdclass": {"test": test},
 }
 
