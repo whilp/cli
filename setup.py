@@ -35,7 +35,7 @@ setup_options = {
     "author_email": __author_email__,
     "url": __url__,
     "packages": [__package__],
-    "package_dir": {__package_name__: "lib"},
+    "package_dir": {__package__: "lib"},
     "license": __license__,
     "cmdclass": {"test": test},
 }
