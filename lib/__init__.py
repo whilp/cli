@@ -17,6 +17,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 __package_name__ = "pyCLI"
 __version__ = "0.3.3"
+__package__ = "cli"
 __description__ = "Simple, Object-Oriented approach to Python CLI apps"
 __author__ = "Will Maier"
 __author_email__ = "will@m.aier.us"
