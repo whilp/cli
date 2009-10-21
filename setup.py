@@ -6,9 +6,9 @@ except ImportError:
     from distribute_setup import use_setuptools
     use_setuptools()
 
-from lib import __package_name__, __version__, __description__, \
-    __author__, __author_email__, __url__, __license__, \
-    __long_description__
+from lib import __package_name__, __package__, __version__, \
+    __description__, __author__, __author_email__, __url__, \
+    __license__, __long_description__
 
 class test(Command):
     user_options = []
@@ -31,6 +31,7 @@ setup_options = {
     "author": __author__,
     "author_email": __author_email__,
     "url": __url__,
+    "packages": [__package__],
     "package_dir": {__package_name__: "lib"},
     "license": __license__,
     "cmdclass": {"test": test},
