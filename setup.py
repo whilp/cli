@@ -26,10 +26,6 @@ class test(Command):
         import tests
         tests.run_tests()
 
-docs = [os.path.join('docs', x) for x in os.listdir('docs')]
-examples = docs = [os.path.join('examples', x) for x in os.listdir('examples')]
-tests = docs = [os.path.join('tests', x) for x in os.listdir('tests')]
-
 setup_options = {
     "name": __package_name__,
     "version": __version__,
