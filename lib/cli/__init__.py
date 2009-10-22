@@ -25,7 +25,7 @@ __requires__ = []
 
 # The following is modeled after the ISC license.
 __copyright__ = """\
-Copyright (c) 2009 Will Maier <will@m.aier.us>
+2009 Will Maier <will@m.aier.us>
 
 Permission to use, copy, modify, and distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
