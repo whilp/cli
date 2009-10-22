@@ -1,11 +1,10 @@
 import os
 import sys
 
-from glob import glob
-
-__all__ = ["Queue", "foo", "spam"]
+__all__ = []
 compat_dir = os.path.abspath(os.path.dirname(__file__))
 
+name, module = None, None
 for name in __all__:
     try:
         module = __import__(name)
@@ -15,4 +14,4 @@ for name in __all__:
         sys.path.pop(0)
     locals()[name] = module
 
-del(glob, os, sys, compat_dir, name, module)
+del(os, sys, compat_dir, name, module)

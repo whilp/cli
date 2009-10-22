@@ -1,5 +1,22 @@
-"""CLI tools for Python.
+"""
+"""
 
+__project__ = "pyCLI"
+__version__ = "0.3.3"
+__package__ = "cli"
+__description__ = "Simple, Object-Oriented approach to Python CLI apps"
+__author__ = "Will Maier"
+__author_email__ = "will@m.aier.us"
+__url__ = "http://code.lfod.us/cli"
+
+# See http://pypi.python.org/pypi?%3Aaction=list_classifiers.
+__classifiers__ = [] 
+__keywords__ = "command line application framework"
+
+__requires__ = []
+
+# The following is modeled after the ISC license.
+__copyright__ = """\
 Copyright (c) 2009 Will Maier <will@m.aier.us>
 
 Permission to use, copy, modify, and distribute this software for any
@@ -15,15 +32,6 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-__package_name__ = "pyCLI"
-__version__ = "0.3.3"
-__package__ = "cli"
-__description__ = "Simple, Object-Oriented approach to Python CLI apps"
-__author__ = "Will Maier"
-__author_email__ = "will@m.aier.us"
-__url__ = "http://code.lfod.us/cli"
-__license__ = "BSD"
-
 __todo__ = """\
 * cli.app:
     * more tests
@@ -34,9 +42,6 @@ __todo__ = """\
     * {setup,teardown}_module support?
     * verify py.test hook functionality
     * tests
-"""
-
-__long_description__ = """\
 """
 
 # Import API-level elements.
