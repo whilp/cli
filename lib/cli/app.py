@@ -198,7 +198,7 @@ class CLILogger(logging.Logger):
         if opts is None:
             return logging.Logger.setLevel(self, level)
 
-        level = self.default_level + (10 * (opts.quiet - opts.verbose))
+        level = self.default_level + (10 * (int(opts.quiet) - int(opts.verbose)))
 
         if opts.silent:
             level = self.silent_level
