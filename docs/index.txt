@@ -1,10 +1,21 @@
-Welcome to pyCLI's documentation!
-======================================
+Welcome
+=======
+
+cli makes it easy for your scripts to do everything you know they should
+With cli, you no longer have to dig through the standard library to make
+your scripts do everything you know they should (log messages, pass unit 
+and functional tests, perform well, ...). Instead, cli provides a
+simple, consistent interface and encourages you and your scripts to do
+the right thing.
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
+
+   intro
+   app
+   test
 
 Indices and tables
 ==================
