@@ -1,0 +1,78 @@
+Introduction
+============
+
+Installation
+============
+
+You can install cli from the `Python Package Index`_::
+	
+	$ easy_install pyCLI
+
+If you'd like a recent development snapshot, you can fetch it from the
+main `Mercurial`_ repository::
+	
+	$ wget http://code.lfod.us/cli/archive/tip.zip
+
+Then run ``easy_intall` or ``python setup.py install`` as usual. If
+you'd like to hack on cli, you can clone the entire repository and all of
+its history::
+	
+	$ hg clone http://code.lfod.us/cli
+
+Getting started
+===============
+
+Now that cli's installed, you can start using it in new scripts or
+retrofitting old ones. Here are some examples; see the documentation for 
+the :doc:`app` module for more information.
+
+A simple case
++++++++++++++
+
+In the simplest case, you might have a script that performs a series of
+tasks. You haven't needed to define any functions, so it's rather
+compact[#]_::
+
+	#!/usr/bin/env python
+
+	import shutil
+
+	shutil.rmtree('/')
+
+The :mod:`app` module provides a basic :class:`app.App` class that expects a
+function (or other callable) as its first argument. To cli-ify this
+simple script, we'll first need to wrap it in a function. Once wrapped
+in a function, your code can be reused elsewhere, too. It's very common
+to call this new function ``main``, but (as you'll see later) the App
+class can work a little bit of magic if you give the function a more
+informative name::
+
+	#!/usr/bin/env python
+
+	import shutil
+
+	def remove_everything():
+		shutil.rmtree('/')
+
+Now, adding app functionality is easy::
+
+	#!/usr/bin/env python
+
+	import shutil
+
+	def remove_everything(app):
+		shutil.rmtree('/')
+
+	if __name__ == "__main__":
+		from cli import App
+		app = App(remove_everything)
+		app.run()
+
+We import and instantiate the App object under the new conditional block
+so that it only happens when Python executes the script directly -- you
+can still import ``remove_everything`` without the importer having to 
+bother with cli.App at all. We've also changed the signature of the
+``remove_everything`` function so that it accepts an app instance as its 
+only argument. This is how your script will interact with the app tools. 
+
+.. [#]	And, of course, probably not a good idea.
