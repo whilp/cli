@@ -70,7 +70,63 @@ Now, adding app functionality is easy::
 
 We import and instantiate the App object under the new conditional block
 so that it only happens when Python executes the script directly -- you
-can still import ``ls`` without the importer having to bother with 
-cli.App at all. We've also changed the signature of the ``ls`` function 
+can still import :func:`ls` without the importer having to bother with 
+cli.App at all. We've also changed the signature of the :func:`ls` function 
 so that it accepts an app instance as its only argument. This is how 
 your script will interact with the app tools. 
+
+When you run the script, you should see a list of the files and
+directories in your current directory. Now, try passing the '-h' flag to
+the script::
+
+    $ python intro.py -h
+    Usage: intro.py 
+    
+    Options:
+      -h, --help     show this help message and exit
+      -q, --quiet    decrease the verbosity
+      -s, --silent   only log warnings
+      -v, --verbose  raise the verbosity
+
+These option flags are the first benefit you get from using cli.App. The
+default App class includes built-in support for Python's :mod:`optparse`
+module. cli.App's option parsing is very flexible: its default options
+support boolean True/False (:option:`-s`, :option:`-q`), incrementing 
+integers (:option:`=v`) and a variety of other common types. For now,
+we'll stick with the defaults, but parameters are easily and fully
+customizable.
+
+The default options control the verbosity of cli.App's logging
+subsystem (:mod:`logging` from the Python standard library). cli.App
+creates creates a logger for you with useful defaults and lets your
+application access it through the app object's :attr:`log` instance. For
+example, you could modify the :func:`ls` to use the :attr:`log` instance
+as follows:
+
+    def ls(app):
+        app.log.info(os.listdir('.'))
+
+If you run the script now with no arguments, you shouldn't see any
+output at all. That's because the default verbosity level silences
+anything that isn't a warning or critical message (see the :mod:`logging`
+module's `documentation`_ for a description of the supported levels). To
+see your output, increase the verbosity by passing the :option:`-v`
+flag::
+
+	$ python intro.py -v
+	<output>
+
+If you always want your application to write its output, you can use the
+:attr:`stdout` or :attr:`stderr` attributes instead. Writing to these
+objects is better than calling the :keyword:`print` statement (or
+:func:`print` function) since it allows you to globally control the
+output, increasing or decreasing your script's verbosity or redirecting
+the output altogether. It will also make testing your script much
+easier. By default, :attr:`app.stdout` and :attr:`app.stderr` behave
+just like :attr:`sys.stdout` and :attr:`sys.stderr` (because that's what
+they are!)::
+
+	def ls(app):
+		app.stdout.write(os.listdir('.'))
+
+.. _documentation:    http://docs.python.org/library/logging.html#logging-levels
