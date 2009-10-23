@@ -31,13 +31,13 @@ A simple case
 
 In the simplest case, you might have a script that performs a series of
 tasks. You haven't needed to define any functions, so it's rather
-compact[#]_::
+compact::
 
     #!/usr/bin/env python
 
-    import shutil
+    import os
 
-    shutil.rmtree('/')
+    print os.listdir('.')
 
 The :mod:`app` module provides a basic :class:`app.App` class that expects a
 function (or other callable) as its first argument. To cli-ify this
@@ -49,30 +49,28 @@ informative name::
 
     #!/usr/bin/env python
 
-    import shutil
+    import os
 
-    def remove_everything():
-        shutil.rmtree('/')
+    def ls():
+        print os.listdir('.')
 
 Now, adding app functionality is easy::
 
     #!/usr/bin/env python
 
-    import shutil
+    import os
 
-    def remove_everything(app):
-        shutil.rmtree('/')
+    def ls(app):
+        os.listdir('.')
 
     if __name__ == "__main__":
         from cli import App
-        app = App(remove_everything)
+        app = App(ls)
         app.run()
 
 We import and instantiate the App object under the new conditional block
 so that it only happens when Python executes the script directly -- you
-can still import ``remove_everything`` without the importer having to 
-bother with cli.App at all. We've also changed the signature of the
-``remove_everything`` function so that it accepts an app instance as its 
-only argument. This is how your script will interact with the app tools. 
-
-.. [#]  And, of course, probably not a good idea.
+can still import ``ls`` without the importer having to bother with 
+cli.App at all. We've also changed the signature of the ``ls`` function 
+so that it accepts an app instance as its only argument. This is how 
+your script will interact with the app tools. 
