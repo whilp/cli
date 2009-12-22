@@ -62,3 +62,20 @@ def Boolean(thing):
         return True
     else:
         return False
+
+class update_wrapper(object):
+    assignments = ('__module__', '__name__', '__doc__')
+    updates = ('__dict__',)
+
+    def __call__(self, wrapper, wrapped):
+        """Update callable wrapper so it looks like callable wrapped.
+    
+        Based on functools.update_wrapper (used only for compatibility on
+        Python <= 2.5).
+        """
+        for attr in self.assignments:
+            setattr(wrapper, attr, getattr(wrapped, attr))
+        for attr in self.updates:
+            getattr(wrapper, attr).update(getattr(wrapper, attr, {}))
+    
+        return wrapper

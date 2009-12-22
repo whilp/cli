@@ -27,13 +27,17 @@ import unittest
 from ConfigParser import ConfigParser
 from UserDict import UserDict
 from UserList import UserList
-from functools import update_wrapper
 from inspect import getargs, isclass, isfunction, ismethod
 from logging import Formatter, StreamHandler
 from operator import itemgetter, attrgetter
 from string import letters
 
 from util import AttributeDict, Boolean, Nothing, plural
+
+try:
+    from functools import update_wrapper
+except ImportError:
+    from util import update_wrapper
 
 __all__ = ["App", "EnvironParameterHandler", "CLIParameterHandler",
         "CommandLineApp", "LoggingApp"]
