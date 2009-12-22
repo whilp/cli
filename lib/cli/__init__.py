@@ -18,7 +18,15 @@ __author_email__ = "will@m.aier.us"
 __url__ = "http://code.lfod.us/cli"
 
 # See http://pypi.python.org/pypi?%3Aaction=list_classifiers.
-__classifiers__ = [] 
+__classifiers__ = [
+    "Programming Language :: Python :: 2.4",
+    "Programming Language :: Python :: 2.5",
+    "Programming Language :: Python :: 2.6",
+    "Programming Language :: Python :: 2.7",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Environment :: Console",
+    "Development Status :: 4 - Beta",
+] 
 __keywords__ = "command line application framework"
 
 __requires__ = []
