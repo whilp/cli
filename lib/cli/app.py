@@ -409,8 +409,8 @@ class CLIParameterHandler(ParameterHandler):
     def handle(self, app, parameters):
         self.parser = self.parser_factory(
                 usage=app.usage,
-                version='',     # XXX: this would be nice
-                description='', # same here
+                version=app.version,
+                description=app.description,
                 )
         self.parser.process_default_values = False
 
@@ -483,7 +483,7 @@ class CommandLineApp(object):
 
     def __init__(self, main, config_file=None, argv=None, env={},
             exit_after_main=True, stdin=None, stdout=None,
-            stderr=None, profiler=None):
+            stderr=None, profiler=None, version=None, description=None):
         self.main = main
         self.config_file = config_file
         self.argv = argv
@@ -492,6 +492,8 @@ class CommandLineApp(object):
         self.stdin = stdin and stdin or sys.stdin
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
+        self.version = version
+        self.description = description
         self.args = []
 
         if profiler is None:
