@@ -379,15 +379,6 @@ class EnvironParameterHandler(ParameterHandler):
     def __init__(self, environ):
         self.environ = environ or os.environ
 
-    def handle(self, app, parameters):
-        super(EnvironParameterHandler, self).handle(app, parameters)
-
-        pvars = [x for x in parameters if getattr(x, "var_name", None)]
-        if pvars:
-            app.epilog += "Environment variables:\n"
-            names = [self.get_param_name(x) for x in pvars]
-            app.epilog += '\n'.join('  %s' % n for n in names)
-
     def get_param_name(self, parameter):
         """Convert parameter name to something useful. 
        
@@ -425,7 +416,6 @@ class CLIParameterHandler(ParameterHandler):
                 usage=app.usage,
                 version='',     # XXX: this would be nice
                 description='', # same here
-                epilog=app.epilog,
                 )
         self.parser.process_default_values = False
 
@@ -498,7 +488,7 @@ class CommandLineApp(object):
 
     def __init__(self, main, config_file=None, argv=None, env={},
             exit_after_main=True, stdin=None, stdout=None,
-            stderr=None, epilog="", profiler=None):
+            stderr=None, profiler=None):
         self.main = main
         self.config_file = config_file
         self.argv = argv
@@ -508,7 +498,6 @@ class CommandLineApp(object):
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
         self.args = []
-        self.epilog = epilog
 
         if profiler is None:
             profiler = Profiler(self.stderr, anonymous=True)
