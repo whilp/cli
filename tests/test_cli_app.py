@@ -21,6 +21,12 @@ from tests import AppTest
 
 class TestApplication(AppTest):
 
+    def test_discover_name(self):
+        def foo(app):
+            pass
+        foo = Application(foo)
+        self.assertEqual(foo.name, "foo")
+
     def test_decorate_callable(self):
         @Application
         def foo(app):
@@ -32,3 +38,11 @@ class TestApplication(AppTest):
         def bar(app):
             pass
         self.assertEqual(bar.name, "foo")
+
+    def test_wrap_non_function_callable(self):
+        @Application
+        class foo(object):
+            def __call__(self, app):
+                pass
+
+        self.assertEqual(foo.name, "foo")
