@@ -461,111 +461,37 @@ class CLIParameterHandler(ParameterHandler):
         
         return name
 
-class CommandLineApp(object):
-    """A command-line application.
+class Application(object):
+    """An application.
 
-    Command-line applications (CLI apps) perform a task based in
-    part on options and arguments passed on the command line. The
-    App object makes it easy to develop simple CLI apps.
-
-    Instantiated CLI apps parse options, arguments and (optionally)
-    other configuration information and pass them to a single
-    callable. This callable must support the App interface, which
-    means its signature should be something like the following:
-
-        def main(opts, args, app):
-
-    Whether or not the callable actually _uses_ any of this
-    information is optional, though it must accept them.
+    The application wraps a callable and manages extra information about
+    it. Note that, fundamentally, an Application is a Python decorator.
     """
-    optparser_factory = optparse.OptionParser
-    param_factory = Parameter
 
-    def __init__(self, main, config_file=None, argv=None, env={},
-            exit_after_main=True, stdin=None, stdout=None,
-            stderr=None, profiler=None, version=None, description=None):
+    def __init__(self, main, name=None, exit_after_main=True, stdin=None, stdout=None,
+            stderr=None, version=None, description=None):
         self.main = main
-        self.config_file = config_file
-        self.argv = argv
-        self.env = env
+        self._name = _name
         self.exit_after_main = exit_after_main
         self.stdin = stdin and stdin or sys.stdin
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
         self.version = version
         self.description = description
-        self.args = []
-
-        if profiler is None:
-            profiler = Profiler(self.stderr, anonymous=True)
-        self.profiler = profiler
-
-        self.params = self.param_factory("root")
-        self.param_handlers = []
-
-        self.setup()
-
-    def setup(self):
-        # Set up param handlers.
-        environ_handler = EnvironParameterHandler(self.env)
-        cli_handler = CLIParameterHandler(self.argv)
-
-        self.param_handlers.append(environ_handler)
-        self.param_handlers.append(cli_handler)
 
     @property
     def name(self):
-        return getattr(self.main, 'func_name', self.main.__class__.__name__)
-
-    def add_param(self, *args, **kwargs):
-        """Add a parameter."""
-        self.params.add(*args, **kwargs)
-
-    def handle_parameters(self):
-        """Apply each handler to the list of parameters.
-
-        Each handler should define a .handle() method which takes as
-        its single argument a list of Parameter objects. It should
-        attempt to find a value for each parameter in its source and
-        update the parameter objects accordingly. Once all parameter
-        handlers have been run, replace all leaves in the parameter
-        tree with their values.
-        """
-        for handler in self.param_handlers:
-            handler.handle(self, self.params)
-
-        self.resolve_parameters(self.params)
-
-    def resolve_parameters(self, parameters):
-        """Walk the parameter tree, replacing leaves with their values.
-
-        Parameters that aren't leaves will remain untouched.
-        In cases where a parameter's name is the same as an
-        attribute of its parent (for example, 'keys'), the parent's
-        attribute will be overridden.
-        """
-        for parameter in parameters:
-            if parameter.children:
-                self.resolve_parameters(parameter.children)
-            else:
-                self.resolve_parameter(parameter)
-
-    def resolve_parameter(self, parameter):
-        """Replace the parameter in the tree with its value."""
-        path = [x.name for x in parameter.path]
-        parent = self.params
-        for node in path[:-1]:
-            parent = getattr(parent, node.name)
-        setattr(parent, parameter.name, parameter.value)
+        name = self._name
+        if _name is not None:
+            name = getattr(self.main, 'func_name', self.main.__class__.__name__)
+        return name
 
     @property
-    def usage(self):
-        return '%prog ' + (self.main.__doc__ or '')
+    def description(self):
+        return getattr(self.main, "__doc__", sel.description)
 
     def pre_run(self):
         """Perform actions before .main() is run."""
-        # Update parameters.
-        self.handle_parameters()
 
     def post_run(self, returned):
         """Perform actions after .main() is run."""
@@ -577,14 +503,8 @@ class CommandLineApp(object):
     def run(self):
         """Run the application's callable.
 
-        If the callable hasn't already been determined, discover it
-        and pass it the resolved options, arguments and Application
-        object. If the App.exit_after_main is True, call sys.exit()
-        with the return value of the application's callable.
-        Otherwise, return the result.
-
-        This behavior can be customized by redefining the
-        {pre,post}_run methods.
+        The .pre_run() and .post_run() hooks will be run before and after
+        the callable, respectively.
         """
         self.pre_run()
 
