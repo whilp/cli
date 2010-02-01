@@ -535,12 +535,12 @@ class ArgumentParser(argparse.ArgumentParser):
         super(ArgumentParser, self)._print_message(message, file)
 
 class CommandLineApp(Application):
-	"""A command line application.
+    """A command line application.
 
-	These applications are passed arguments on the command line. Here we
-	use argparse to parse them and generate handy help/version
-	information outputs.
-	"""
+    These applications are passed arguments on the command line. Here we
+    use argparse to parse them and generate handy help/version
+    information outputs.
+    """
     prefix = '-'
     argparser_factory = ArgumentParser
     formatter = argparse.Formatter
@@ -559,7 +559,7 @@ class CommandLineApp(Application):
             description=self.description,
             epilog=self.epilog,
             prefixchars=self.prefix,
-			file=self.stderr,
+            file=self.stderr,
             )
 
         # We add this ourselves to avoid clashing with -v/verbose.
@@ -570,6 +570,10 @@ class CommandLineApp(Application):
 
     def add_param(self, *args, **kwargs):
         self.argparser.add_argument(*args, **kwargs)
+
+    def pre_run(self):
+        super(CommandLineApp, self).pre_run()
+        self.args = self.argparser.parse_args(self.argv)
 
 class LoggingApp(CommandLineApp):
     """A command-line application that knows how to log.
