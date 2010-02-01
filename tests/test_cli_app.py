@@ -15,7 +15,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.app import Application
+from cli.app import Application, CommandLineApp
 
 from tests import AppTest
 
@@ -53,3 +53,17 @@ class TestApplication(AppTest):
 
     def test_discover_description(self):
         self.assertEqual(self.app.description, """This is the description.""")
+
+class TestCommandLineApp(AppTest):
+    
+    def setUp(self):
+        @CommandLineApp(exit_after_main=False)
+        def app(app):
+            pass
+        self.app = app
+
+    def test_parse_args(self):
+        self.app.add_param("-f", "--foo", default=None)
+        self.app.argv = ["-f", "bar"]
+        self.app.run()
+        self.assertEqual(self.app.args.foo, "bar")
