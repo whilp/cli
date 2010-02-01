@@ -15,6 +15,20 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from test import AppTest
+from cli.app import Application
 
-class Test
+from tests import AppTest
+
+class TestApplication(AppTest):
+
+    def test_decorate_callable(self):
+        @Application
+        def foo(app):
+            pass
+        self.assertEqual(foo.name, "foo")
+
+    def test_instantiate_and_decorate_callable(self):
+        @Application(name="foo")
+        def bar(app):
+            pass
+        self.assertEqual(bar.name, "foo")

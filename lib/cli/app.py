@@ -31,7 +31,7 @@ class Application(object):
     it. Note that, fundamentally, an Application is a Python decorator.
     """
 
-    def __init__(self, main, name=None, exit_after_main=True, stdin=None, stdout=None,
+    def __init__(self, main=None, name=None, exit_after_main=True, stdin=None, stdout=None,
             stderr=None, version=None, description=None):
         self.main = main
         self._name = name
@@ -42,7 +42,15 @@ class Application(object):
         self.version = version
         self._description = description
 
+        if main is not None:
+            self.setup()
+
+    def __call__(self, main):
+        self.main = main
+
         self.setup()
+
+        return self
 
     def setup(self):
         """Set up the application.
@@ -54,7 +62,7 @@ class Application(object):
     @property
     def name(self):
         name = self._name
-        if _name is not None:
+        if name is None:
             name = getattr(self.main, 'func_name', self.main.__class__.__name__)
         return name
 
