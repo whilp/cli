@@ -184,28 +184,29 @@ class NullHandler(logging.Handler):
         """Ignore the record."""
         pass
 
-class CLILogger(logging.Logger):
+class CommandLineLogger(logging.Logger):
     """Provide extra configuration smarts for loggers.
 
-    In addition to the powers of a regular logger, a CLILogger can
+    In addition to the powers of a regular logger, a CommandLineLogger can
     interpret optparseOptionGroups, using the 'verbose', 'quiet' and
     'silent' options to set the logger's verbosity.
     """
     default_level = logging.WARN
     silent_level = logging.CRITICAL
 
-    def setLevel(self, level=0, opts=None):
+    def setLevel(self, ns=None):
         """Set the logging level of this handler.
 
-        If 'level' is an optparse.OptionGroup, choose the level
-        based on the 'verbose', 'silent' and 'quiet' attributes.
+        ns is an object (like an argparse.Namespace) with the following
+        attributes:
+            
+            verbose     integer
+            quiet       integer
+            silent      True/False
         """
-        if opts is None:
-            return logging.Logger.setLevel(self, level)
+        level = 10 * (ns.quiet - ns.verbose)
 
-        level = self.default_level + (10 * (int(opts.quiet) - int(opts.verbose)))
-
-        if opts.silent:
+        if ns.silent:
             level = self.silent_level
         elif level <= logging.NOTSET:
             level = logging.DEBUG
@@ -480,7 +481,7 @@ class Application(object):
         self.version = version
         self.description = description
 
-		self.setup()
+        self.setup()
 
     def setup(self):
         """Set up the application.
@@ -610,7 +611,7 @@ class LoggingApp(CommandLineApp):
                 action="count")
 
         # Create logger.
-        logging.setLoggerClass(CLILogger)
+        logging.setLoggerClass(CommandLineLogger)
         self.log = logging.getLogger(self.name)
 
         # Create formatters.
@@ -619,12 +620,12 @@ class LoggingApp(CommandLineApp):
         verbose_formatter = Formatter()
         self.formatter = message_formatter
 
-        self.log.setLevel(self.log.default_level)
+        self.log.level = self.log.default_level
 
     def pre_run(self):
         """Configure logging before running the app."""
         super(LoggingApp, self).pre_run()
-        self.log.setLevel(opts=self.params)
+        self.log.setLevel(self.args)
 
         if self.logfile is not None:
             file_handler = FileHandler(self.logfile)
