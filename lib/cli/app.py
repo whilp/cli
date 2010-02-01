@@ -32,6 +32,7 @@ from logging import Formatter, StreamHandler
 from operator import itemgetter, attrgetter
 from string import letters
 
+from ext import argparse
 from util import AttributeDict, Boolean, Nothing, plural
 
 try:
@@ -511,6 +512,56 @@ class Application(object):
         returned = self.main(self, *self.args)
 
         return self.post_run(returned)
+
+class ArgumentParser(argparse.ArgumentParser):
+    """This subclass makes it easier to redirect ArgumentParser's output."""
+
+    def __init__(self, file=None, **kwargs):
+        self.file = file
+        super(ArgumentParser, self).__init__(**kwargs)
+
+    def _print_message(self, message, file=None):
+        if file is None:
+            file = self.file
+        super(ArgumentParser, self)._print_message(message, file)
+
+class CommandLineApp(Application):
+	"""A command line application.
+
+	These applications are passed arguments on the command line. Here we
+	use argparse to parse them and generate handy help/version
+	information outputs.
+	"""
+    prefix = '-'
+    argparser_factory = ArgumentParser
+    formatter = argparse.Formatter
+
+    def __init__(self, main, argv=None, usage=None, epilog=None, **kwargs):
+        super(ComandLineApp, self).__init__(main, **kwargs)
+        self.argv = argv
+        self.usage = usage
+        self.epilog = epilog
+
+        self.setup_argparser()
+
+    def setup_argparser(self):
+        self.argparser = self.argparser_factory(
+            prog=self.name,
+            usage=self.usage,
+            description=self.description,
+            epilog=self.epilog,
+            prefixchars=self.prefix,
+			file=self.stderr,
+            )
+
+        # We add this ourselves to avoid clashing with -v/verbose.
+        if self.version is not None:
+            self.add_param(
+                "-V", "--version", action="version", default=argparse.SUPPRESS,
+                help=("show program's version number and exit"))
+
+    def add_param(self, *args, **kwargs):
+        self.argparser.add_argument(*args, **kwargs)
 
 class LoggingApp(CommandLineApp):
     """A command-line application that knows how to log.
