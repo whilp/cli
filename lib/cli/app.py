@@ -655,11 +655,12 @@ class DaemonizingApp(LoggingApp):
         super(DaemonizingApp, self).setup()
 
         # Add daemonizing options.
-        self.add_param("daemonize", False, "run the application in the background", 
-                action="store_true")
-        self.add_param("user", None, "change to USER[:GROUP] after daemonizing")
-        self.add_param("pidfile", None, "write PID to PIDFILE after daemonizing")
-        self.add_param("logfile", None, "write logs to LOGFILE")
+        self.add_param("-d", "--daemonize", default=False, action="store_true",
+                help="run the application in the background")
+        self.add_param("-u", "--user", default=None, 
+                help="change to USER[:GROUP] after daemonizing")
+        self.add_param("-p", "--pidfile", default=None, 
+                help="write PID to PIDFILE after daemonizing")
 
     def daemonize(self):
         """Daemonize the application.
@@ -681,17 +682,17 @@ class DaemonizingApp(LoggingApp):
         os.dup2(so.fileno(), self.stdout.fileno())
         os.dup2(se.fileno(), self.stderr.fileno())
 
-        if self.params.pidfile:
-            self.log.debug("Writing pidfile %s", self.params.pidfile)
-            pidfile = open(self.params.pidfile, 'w')
+        if self.args.pidfile:
+            self.log.debug("Writing pidfile %s", self.args.pidfile)
+            pidfile = open(self.args.pidfile, 'w')
             pidfile.write('%i\n' % os.getpid())
             pidfile.close()
 
-        if self.params.user:
+        if self.args.user:
             import grp
             import pwd
             delim = ':'
-            user, sep, group = self.params.user.partition(delim)
+            user, sep, group = self.args.user.partition(delim)
 
             # If group isn't specified, try to use the username as
             # the group.
