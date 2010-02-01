@@ -1,6 +1,6 @@
 """cli.app - CLI application helpers
 
-Copyright (c) 2008-2009 Will Maier <will@m.aier.us>
+Copyright (c) 2008-2010 Will Maier <will@m.aier.us>
 
 Permission to use, copy, modify, and distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -23,116 +23,11 @@ import sys
 from logging import Formatter, StreamHandler
 
 from ext import argparse
+from profiler import Profiler
 from util import AttributeDict, Boolean, Nothing, plural
-
-try:
-    from functools import update_wrapper
-except ImportError:
-    from util import update_wrapper
 
 __all__ = ["Application", "App", "CommandLineLogger", "CommandLineApp", "LoggingApp"]
 
-Nothing = object()
-
-class Error(Exception):
-    pass
-
-def fmtsec(seconds):
-    if seconds < 0:
-        return '-' + self.seconds(-seconds)
-
-    prefixes = " munp"
-    powers = range(0, 3 * len(prefixes) + 1, 3)
-
-    prefix = ''
-    for power, prefix in zip(powers, prefixes):
-        if seconds >= pow(10.0, -power):
-            seconds *= pow(10.0, power)
-            break
-
-    formats = [
-        (1e9, "%.4g"),
-        (1e6, "%.0f"),
-        (1e5, "%.1f"),
-        (1e4, "%.2f"),
-        (1e3, "%.3f"),
-        (1e2, "%.4f"),
-        (1e1, "%.5f"),
-        (1e0, "%.6f"),
-    ]
-
-    for threshold, format in formats:
-        if seconds >= threshold:
-            break
-
-    format += " %ss"
-    return format % (seconds, prefix)
-
-class Profiler(object):
-
-    def __init__(self, stdout=None, anonymous=False, count=1000, repeat=3):
-        self.stdout = stdout is None and sys.stdout or stdout
-        self.anonymous = anonymous
-        self.count = count
-        self.repeat = repeat
-
-    def wrap(self, wrapper, wrapped):
-        update_wrapper(wrapper, wrapped)
-
-        if self.anonymous or self.isanon(wrapped.func_name):
-            return wrapper()
-        else:
-            return wrapper
-
-    def isanon(self, func_name):
-        return func_name.startswith("__profiler_") or \
-            func_name == "anonymous"
-
-    def deterministic(self, func):
-        from pstats import Stats
-
-        try:
-            from cProfile import Profile
-        except ImportError:
-            from profile import Profile
-        profiler = Profile()
-
-        def wrapper(*args, **kwargs):
-            self.stdout.write("===> Profiling %s:\n" % func.func_name)
-            profiler.runcall(func, *args, **kwargs)
-            stats = Stats(profiler, stream=self.stdout)
-            stats.strip_dirs().sort_stats(-1).print_stats()
-
-        return self.wrap(wrapper, func)
-
-    def statistical(self, func):
-        try:
-            from timeit import default_timer as timer
-        except ImportError:
-            from time import time as timer
-
-        def timeit(func, *args, **kwargs):
-            cumulative = 0
-            for i in range(self.count):
-                start = timer()
-                func(*args, **kwargs)
-                stop = timer()
-                cumulative += stop - start
-
-            return cumulative
-
-        def repeat(func, *args, **kwargs):
-            return [timeit(func, *args, **kwargs) for i in range(self.repeat)]
-
-        def wrapper(*args, **kwargs):
-            self.stdout.write("===> Profiling %s: " % func.func_name)
-            result = min(repeat(func, *args, **kwargs))
-            self.stdout.write("%d loops, best of %d: %s per loop\n" % (
-                self.count, self.repeat, fmtsec(result/self.count)))
-
-        return self.wrap(wrapper, func)
-
-    __call__ = deterministic
 
 class FileHandler(logging.FileHandler):
 
