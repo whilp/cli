@@ -80,7 +80,7 @@ class Application(object):
         """
         self.pre_run()
 
-        returned = self.main(self, *self.args)
+        returned = self.main(self)
 
         return self.post_run(returned)
 
