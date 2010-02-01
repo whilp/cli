@@ -68,7 +68,7 @@ class Application(object):
 
     @property
     def description(self):
-        return getattr(self.main, "__doc__", self.description)
+        return getattr(self.main, "__doc__", self._description)
 
     def pre_run(self):
         """Perform actions before .main() is run."""

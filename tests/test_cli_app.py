@@ -50,3 +50,6 @@ class TestApplication(AppTest):
                 pass
 
         self.assertEqual(foo.name, "foo")
+
+    def test_discover_description(self):
+        self.assertEqual(self.app.description, """This is the description.""")
