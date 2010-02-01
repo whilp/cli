@@ -20,12 +20,16 @@ from cli.app import Application
 from tests import AppTest
 
 class TestApplication(AppTest):
+    
+    def setUp(self):
+        @Application
+        def app(app):
+            """This is the description."""
+            pass
+        self.app = app
 
     def test_discover_name(self):
-        def foo(app):
-            pass
-        foo = Application(foo)
-        self.assertEqual(foo.name, "foo")
+        self.assertEqual(self.app.name, "app")
 
     def test_decorate_callable(self):
         @Application
