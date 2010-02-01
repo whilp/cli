@@ -63,7 +63,7 @@ class Application(object):
     def name(self):
         name = self._name
         if name is None:
-            name = getattr(self.main, 'func_name', self.main.__class__.__name__)
+            name = getattr(self.main, 'func_name', self.main.__name__)
         return name
 
     @property
