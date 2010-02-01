@@ -105,7 +105,7 @@ class CommandLineApp(Application):
     """
     prefix = '-'
     argparser_factory = ArgumentParser
-    formatter = argparse.Formatter
+    formatter = argparse.HelpFormatter
 
     def __init__(self, main, argv=None, usage=None, epilog=None, **kwargs):
         self.argv = argv
