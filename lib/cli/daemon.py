@@ -24,7 +24,7 @@ class DaemonizingApp(LoggingApp):
     """A command-line application that knows how to daemonize.
     """
 
-    def __init__(self, main, pidfile=None,
+    def __init__(self, main=None, pidfile=None,
             chdir='/', null="/dev/null", **kwargs):
         self.pidfile = pidfile
         self.chdir = chdir

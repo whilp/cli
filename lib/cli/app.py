@@ -115,12 +115,12 @@ class CommandLineApp(Application):
     argparser_factory = ArgumentParser
     formatter = argparse.HelpFormatter
 
-    def __init__(self, main, argv=None, usage=None, epilog=None, **kwargs):
+    def __init__(self, main=None, argv=None, usage=None, epilog=None, **kwargs):
         self.argv = argv
         self.usage = usage
         self.epilog = epilog
 
-        super(ComandLineApp, self).__init__(main, **kwargs)
+        super(CommandLineApp, self).__init__(**kwargs)
 
     def setup(self):
         self.argparser = self.argparser_factory(

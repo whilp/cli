@@ -86,7 +86,7 @@ class LoggingApp(CommandLineApp):
     None.
     """
 
-    def __init__(self, main, stream=sys.stdout, logfile=None,
+    def __init__(self, main=None, stream=sys.stdout, logfile=None,
             message_format="%(message)s", 
             date_format="%(asctime)s %(message)s", **kwargs):
         self.logfile = logfile
