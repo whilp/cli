@@ -128,7 +128,7 @@ class CommandLineApp(Application):
             usage=self.usage,
             description=self.description,
             epilog=self.epilog,
-            prefixchars=self.prefix,
+            prefix_chars=self.prefix,
             file=self.stderr,
             )
 
