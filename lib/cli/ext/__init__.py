@@ -1,7 +1,13 @@
 import os
 import sys
 
-__all__ = []
+"""Includes:
+    argparse - 2010.02.01
+        LICENSE:    Apache License 2.0
+        URL:        http://argparse.googlecode.com/svn/tags/r101/argparse.py
+"""
+
+__all__ = ["argparse"]
 compat_dir = os.path.abspath(os.path.dirname(__file__))
 
 name, module = None, None
