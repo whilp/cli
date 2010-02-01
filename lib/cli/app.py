@@ -480,6 +480,15 @@ class Application(object):
         self.version = version
         self.description = description
 
+		self.setup()
+
+    def setup(self):
+        """Set up the application.
+
+        This hook may be useful for subclasses.
+        """
+        pass
+
     @property
     def name(self):
         name = self._name
@@ -537,14 +546,13 @@ class CommandLineApp(Application):
     formatter = argparse.Formatter
 
     def __init__(self, main, argv=None, usage=None, epilog=None, **kwargs):
-        super(ComandLineApp, self).__init__(main, **kwargs)
         self.argv = argv
         self.usage = usage
         self.epilog = epilog
 
-        self.setup_argparser()
+        super(ComandLineApp, self).__init__(main, **kwargs)
 
-    def setup_argparser(self):
+    def setup(self):
         self.argparser = self.argparser_factory(
             prog=self.name,
             usage=self.usage,
