@@ -17,6 +17,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
 import logging
+import sys
+
 from logging import Formatter, StreamHandler
 
 from cli.app import CommandLineApp
