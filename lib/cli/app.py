@@ -16,21 +16,11 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
-import datetime
 import logging
-import optparse
 import os
 import sys
-import types
-import unittest
 
-from ConfigParser import ConfigParser
-from UserDict import UserDict
-from UserList import UserList
-from inspect import getargs, isclass, isfunction, ismethod
 from logging import Formatter, StreamHandler
-from operator import itemgetter, attrgetter
-from string import letters
 
 from ext import argparse
 from util import AttributeDict, Boolean, Nothing, plural
@@ -40,29 +30,11 @@ try:
 except ImportError:
     from util import update_wrapper
 
-__all__ = ["App", "EnvironParameterHandler", "CLIParameterHandler",
-        "CommandLineApp", "LoggingApp"]
+__all__ = ["Application", "App", "CommandLineLogger", "CommandLineApp", "LoggingApp"]
 
 Nothing = object()
 
-class DefaultSentinel(int, object):
-    """A default sentinel.
-
-    DefaultSentinels are used to differentiate between actual
-    defaults and optparse defaults. Since optparse wants to call
-    default.__add__() when the action is 'count', DefaultSentinel
-    needs to inherit from int, too.
-    """
-
-Default = DefaultSentinel()
-
 class Error(Exception):
-    pass
-
-class MainError(Error):
-    pass
-
-class ParameterError(Error):
     pass
 
 def fmtsec(seconds):
@@ -95,7 +67,6 @@ def fmtsec(seconds):
 
     format += " %ss"
     return format % (seconds, prefix)
-
 
 class Profiler(object):
 
@@ -188,8 +159,7 @@ class CommandLineLogger(logging.Logger):
     """Provide extra configuration smarts for loggers.
 
     In addition to the powers of a regular logger, a CommandLineLogger can
-    interpret optparseOptionGroups, using the 'verbose', 'quiet' and
-    'silent' options to set the logger's verbosity.
+    set its verbosity levels based on a populated argparse.Namespace.
     """
     default_level = logging.WARN
     silent_level = logging.CRITICAL
@@ -212,256 +182,6 @@ class CommandLineLogger(logging.Logger):
             level = logging.DEBUG
 
         self.level = level
-
-class ParameterPath(UserList):
-
-    def __str__(self):
-        delim = Parameter.delim
-        path = [x.name for x in self.data]
-        return delim.join(path).lstrip(delim)
-
-class Parameter(AttributeDict):
-    """An application run-time parameter.
-
-    Parameters influence the way an application runs and allow users
-    to adjust general behavior. The Parameter abstraction collapses
-    any number of configuration sources into a single tree of
-    parameters.
-    """
-    delim = '.'
-    path_factory = ParameterPath
-    coerce_factories = {
-            # {TYPE: FACTORY}
-            bool: Boolean,
-            type(None): lambda x: x,
-    }
-
-    def __init__(self, name, default=None, help="", coerce=None,
-            parent=None, **kwargs):
-        if isinstance(name, Parameter):
-            self = name
-        else:
-            self.name = name
-            self.default = default
-            self.coerce = coerce
-            self.help = help
-            self.data = {}
-            self.raw_value = Nothing
-
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-        self.parent = parent
-
-    def __iter__(self):
-        """Iterate on children, not data itself."""
-        return iter(self.children)
-
-    def __str__(self):
-        return "<Parameter %s/%s>" % (self.path, self.value)
-
-    def __repr__(self):
-        return "Parameter(name=%s, default=%s, help=%s, parent=%s)" % (
-                self.name, self.default, self.help, self.parent)
-
-    def get_value(self):
-        """Get the "coerced" value of the Parameter.
-
-        If an explicit coercion method was supplied, use it. If none
-        was supplied, use the type of the .default attribute to find
-        it in the .coerce_factories attribute. If no value has been
-        set, simply return the (uncoerced) default value.
-        """
-        value = self.default
-        if self.raw_value is not Nothing:
-            value = self.raw_value
-
-            coerce = self.coerce
-            if coerce is None:
-                key = type(self.default)
-                if key not in self.coerce_factories:
-                    key = type(None)
-                coerce = self.coerce_factories[key]
-            value = coerce(value)
-
-        return value
-
-    value = property(fget=get_value,
-            fset=lambda self, new: setattr(self, "raw_value", new),
-            doc="""Provide a coerced version of .raw_value.""")
-    del(get_value)
-
-    @property
-    def path(self):
-        parent = getattr(self.parent, "path", None)
-        if parent is not None:
-            path = parent + [self,]
-        else:
-            path = []
-
-        return self.path_factory(path)
-
-    @property
-    def children(self):
-        children = []
-        for child in self.data.values():
-            children.append(child)
-            children.extend(child.children)
-        return children
-
-    def add(self, parameter, *args, **kwargs):
-        """Add a parameter.
-
-        If 'parameter' is not a Parameter instance, a new parameter
-        will be created with that name (and the other arguments). If
-        'parameter' is a Parameter instance, it will be added (and
-        the other arguments will be ignored). The child can be
-        accessed as an attribute of the parent. This allows access
-        to children as follows:
-
-            >>> foo = Parameter("foo")
-            >>> foo.add("bar")
-            >>> foo.bar
-        """
-        if not isinstance(parameter, Parameter):
-            cls = type(self)
-            parameter = cls(parameter, *args, **kwargs)
-
-        parameter.parent = self
-
-        # Always update self.data -- this is the One True register
-        # of children.
-        self.data[parameter.name] = parameter
-
-    def remove(self, parameter):
-        """Remove a parameter.
-
-        If 'parameter' is a Parameter instance, its 'name' attribute
-        will be used to find the correct parameter to remove.
-        Otherwise, the parameter with the name 'parameter' will be
-        removed. In both cases, the parameter will no longer be
-        accessible as an attribute of the parent.
-        """
-        name = getattr(parameter, 'name', parameter)
-
-        # Clean up self.data
-        self.data.pop(name)
-
-class ParameterHandler(object):
-    """Handle application parameters.
-
-    The ParameterHandler interfaces between the abstract parameters
-    defined by an application and the actual source of configuration
-    information. This source may be the run-time arguments passed to
-    the application (sys.argv), the execution environment
-    (os.environ) or even a configuration file. 
-    
-    In each case, the Handler interprets the source according to the
-    Parameters it's been given.
-    """
-
-    def __init__(self, app, source):
-        self.app = app
-        self.source = source
-
-    def handle(self, app, parameters):
-        for parameter in parameters:
-            self.handle_parameter(parameter)
-
-            # Recurse into children if present.
-            if parameter.children:
-                self.handle(app, parameter.children)
-
-    def handle_parameter(self, parameter):
-        raise NotImplementedError
-
-class EnvironParameterHandler(ParameterHandler):
-    delim = '_'
-
-    def __init__(self, environ):
-        self.environ = environ or os.environ
-
-    def get_param_name(self, parameter):
-        """Convert parameter name to something useful. 
-       
-        foo.bar.baz -> FOO_BAR_BAZ
-        """
-        name = getattr(parameter, "var_name", None)
-
-        if name is None:
-            name = str(parameter.path).replace(parameter.delim, self.delim).upper()
-
-        return name
-
-    def handle_parameter(self, parameter):
-        name = self.get_param_name(parameter)
-        value = self.environ.get(name, None)
-        if value is not None:
-            parameter.value = value
-
-class CLIParameterHandler(ParameterHandler):
-    delim = '-'
-    cmp = staticmethod(lambda x, y: \
-            cmp(getattr(x, "short", x.name), getattr(y, "short", y.name)))
-    parser_factory = optparse.OptionParser
-
-    def __init__(self, argv):
-        self.argv = argv
-
-    def handle(self, app, parameters):
-        self.parser = self.parser_factory(
-                usage=app.usage,
-                version=app.version,
-                description=app.description,
-                )
-        self.parser.process_default_values = False
-
-        # XXX: we'll need to map option names to parameters here...
-        param_map = {}
-        if self.cmp:
-            parameters = sorted(parameters, self.cmp)
-        for parameter in parameters:
-            name = self.handle_parameter(parameter)
-            param_map[name] = parameter
-
-            # Recurse into children if present.
-            if parameter.children:
-                self.handle(app, parameter.children)
-
-        # Parse argv.
-        opts, args = self.parser.parse_args(self.argv)
-
-        # Update the parameter tree.
-
-        # XXX: Unfortunately, there doesn't appear to be a nicer way
-        # to do this. optparse falls back on __dict__ in this case,
-        # too...
-        for name, opt in vars(opts).items():
-            if opt is not Default:
-                parameter = param_map[name]
-                parameter.value = opt
-
-        # Set the application's args attribute.
-        app.args = args
-
-    def handle_parameter(self, parameter):
-        option_attrs = optparse.Option.ATTRS
-        name = str(parameter.path).replace(parameter.delim, self.delim)
-        short = getattr(parameter, "short", "-%s" % name[0])
-        long = getattr(parameter, "long", "--%s" % name)
-        kwargs = dict((k, v) for k, v in vars(parameter).items() \
-                if k in option_attrs)
-        kwargs["dest"] = kwargs.get("dest", name)
-
-        # Set a default sentinel since the parameter itself knows
-        # what the default is. Otherwise, we can't decide later
-        # whether to use the parameter's default or the option's
-        # value.
-        kwargs["default"] = Default
-        
-        self.parser.add_option(short, long, **kwargs)
-        
-        return name
 
 class Application(object):
     """An application.
