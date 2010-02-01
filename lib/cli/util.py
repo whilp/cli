@@ -79,3 +79,35 @@ class update_wrapper(object):
             getattr(wrapper, attr).update(getattr(wrapper, attr, {}))
     
         return wrapper
+
+def fmtsec(seconds):
+    if seconds < 0:
+        return '-' + self.seconds(-seconds)
+
+    prefixes = " munp"
+    powers = range(0, 3 * len(prefixes) + 1, 3)
+
+    prefix = ''
+    for power, prefix in zip(powers, prefixes):
+        if seconds >= pow(10.0, -power):
+            seconds *= pow(10.0, power)
+            break
+
+    formats = [
+        (1e9, "%.4g"),
+        (1e6, "%.0f"),
+        (1e5, "%.1f"),
+        (1e4, "%.2f"),
+        (1e3, "%.3f"),
+        (1e2, "%.4f"),
+        (1e1, "%.5f"),
+        (1e0, "%.6f"),
+    ]
+
+    for threshold, format in formats:
+        if seconds >= threshold:
+            break
+
+    format += " %ss"
+    return format % (seconds, prefix)
+
