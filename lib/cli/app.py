@@ -34,13 +34,13 @@ class Application(object):
     def __init__(self, main, name=None, exit_after_main=True, stdin=None, stdout=None,
             stderr=None, version=None, description=None):
         self.main = main
-        self._name = _name
+        self._name = name
         self.exit_after_main = exit_after_main
         self.stdin = stdin and stdin or sys.stdin
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
         self.version = version
-        self.description = description
+        self._description = description
 
         self.setup()
 
@@ -60,7 +60,7 @@ class Application(object):
 
     @property
     def description(self):
-        return getattr(self.main, "__doc__", sel.description)
+        return getattr(self.main, "__doc__", self.description)
 
     def pre_run(self):
         """Perform actions before .main() is run."""
