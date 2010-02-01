@@ -61,4 +61,4 @@ __todo__ = """\
 """
 
 # Import API-level elements.
-from app import *
+from cli.app import *

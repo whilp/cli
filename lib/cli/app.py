@@ -22,9 +22,8 @@ import sys
 
 from logging import Formatter, StreamHandler
 
-from ext import argparse
-from profiler import Profiler
-from util import AttributeDict, Boolean, Nothing, plural
+from cli.ext import argparse
+from cli.profiler import Profiler
 
 __all__ = ["Application", "App", "CommandLineLogger", "CommandLineApp", "LoggingApp"]
 
