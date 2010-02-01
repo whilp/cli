@@ -600,12 +600,14 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).setup()
 
         # Add logging-related options.
-        self.add_param("verbose", 0, "raise the verbosity",
+        self.add_param("-l", "--logfile", default=self.logfile, 
+                help="log to file (default: log to stdout)", action="count")
+        self.add_param("-q", "--quiet", default=0, help="decrease the verbosity",
                 action="count")
-        self.add_param("quiet", 0, "decrease the verbosity",
-                action="count")
-        self.add_param("silent", False, "only log warnings",
+        self.add_param("-s", "--silent", default=False, help="only log warnings",
                 action="store_true")
+        self.add_param("-v", "--verbose", default=0, help="raise the verbosity",
+                action="count")
 
         # Create logger.
         logging.setLoggerClass(CLILogger)
@@ -624,9 +626,8 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).pre_run()
         self.log.setLevel(opts=self.params)
 
-        logfile = getattr(self.params, "logfile", None) or self.logfile
-        if logfile is not None:
-            file_handler = FileHandler(logfile)
+        if self.logfile is not None:
+            file_handler = FileHandler(self.logfile)
             file_handler.setFormatter(self.formatter)
             self.log.addHandler(file_handler)
         elif self.stream is not None:
