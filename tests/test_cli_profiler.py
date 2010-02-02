@@ -42,3 +42,10 @@ class TestProfiler(BaseTest):
         wrapped = self.profiler.wrap(self.wrapper, self.func)
         self.assertEqual(wrapped(), "foo")
         self.assertEqual(wrapped.__doc__, self.func.__doc__)
+
+    def test_anon_wrap(self):
+        def __profiler_func():
+            """foo"""
+            return "foo"
+        wrapped = self.profiler.wrap(self.wrapper, __profiler_func)
+        self.assertEqual(wrapped, "foo")
