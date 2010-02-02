@@ -19,6 +19,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import os
 import sys
 
+from ConfigParser import ConfigParser
+
 from cli.ext import argparse
 from cli.profiler import Profiler
 
@@ -168,3 +170,28 @@ class CommandLineApp(Application):
         super(CommandLineApp, self).pre_run()
         ns = self.argparser.parse_args(self.argv)
         self.update_params(**vars(ns))
+
+class ConfigFileApp(CommandLineApp):
+    
+    def __init__(self, main=None, configfile=None, **kwargs):
+        self.configfile = configfile
+        super(ConfigFileApp, self).__init__(main, **kwargs)
+
+    def setup(self):
+        super(ConfigFileApp, self).setup()
+        self.cp = ConfigParser()
+
+    def pre_run(self):
+        ok = False
+        try:
+            ok = self.cp.read(self.configfile)
+            if not ok:
+                ok = self.cp.readfp(self.configfile)
+        except (TypeError, IOError, OSError):
+            return
+        if not ok:
+            return
+
+        self.update_params(*self.cp.items("default"))
+        self.update_params(*self.cp.items(self.name))
+        super(ConfigFileApp, self).pre_run()

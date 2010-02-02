@@ -15,9 +15,14 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.app import Application, CommandLineApp
+from cli.app import Application, CommandLineApp, ConfigFileApp
 
 from tests import AppTest, DecoratorTests
+
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 class TestApplication(DecoratorTests, AppTest):
     app_cls = Application
@@ -60,3 +65,16 @@ class TestCommandLineApp(AppTest, DecoratorTests):
         self.app.version = "0.1"
         self.app.setup()
         self.app.run()
+
+class TestConfigFileApp(AppTest, DecoratorTests):
+    app_cls = ConfigFileApp
+
+    def test_read_config_file(self):
+        self.app.configfile = StringIO("""
+        [default]
+        verbose = 3
+        """)
+        self.app.setup()
+        self.app.pre_run()
+
+        #self.assertEqual(self.app.params.verbose, 0)
