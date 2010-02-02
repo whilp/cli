@@ -65,7 +65,7 @@ class CommandLineLogger(logging.Logger):
             quiet       integer
             silent      True/False
         """
-        level = 10 * (ns.quiet - ns.verbose)
+        level = self.default_level + (10 * (ns.quiet - ns.verbose))
 
         if ns.silent:
             level = self.silent_level
