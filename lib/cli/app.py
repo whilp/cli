@@ -143,4 +143,4 @@ class CommandLineApp(Application):
 
     def pre_run(self):
         super(CommandLineApp, self).pre_run()
-        self.args = self.argparser.parse_args(self.argv)
+        self.params = self.argparser.parse_args(self.argv)

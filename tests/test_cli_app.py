@@ -66,4 +66,4 @@ class TestCommandLineApp(AppTest):
         self.app.add_param("-f", "--foo", default=None)
         self.app.argv = ["-f", "bar"]
         self.app.run()
-        self.assertEqual(self.app.args.foo, "bar")
+        self.assertEqual(self.app.params.foo, "bar")
