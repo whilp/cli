@@ -33,7 +33,7 @@ class Application(object):
 
     def __init__(self, main=None, name=None, exit_after_main=True, stdin=None, stdout=None,
             stderr=None, version=None, description=None, argv=None,
-			profiler=None):
+            profiler=None):
         self.main = main
         self._name = name
         self.exit_after_main = exit_after_main
@@ -88,8 +88,8 @@ class Application(object):
             try:
                 returned = int(returned)
             except ValueError:
-				returned = 1
-			
+                returned = 1
+            
         if self.exit_after_main:
             sys.exit(returned)
         else:
@@ -115,7 +115,7 @@ class ArgumentParser(argparse.ArgumentParser):
         super(ArgumentParser, self).__init__(**kwargs)
 
     def _print_message(self, message, file=None):
-        if file is None:	# pragma: no cover
+        if file is None:    # pragma: no cover
             file = self.file
         super(ArgumentParser, self)._print_message(message, file)
 
