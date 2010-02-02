@@ -18,4 +18,33 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import unittest
 
 class AppTest(unittest.TestCase):
-    pass
+    app_cls = None
+
+    def setUp(self):
+        @self.app_cls(exit_after_main=False)
+        def app(app):
+            """This is the description."""
+            pass
+        self.app = app
+
+class DecoratorTests(object):
+
+    def test_decorate_callable(self):
+        @self.app_cls
+        def foo(app):
+            pass
+        self.assertEqual(foo.name, "foo")
+
+    def test_instantiate_and_decorate_callable(self):
+        @self.app_cls(name="foo")
+        def bar(app):
+            pass
+        self.assertEqual(bar.name, "foo")
+
+    def test_wrap_non_function_callable(self):
+        @self.app_cls
+        class foo(object):
+            def __call__(self, app):
+                pass
+
+        self.assertEqual(foo.name, "foo")

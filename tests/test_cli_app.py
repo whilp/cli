@@ -17,39 +17,13 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 from cli.app import Application, CommandLineApp
 
-from tests import AppTest
+from tests import AppTest, DecoratorTests
 
-class TestApplication(AppTest):
+class TestApplication(DecoratorTests, AppTest):
+    app_cls = Application
     
-    def setUp(self):
-        @Application
-        def app(app):
-            """This is the description."""
-            pass
-        self.app = app
-
     def test_discover_name(self):
         self.assertEqual(self.app.name, "app")
-
-    def test_decorate_callable(self):
-        @Application
-        def foo(app):
-            pass
-        self.assertEqual(foo.name, "foo")
-
-    def test_instantiate_and_decorate_callable(self):
-        @Application(name="foo")
-        def bar(app):
-            pass
-        self.assertEqual(bar.name, "foo")
-
-    def test_wrap_non_function_callable(self):
-        @Application
-        class foo(object):
-            def __call__(self, app):
-                pass
-
-        self.assertEqual(foo.name, "foo")
 
     def test_discover_description(self):
         self.assertEqual(self.app.description, """This is the description.""")
