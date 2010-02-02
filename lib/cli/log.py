@@ -34,7 +34,7 @@ class FileHandler(logging.FileHandler):
         multiple threads that still need to write to it. Python
         should GC the fd when it goes out of scope, anyway.
         """
-        pass
+        pass	# pragma: no cover
 
 class NullHandler(logging.Handler):
     """A blackhole handler.
@@ -128,7 +128,7 @@ class LoggingApp(CommandLineApp):
         self.log.handlers = []
         if self.logfile is not None:
             file_handler = FileHandler(self.logfile)
-            file_handler.setFormatter(self.formatter)
+            file_handler.setFormatter(self.formatter) # pragma: no cover
             self.log.addHandler(file_handler)
         elif self.stream is not None:
             stream_handler = StreamHandler(self.stream)

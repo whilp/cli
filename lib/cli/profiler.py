@@ -18,7 +18,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 try:
     from functools import update_wrapper
-except ImportError:
+except ImportError:	# pragma: no cover
     from util import update_wrapper
 
 from util import fmtsec
@@ -48,7 +48,7 @@ class Profiler(object):
 
         try:
             from cProfile import Profile
-        except ImportError:
+        except ImportError:	# pragma: no cover
             from profile import Profile
         profiler = Profile()
 
@@ -63,7 +63,7 @@ class Profiler(object):
     def statistical(self, func):
         try:
             from timeit import default_timer as timer
-        except ImportError:
+        except ImportError:	# pragma: no cover
             from time import time as timer
 
         def timeit(func, *args, **kwargs):

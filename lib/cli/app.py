@@ -115,7 +115,7 @@ class ArgumentParser(argparse.ArgumentParser):
         super(ArgumentParser, self).__init__(**kwargs)
 
     def _print_message(self, message, file=None):
-        if file is None:
+        if file is None:	# pragma: no cover
             file = self.file
         super(ArgumentParser, self)._print_message(message, file)
 

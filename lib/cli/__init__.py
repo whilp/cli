@@ -9,6 +9,8 @@ into a single, consistent application interface.
 .. _profiling:  http://docs.python.org/library/profile.html
 """
 
+# pragma: no cover
+
 __project__ = "pyCLI"
 __version__ = "0.3.4"
 __package__ = "cli"
