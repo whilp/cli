@@ -59,3 +59,13 @@ class TestCommandLineLogger(BaseTest):
 
 class TestLoggingApp(AppTest, DecoratorTests):
     app_cls = LoggingApp
+
+    def test_setup_log(self):
+        self.app.argv = ["-vvv"]
+        self.app.run()
+        self.assertEqual(self.app.params.verbose, 3)
+        self.assertEqual(self.app.log.level, logging.DEBUG)
+
+        self.app.argv = "-vvv -qqq".split()
+        self.app.run()
+        self.assertEqual(self.app.log.level, logging.WARNING)

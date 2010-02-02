@@ -123,7 +123,7 @@ class LoggingApp(CommandLineApp):
     def pre_run(self):
         """Configure logging before running the app."""
         super(LoggingApp, self).pre_run()
-        self.log.setLevel(self.args)
+        self.log.setLevel(self.params)
 
         if self.logfile is not None:
             file_handler = FileHandler(self.logfile)
