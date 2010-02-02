@@ -32,6 +32,8 @@ class update_wrapper(object):
     
         return wrapper
 
+update_wrapper = update_wrapper()
+
 def fmtsec(seconds):
     if seconds < 0:
         return '-' + self.seconds(-seconds)
