@@ -133,6 +133,8 @@ class CommandLineApp(Application):
     def __init__(self, main=None, usage=None, epilog=None, **kwargs):
         self.usage = usage
         self.epilog = epilog
+        self.params = argparse.Namespace()
+        self._params = {}
 
         super(CommandLineApp, self).__init__(main, **kwargs)
 
@@ -154,8 +156,15 @@ class CommandLineApp(Application):
                 help=("show program's version number and exit"))
 
     def add_param(self, *args, **kwargs):
-        self.argparser.add_argument(*args, **kwargs)
+        action = self.argparser.add_argument(*args, **kwargs)
+        self._params[action.dest] = action
+        return action
+
+    def update_params(self, **params):
+        for k, v in params.items():
+            setattr(self.params, k, v)
 
     def pre_run(self):
         super(CommandLineApp, self).pre_run()
-        self.params = self.argparser.parse_args(self.argv)
+        ns = self.argparser.parse_args(self.argv)
+        self.update_params(**vars(ns))
