@@ -28,6 +28,25 @@ class TestApplication(DecoratorTests, AppTest):
     def test_discover_description(self):
         self.assertEqual(self.app.description, """This is the description.""")
 
+    def test_exit(self):
+        @self.app_cls
+        def app(app):
+            pass
+
+        self.assertRaises(SystemExit, app.run)
+
+    def test_returns(self):
+        self.assertEqual(self.app.run(), 0)
+
+    def test_returns_value(self):
+        @self.app_cls(exit_after_main=False)
+        def app(app):
+            return 1
+
+        self.assertEqual(app.run(), 1)
+        app.main = lambda app: "foo"
+        self.assertEqual(app.run(), 1)
+
 class TestCommandLineApp(AppTest, DecoratorTests):
     app_cls = CommandLineApp
 
@@ -36,3 +55,8 @@ class TestCommandLineApp(AppTest, DecoratorTests):
         self.app.argv = ["-f", "bar"]
         self.app.run()
         self.assertEqual(self.app.params.foo, "bar")
+
+    def test_version(self):
+        self.app.version = "0.1"
+        self.app.setup()
+        self.app.run()

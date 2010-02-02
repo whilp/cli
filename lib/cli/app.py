@@ -76,6 +76,15 @@ class Application(object):
 
     def post_run(self, returned):
         """Perform actions after .main() is run."""
+        # Interpret the returned value in the same way sys.exit() does.
+        if returned is None:
+            returned = 0
+        else:
+            try:
+                returned = int(returned)
+            except ValueError:
+				returned = 1
+			
         if self.exit_after_main:
             sys.exit(returned)
         else:
@@ -123,13 +132,14 @@ class CommandLineApp(Application):
         super(CommandLineApp, self).__init__(main, **kwargs)
 
     def setup(self):
+        super(CommandLineApp, self).setup()
         self.argparser = self.argparser_factory(
             prog=self.name,
             usage=self.usage,
             description=self.description,
             epilog=self.epilog,
             prefix_chars=self.prefix,
-            file=self.stderr,
+            file=self.stdout,
             )
 
         # We add this ourselves to avoid clashing with -v/verbose.
