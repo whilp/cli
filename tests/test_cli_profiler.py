@@ -49,3 +49,17 @@ class TestProfiler(BaseTest):
             return "foo"
         wrapped = self.profiler.wrap(self.wrapper, __profiler_func)
         self.assertEqual(wrapped, "foo")
+
+    def test_deterministic(self):
+        # Sanity check...
+        @self.profiler.deterministic
+        def foo():
+            pass
+        foo()
+
+    def test_deterministic(self):
+        # Sanity check...
+        @self.profiler.statistical
+        def foo():
+            pass
+        foo()
