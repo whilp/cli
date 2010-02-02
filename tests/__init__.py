@@ -49,9 +49,13 @@ class DecoratorTests(object):
         self.assertEqual(bar.name, "foo")
 
     def test_wrap_non_function_callable(self):
-        @self.app_cls
         class foo(object):
             def __call__(self, app):
                 pass
+        # Required in Python 2.4.
+		foo = foo()
+		foo.__name__ = "foo"
+        foo = self.app_cls(foo)
+        setattr(foo, "__name__", "foo")
 
         self.assertEqual(foo.name, "foo")
