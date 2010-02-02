@@ -120,7 +120,7 @@ class CommandLineApp(Application):
         self.usage = usage
         self.epilog = epilog
 
-        super(CommandLineApp, self).__init__(**kwargs)
+        super(CommandLineApp, self).__init__(main, **kwargs)
 
     def setup(self):
         self.argparser = self.argparser_factory(

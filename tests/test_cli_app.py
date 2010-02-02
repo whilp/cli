@@ -28,13 +28,8 @@ class TestApplication(DecoratorTests, AppTest):
     def test_discover_description(self):
         self.assertEqual(self.app.description, """This is the description.""")
 
-class TestCommandLineApp(AppTest):
-    
-    def setUp(self):
-        @CommandLineApp(exit_after_main=False)
-        def app(app):
-            pass
-        self.app = app
+class TestCommandLineApp(AppTest, DecoratorTests):
+    app_cls = CommandLineApp
 
     def test_parse_args(self):
         self.app.add_param("-f", "--foo", default=None)
