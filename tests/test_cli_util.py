@@ -31,3 +31,12 @@ class TestUtils(BaseTest):
         wrapper = update_wrapper(wrapper, foo)
         self.assertEqual(wrapper.__doc__, foo.__doc__)
         self.assertEqual(wrapper.__name__, foo.__name__)
+
+    def test_fmtsec(self):
+        self.assertEqual(fmtsec(-1), "-1.000000  s")
+        self.assertEqual(fmtsec(0), "0 s")
+        self.assertEqual(fmtsec(1), "1.000000  s")
+        self.assertEqual(fmtsec(1e9 + 1), "1e+09  s")
+        self.assertEqual(fmtsec(1e6 + 1.3), "1000001  s")
+        self.assertEqual(fmtsec(1003.02), "1003.020  s")
+        self.assertEqual(fmtsec(1e-3 + .00003), "1.030000 ms")

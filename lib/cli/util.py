@@ -36,7 +36,9 @@ update_wrapper = update_wrapper()
 
 def fmtsec(seconds):
     if seconds < 0:
-        return '-' + self.seconds(-seconds)
+        return '-' + fmtsec(-seconds)
+    elif seconds == 0:
+        return '0 s'
 
     prefixes = " munp"
     powers = range(0, 3 * len(prefixes) + 1, 3)
