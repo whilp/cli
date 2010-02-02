@@ -24,13 +24,17 @@ class AppTest(BaseTest):
     app_cls = None
 
     def setUp(self):
-        @self.app_cls(exit_after_main=False)
+        @self.app_cls(exit_after_main=False, argv=[])
         def app(app):
             """This is the description."""
             pass
         self.app = app
 
 class DecoratorTests(object):
+
+    def test_run(self):
+        # This servers as a nice sanity check.
+        self.app.run()
 
     def test_decorate_callable(self):
         @self.app_cls

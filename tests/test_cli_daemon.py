@@ -21,3 +21,8 @@ from tests import AppTest, DecoratorTests
 
 class TestDaemonizingApp(AppTest, DecoratorTests):
     app_cls = DaemonizingApp
+
+    def test_parse_args(self):
+        self.app.argv = ["-d"]
+        self.app.run()
+        self.assertEqual(self.app.params.daemonize, True)

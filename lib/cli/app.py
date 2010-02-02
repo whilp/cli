@@ -32,7 +32,7 @@ class Application(object):
     """
 
     def __init__(self, main=None, name=None, exit_after_main=True, stdin=None, stdout=None,
-            stderr=None, version=None, description=None):
+            stderr=None, version=None, description=None, argv=None):
         self.main = main
         self._name = name
         self.exit_after_main = exit_after_main
@@ -40,6 +40,7 @@ class Application(object):
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
         self.version = version
+        self.argv = argv
         self._description = description
 
         if main is not None:
@@ -115,8 +116,7 @@ class CommandLineApp(Application):
     argparser_factory = ArgumentParser
     formatter = argparse.HelpFormatter
 
-    def __init__(self, main=None, argv=None, usage=None, epilog=None, **kwargs):
-        self.argv = argv
+    def __init__(self, main=None, usage=None, epilog=None, **kwargs):
         self.usage = usage
         self.epilog = epilog
 
