@@ -1,3 +1,4 @@
-^(build|dist|docs/_build)[$/]
+^(build|dist|docs/_build|envs)[$/]
 \.egg-info/
 \.pyc$
+^\.coverage
