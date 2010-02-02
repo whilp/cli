@@ -17,7 +17,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import unittest
 
-class AppTest(unittest.TestCase):
+class BaseTest(unittest.TestCase):
+	pass
+
+class AppTest(BaseTest):
     app_cls = None
 
     def setUp(self):
