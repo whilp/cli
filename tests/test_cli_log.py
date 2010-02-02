@@ -69,3 +69,13 @@ class TestLoggingApp(AppTest, DecoratorTests):
         self.app.argv = "-vvv -qqq".split()
         self.app.run()
         self.assertEqual(self.app.log.level, logging.WARNING)
+
+    def test_no_stream_or_logfile(self):
+        self.app.logfile = None
+        self.app.stream = None
+        self.app.setup()
+
+        self.app.pre_run()
+
+        # We shouldn't see anything here.
+        self.app.log.critical("foo")

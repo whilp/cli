@@ -125,6 +125,7 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).pre_run()
         self.log.setLevel(self.params)
 
+        self.log.handlers = []
         if self.logfile is not None:
             file_handler = FileHandler(self.logfile)
             file_handler.setFormatter(self.formatter)
@@ -137,4 +138,3 @@ class LoggingApp(CommandLineApp):
         # The null handler simply drops all messages.
         if not self.log.handlers:
             self.log.addHandler(NullHandler())
-
