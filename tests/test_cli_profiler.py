@@ -29,14 +29,16 @@ class TestProfiler(BaseTest):
     def setUp(self):
         self.stdout = StringIO()
         self.profiler = Profiler(stdout=self.stdout)
-
-    def test_wrap(self):
-        def foo():
+        def func():
             """foo"""
             return "foo"
         def wrapper(*args, **kwargs):
-            return foo()
+            return func()
+        self.func = func
+        self.wrapper = wrapper
 
-        wrapped = self.profiler.wrap(wrapper, foo)
+
+    def test_wrap(self):
+        wrapped = self.profiler.wrap(self.wrapper, self.func)
         self.assertEqual(wrapped(), "foo")
-        self.assertEqual(wrapped.__doc__, foo.__doc__)
+        self.assertEqual(wrapped.__doc__, self.func.__doc__)
