@@ -57,7 +57,7 @@ class TestProfiler(BaseTest):
             pass
         foo()
 
-    def test_deterministic(self):
+    def test_statistical(self):
         # Sanity check...
         @self.profiler.statistical
         def foo():
