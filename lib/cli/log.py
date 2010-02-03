@@ -25,6 +25,9 @@ from cli.app import CommandLineApp
 
 __all__ = ["LoggingApp"]
 
+# Silence multiprocessing errors.
+logging.logMultiprocessing = 0
+
 class FileHandler(logging.FileHandler):
 
     def close(self):
