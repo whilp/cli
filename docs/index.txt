@@ -1,12 +1,19 @@
-Welcome
-=======
+:mod:`cli` --- command line tools
+=================================
 
-cli makes it easy for your scripts to do everything you know they should
-With cli, you no longer have to dig through the standard library to make
-your scripts do everything you know they should (log messages, pass unit 
-and functional tests, perform well, ...). Instead, cli provides a
-simple, consistent interface and encourages you and your scripts to do
-the right thing.
+.. module:: cli
+    :synopsis: Command line tools.
+.. moduleauthor:: Will Maier <willmaier@ml1.net>
+.. sectionauthor:: Will Maier <willmaier@ml1.net>
+
+:mod:`cli` provides a suite of tools that simplify the process of
+developing testable, robust and easy-to-use command line applications.
+With :mod:`cli`, your scripts (and larger applications) can use Python's
+extensive standard library to parse configuration files and command line
+parameters, log messages and even daemonize. All of these services are
+made available through the :class:`Application` class, an instance of
+which is passed to your script at run time. Even though it is
+featureful, :mod:`cli` is decidedly unmagical.
 
 Contents:
 
@@ -23,4 +30,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
