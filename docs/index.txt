@@ -164,4 +164,75 @@ applications and is a good place to start when looking to extend
     In all but a very few cases, subclases that override the constructor
     should call :method:`Application.__init__` at the end of the
     overridden method to ensure that the :method:`setup` method is
-	called.
+    called.
+
+    .. method: __call__(main)
+
+        Wrap the *main* callable and return an :class:`Application` instance.
+
+        This method is useful when it is necessary to pass keyword
+        arguments to the :class:`Application` constructor when
+        decorating callables. For example::
+
+            @cli.Application(stderr=None)
+            def foo(app):
+                pass
+
+        In this case, :meth:`setup` will occur during :meth:`__call__`,
+        not when the :class:`Application` is first constructed.
+
+    .. method: setup()
+
+        Configure the :class:`Application`.
+
+        This method is provided so that subclasses can easily customize
+        the configuration process without having to reimplement the base
+        constructor. :meth:`setup` is called once, either by the base
+        constructor or :meth:`__call__`.
+
+    .. method: pre_run()
+        
+        Perform any last-minute configuration.
+
+        The :meth:`pre_run` method is called by the :meth:`run` method
+        before :attr:`main` is executed. This is a good time to do
+        things like read a configuration file or parse command line
+        arguments. The base implementation does nothing.
+
+    .. method: run()
+
+        Run the application, returning its return value.
+
+        This method first calls :meth:`pre_run` and then calls
+        :attr:`main`, passing it an instance of the :class:`Application`
+        itself as its only argument. The return value is then passed to
+        :meth:`post_run` which may modify it (or terminate the
+        application entirely).
+
+    .. method: post_run(returned)
+
+        Clean up after the application.
+
+        After :attr:`main` has been called, :meth:`run` passes the
+        return value to this method. By default, :meth:`post_run`
+        decides whether to call :func:`sys.exit` (based on the
+        value of the :attr:`exit_after_main` attribute) or pass the
+        value back to :meth:`run`. Subclasses should probably preserve
+        this behavior.
+
+    .. attribute:: description
+
+        A string describing the application.
+
+        Unless specified when the :class:`Application` was created, this
+        property will examine the :attr:`main` callable and use its
+        docstring (:attr:`__doc__` attribute).
+
+    .. attribute:: name
+
+        A string identifying the application.
+
+        Unless specified when the :class:`Application` was created, this
+        property will examine the :attr:`main` callable and use its
+        name (:attr:`__name__` or :attr:`func_name` for classes or
+        functions, respectively).
