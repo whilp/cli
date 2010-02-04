@@ -16,6 +16,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
+import os
+import sys
+
 from cli.log import LoggingApp
 
 __all__ = ["DaemonizingApp"]
@@ -25,7 +28,7 @@ class DaemonizingApp(LoggingApp):
     """
 
     def __init__(self, main=None, pidfile=None,
-            chdir='/', null="/dev/null", **kwargs):
+            chdir='/', null=os.path.devnull, **kwargs):
         self.pidfile = pidfile
         self.chdir = chdir
         self.null = null

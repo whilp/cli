@@ -1,26 +1,493 @@
-Welcome
-=======
+:mod:`cli` --- command line tools
+=================================
 
-cli makes it easy for your scripts to do everything you know they should
-With cli, you no longer have to dig through the standard library to make
-your scripts do everything you know they should (log messages, pass unit 
-and functional tests, perform well, ...). Instead, cli provides a
-simple, consistent interface and encourages you and your scripts to do
-the right thing.
+.. module:: cli
+    :synopsis: Command line tools.
+.. moduleauthor:: Will Maier <willmaier@ml1.net>
+.. sectionauthor:: Will Maier <willmaier@ml1.net>
 
-Contents:
+:mod:`cli` provides a suite of tools that simplify the process of
+developing testable, robust and easy-to-use command line applications.
+With :mod:`cli`, your scripts (and larger applications) can use Python's
+extensive standard library to parse configuration files and command line
+parameters, log messages and even daemonize. All of these services are
+made available through the :class:`Application` class, an instance of
+which is passed to your script at run time. Even though it is
+featureful, :mod:`cli` is decidedly unmagical.
 
-.. toctree::
-   :maxdepth: 2
+.. highlight:: python
 
-   intro
-   app
-   test
+Command line parsing::
 
-Indices and tables
-==================
+    #!/usr/bin/env python
+    import cli
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    @cli.CommandLineApp
+    def ls(app):
+        pass
+    
+    ls.add_param("-l", "--long", help="list in long format", default=False, action="store_true")
 
+    if __name__ == "__main__":
+        ls.run()
+
+.. highlight:: none
+
+    $ python ls.py -h
+    usage: ls [-h] [-l]
+
+    optional arguments:
+      -h, --help  show this help message and exit
+      -l, --long  list in long format
+
+.. highlight:: python
+
+Logging::
+
+    #!/usr/bin/env python
+    import time
+    import cli
+    @cli.LoggingApp
+    def sleep(app):
+        app.log.debug("About to sleep for %d seconds" % app.params.seconds)
+        time.sleep(app.params.seconds)
+    
+    sleep.add_param("seconds", help="time to sleep", default=1, type=int)
+
+    if __name__ == "__main__":
+        sleep.run()
+
+.. highlight:: none
+
+    $ python sleep.py -h
+    usage: sleep [-h] [-l] [-q] [-s] [-v] seconds
+
+    positional arguments:
+      seconds        time to sleep
+
+    optional arguments:
+      -h, --help     show this help message and exit
+      -l, --logfile  log to file (default: log to stdout)
+      -q, --quiet    decrease the verbosity
+      -s, --silent   only log warnings
+      -v, --verbose  raise the verbosity
+    $ python sleep.py -vv 3
+    About to sleep for 3 seconds
+
+.. highlight:: python
+
+Daemonizing::
+
+    #!/usr/bin/env python
+    import cli
+    @cli.DaemonizingApp
+    def daemon(app):
+        if app.params.daemonize:
+            app.log.info("About to daemonize")
+            app.daemonize()
+
+    if __name__ == "__main__":
+        daemon.run()
+
+.. highlight:: none
+
+    $ python daemon.py -h
+    usage: daemon [-h] [-l] [-q] [-s] [-v] [-d] [-u USER] [-p PIDFILE]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -l, --logfile         log to file (default: log to stdout)
+      -q, --quiet           decrease the verbosity
+      -s, --silent          only log warnings
+      -v, --verbose         raise the verbosity
+      -d, --daemonize       run the application in the background
+      -u USER, --user USER  change to USER[:GROUP] after daemonizing
+      -p PIDFILE, --pidfile PIDFILE
+                            write PID to PIDFILE after daemonizing
+    $ python daemon.py -d -vv
+    About to daemonize
+
+..highlight:: python
+
+Basic usage
+-----------
+
+While the :mod:`cli` modules provide a simple API for designing your own
+applications, the default implementations are intended to be flexible
+enough to cover most use cases. No matter which :class:`Application` you
+use, the basic pattern is the same: create a callable that does the
+work, wrap it in an :class:`Application`, add some parameters and call
+its :meth:`run` method.
+
+Your callable may be a simple function or a more complex class that
+implements the :meth:`__call__` protocol. Either way, it should accept a
+single :data:`app` instance as its only argument. It will use this
+object to interact with the application framework, find out what
+arguments were passed on the command line, log messages, etc.
+
+You can wrap the callable in one of two ways. First,
+:class:`Application` can be thought of as a decorator (see :pep:`318`
+for more information). For example::
+
+    @cli.Application
+    def yourapp(app):
+        do_stuff()
+
+If you need to pass keyword arguments to the application, you can still
+use the decorator pattern::
+
+    @cli.CommandLineApp(argv=["-v"])
+    def yourapp(app):
+        do_stuff()
+
+If you don't like decorators (or your interpreter doesn't support them),
+you can also simply pass your application callable to the
+:class:`Application`::
+
+    def yourapp(app):
+        do_stuff()
+
+    yourapp = cli.CommandLineApp(yourapp)
+
+Most of the supplied :class:`Application` implementations support
+parameters. Parameters determine how your users interact with your
+program on the command line. To add parameters to your application, call
+:meth:`add_param` after you've wrapped your callable::
+
+    yourapp.add_param("-v", "--verbose", help="increase the verbosity", default=0, action="count")
+
+The interface here is the same as that implemented by
+:class:`argparse.ArgumentParser`. In this case, an :attr:`verbose`
+attribute will be created on the :attr:`app.params` object with an
+integer representing the desired verbosity level.
+
+Once you've added all the parameters you need (if any -- the default
+implementations include sensible defaults), simply call the :meth:`run`
+method on the wrapped callable. It's best to do this only if your script
+is actually being run, so shield it with a conditional::
+
+    if __name__ == "__main__":
+        yourapp.run()
+
+This will allow you to import your application and tweak it
+programmatically from another script without actually invoking it.
+
+Command line best practices
+---------------------------
+
+Extending :class:`Application`
+------------------------------
+
+:mod:`cli.app` -- basic applications
+------------------------------------
+
+.. module:: cli.app
+    :synopsis: Basic applications.
+
+The :mod:`cli.app` module establishes the basis for all of the other
+applications and is a good place to start when looking to extend
+:class:`Application` functionality or to understand the basic API.
+
+
+.. class:: Application(main=None, name=None, exit_after_main=True, stdin=None, stdout=None, version=None, description=None, argv=None, profiler=None)
+    
+    :class:`Application` constructors should always be called with
+    keyword arguments, though the *main* argument may be passed
+    positionally (as when :class:`Application` or its subclasses are
+    instantiated as decorators). Arguments are:
+
+    *main* is the callable object that performs the main work of the
+    application. The callable must accept an :class:`Application`
+    instance as its sole argument. If *main* is ``None``, it is assumed that
+    a valid callable will be passed to the :meth:`__call__` method (when
+    using an :class:`Application` instance as a decorator). If *main* is
+    not None, the :meth:`setup` method will be called, allowing
+    subclasses to customize the order in which certain setup steps are
+    executed.
+
+    *name* is the name of the application itself. If *name* is not ``None``,
+    the :attr:`name` property will inspect the :attr:`main` callable and
+    use its function or class name.
+
+    *exit_after_main* determines whether the application will call
+    :func:`sys.exit` after :attr:`main` completes.
+
+    *stdin*, *stderr* and *stdout* are file objects that represent the 
+    usual application input and outputs. If they are ``None``, they will
+    be replaced with :data:`sys.stdin`, :data:`sys.stderr` and
+    :data:`sys.stdout`, respectively.
+
+    *version* is a string representing the application's version.
+
+    *description* is a string describing the application. If
+    *description* is ``None``, the :attr:`description` property will use
+    the :attr:`main` callable's :attr:`__doc__` attribute instead.
+
+    *argv* is a list of strings representing the options passed on the
+    command line. If *argv* is ``None``, :data:`sys.argv` will be used
+    instead.
+
+    *profiler* is a :class:`Profiler` instance. If not ``None``, the
+    profiler will be available to the running application.
+
+    In all but a very few cases, subclasses that override the constructor
+    should call :method:`Application.__init__` at the end of the
+    overridden method to ensure that the :method:`setup` method is
+    called.
+
+    .. method: __call__(main)
+
+        Wrap the *main* callable and return an :class:`Application` instance.
+
+        This method is useful when it is necessary to pass keyword
+        arguments to the :class:`Application` constructor when
+        decorating callables. For example::
+
+            @cli.Application(stderr=None)
+            def foo(app):
+                pass
+
+        In this case, :meth:`setup` will occur during :meth:`__call__`,
+        not when the :class:`Application` is first constructed.
+
+    .. method: setup()
+
+        Configure the :class:`Application`.
+
+        This method is provided so that subclasses can easily customize
+        the configuration process without having to reimplement the base
+        constructor. :meth:`setup` is called once, either by the base
+        constructor or :meth:`__call__`.
+
+    .. method: pre_run()
+        
+        Perform any last-minute configuration.
+
+        The :meth:`pre_run` method is called by the :meth:`run` method
+        before :attr:`main` is executed. This is a good time to do
+        things like read a configuration file or parse command line
+        arguments. The base implementation does nothing.
+
+    .. method: run()
+
+        Run the application, returning its return value.
+
+        This method first calls :meth:`pre_run` and then calls
+        :attr:`main`, passing it an instance of the :class:`Application`
+        itself as its only argument. The return value is then passed to
+        :meth:`post_run` which may modify it (or terminate the
+        application entirely).
+
+    .. method: post_run(returned)
+
+        Clean up after the application.
+
+        After :attr:`main` has been called, :meth:`run` passes the
+        return value to this method. By default, :meth:`post_run`
+        decides whether to call :func:`sys.exit` (based on the
+        value of the :attr:`exit_after_main` attribute) or pass the
+        value back to :meth:`run`. Subclasses should probably preserve
+        this behavior.
+
+    .. attribute:: description
+
+        A string describing the application.
+
+        Unless specified when the :class:`Application` was created, this
+        property will examine the :attr:`main` callable and use its
+        docstring (:attr:`__doc__` attribute).
+
+    .. attribute:: name
+
+        A string identifying the application.
+
+        Unless specified when the :class:`Application` was created, this
+        property will examine the :attr:`main` callable and use its
+        name (:attr:`__name__` or :attr:`func_name` for classes or
+        functions, respectively).
+
+.. class:: CommandLineApp(main=None, usage=None, epilog=True, **kwargs)
+
+    Command line applications extend the basic :class:`Application`
+    framework to support command line parsing using the :mod:`argparse`
+    module. As with :class:`Application` itself, *main* should be a
+    callable. Other arguments are:
+
+    *usage* is a string describing command line usage of the
+    application. If it is not supplied, :mod:`argparse` will
+    automatically generate a usage statement based on the application's
+    parameters.
+
+    *epilog* is text appended to the argument descriptions.
+
+    The rest of the arguments are passed to the :class:`Application`
+    constructor.
+
+    .. method: setup()
+
+        Configure the :class:`CommandLineApp`.
+
+        During setup, the application instantiates the
+        :class:`argparse.ArgumentParser` and adds a version parameter
+        (:cmdoption:`-V`, to avoid clashing with :cmdoption:`-v`
+        verbose).
+
+    .. method: pre_run()
+
+        Parse command line.
+
+        During :meth:`pre_run`, :class:`CommandLineApp`
+        passes the application's :attr:`argv` attribute to
+        :meth:`argparse.ArgumentParser.parse_args`. The results are
+        stored in :attr:`params`.
+
+    .. method: add_param(*args, **kwargs)
+
+        Add a parameter.
+
+        :meth:`add_param` wraps
+        :meth:`argparse.ArgumentParser.add_argument`, storing the
+        parameter options in a dictionary. This information can be used
+        later by other subclasses when deciding whether to override
+        parameters.
+
+    .. method: update_params(**params)
+
+        Update the parameter namespace.
+
+        The keys and values in *params* will become the names and values
+        of attributes in the :attr:`params` attribute.
+
+    .. attribute:: params
+
+        The :attr:`params` attribute is an object with attributes
+        containing the values of the parsed command line arguments.
+        Specifically, its an instance of :class:`argparse.Namespace`,
+        but only the mapping of attributes to argument values should be
+        relied upon.
+
+:mod:`cli.log` -- logging applications
+--------------------------------------
+
+.. module:: cli.log
+    :synopsis: Logging applications.
+
+Logging applications use the standard library :mod:`logging` module to
+handle log messages.
+
+.. class:: LoggingApp(main=None, stream=sys.stdout, logfile=None, message_format="%(message)s", date_format="%(asctime)s %(message)s", **kwargs)
+
+    The :class:`LoggingApp` further extends the :class:`CommandLineApp`,
+    allowing command line configuration of the application logger. In
+    addition to those supported by the standard :class:`Application` and
+    :class:`CommandLineApp`, arguments are:
+
+    *stream* is an open file object to which the log messages will be
+    written. By default, this is standard output (not standard error, as
+    might be expected).
+
+    *logfile* is the name of a file which will be opened by the
+    :class:`logging.FileHandler`.
+
+    *message_format* and *date_format* are passed directly to the 
+    :class:`CommandLineLogger` and are interpreted as in the 
+    :mod:`logging` package.
+
+    .. method: setup()
+
+        Configure the :class:`LoggingApp`.
+
+        This method adds the :cmdoption:`-l`, :cmdoption:`q`,
+        :cmdoption:`-s` and :cmdoption:`-v` parameters to the
+        application and instantiates the :attr:`log` attribute.
+
+    .. method: pre_run()
+        
+        Set the verbosity level and configure the logger.
+
+        The application passes the :attr:`params` object to the
+        :class:`CommandLineLogger`'s special :meth:`setLevel` method to
+        set the logger's verbosity and then initializes the logging
+        handlers. If the :attr:`logfile` attribute is not ``None``, it
+        is passed to a :class:`logging.FileHandler` instance and that is
+        added to the handler list. Otherwise, if the :attr:`stream`
+        attribute is not ``None``, it is passed to a
+        :class:`logging.StreamHandler` instance and that becomes the
+        main handler.
+
+.. class:: CommandLineLogger
+
+    This class extends the default :mod:`logging` logger, teaching it
+    how to interpret an :attr:`Application.params` instance when setting
+    the logger level.
+
+    .. method: setLevel(ns)
+
+        Set the logger verbosity level.
+
+        *ns* is an object with :attr:`verbose`, :attr:`quiet` and
+        :attr:`silent` attributes. :attr:`verbose` and :attr:`quiet` may
+        be positive integers or zero; :attr:`silent` is ``True`` or ``False``.
+        If :attr:`silent` is True, the logger's level will be set to
+        :attr:`silent_level`. Otherwise, the difference between
+        :attr:`quiet` and :attr:`verbose` will be multiplied by 10 so it
+        fits on the standard logging scale and then added to
+        :attr:`default_level`.
+
+    .. attribute: default_level
+
+        An integer representing the default logging level.
+
+        Default: :data:`logging.WARN` (only warning messages will be
+        shown).
+
+    .. attribute: silent_level
+        
+        An integer representing the silent logging level.
+
+        Default: :data:`logging.CRITICAL' (only critical messages will
+        be shown).
+
+:mod:`cli.daemon` -- daemonizing applications
+---------------------------------------------
+
+.. module:: cli.daemon
+    :synopsis: Daemonizing applications.
+
+Daemonizing applications run in the background, forking themselves off.
+
+.. class:: DaemonizingApp(main=None, pidfile=None, chdir='/', null="/dev/null", **kwargs)
+
+    The :class:`DaemonizingApp` extends the :class:`LoggingApp` (for
+    it's not very helpful to daemonize without being able to log
+    messages somewhere). In addition to those supported by the
+    standard :class:`Application`, :class:`CommandLineApp` and
+    :class:`LoggingApp`, arguments are:
+
+    *pidfile* is a string pointing to a file where the application will
+    write its process ID after it daemonizes. If it is ``None``, no such
+    file will be created.
+
+    *chdir* is a string pointing to a directory to which the application
+    will change after it daemonizes.
+
+    *null* is a string representing a file that will be opened to
+    replace stdin, stdout and stderr when the application daemonizes. By
+    default, this :data:`os.path.devnull`.
+
+    .. method: setup()
+
+        Configure the :class:`DaemonizingApp`.
+
+        This method adds the :cmdoption:`-d`, :cmdoption:`u`,
+        and :cmdoption:`-p` parameters to the application.
+
+    .. method: daemonize()
+
+        Run in the background.
+
+        :meth:`daemonize` must be called explicitly by the application
+        when it's ready to fork into the background. It forks, flushes
+        and replaces stdin, stderr and stdout with the open :attr:`null`
+        file and, if requested on the command line, writes its PID to a
+        file and changes user/group.

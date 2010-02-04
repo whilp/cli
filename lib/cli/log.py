@@ -25,6 +25,9 @@ from cli.app import CommandLineApp
 
 __all__ = ["LoggingApp"]
 
+# Silence multiprocessing errors.
+logging.logMultiprocessing = 0
+
 class FileHandler(logging.FileHandler):
 
     def close(self):
@@ -55,7 +58,7 @@ class CommandLineLogger(logging.Logger):
     default_level = logging.WARN
     silent_level = logging.CRITICAL
 
-    def setLevel(self, ns=None):
+    def setLevel(self, ns):
         """Set the logging level of this handler.
 
         ns is an object (like an argparse.Namespace) with the following

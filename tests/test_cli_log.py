@@ -15,6 +15,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 import logging
+logging.logMultiprocessing = 0
 
 from cli.ext.argparse import Namespace
 from cli.log import CommandLineLogger, LoggingApp
