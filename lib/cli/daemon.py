@@ -28,7 +28,7 @@ class DaemonizingApp(LoggingApp):
     """
 
     def __init__(self, main=None, pidfile=None,
-            chdir='/', null="/dev/null", **kwargs):
+            chdir='/', null=os.path.devnull, **kwargs):
         self.pidfile = pidfile
         self.chdir = chdir
         self.null = null

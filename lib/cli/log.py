@@ -58,7 +58,7 @@ class CommandLineLogger(logging.Logger):
     default_level = logging.WARN
     silent_level = logging.CRITICAL
 
-    def setLevel(self, ns=None):
+    def setLevel(self, ns):
         """Set the logging level of this handler.
 
         ns is an object (like an argparse.Namespace) with the following
