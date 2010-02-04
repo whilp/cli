@@ -16,6 +16,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
+import os
+import sys
+
 from cli.log import LoggingApp
 
 __all__ = ["DaemonizingApp"]
