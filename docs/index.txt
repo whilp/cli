@@ -131,7 +131,10 @@ applications and is a good place to start when looking to extend
     application. The callable must accept an :class:`Application`
     instance as its sole argument. If *main* is ``None``, it is assumed that
     a valid callable will be passed to the :meth:`__call__` method (when
-    using an :class:`Application` instance as a decorator).
+    using an :class:`Application` instance as a decorator). If *main* is
+    not None, the :meth:`setup` method will be called, allowing
+    subclasses to customize the order in which certain setup steps are
+    executed.
 
     *name* is the name of the application itself. If *name* is not ``None``,
     the :attr:`name` property will inspect the :attr:`main` callable and
@@ -157,3 +160,8 @@ applications and is a good place to start when looking to extend
 
     *profiler* is a :class:`Profiler` instance. If not ``None``, the
     profiler will be available to the running application.
+
+    In all but a very few cases, subclases that override the constructor
+    should call :method:`Application.__init__` at the end of the
+    overridden method to ensure that the :method:`setup` method is
+	called.
