@@ -291,8 +291,134 @@ applications and is a good place to start when looking to extend
 
     .. attribute:: params
 
-		The :attr:`params` attribute is an object with attributes
-		containing the values of the parsed command line arguments.
-		Specifically, its an instance of :class:`argparse.Namespace`,
-		but only the mapping of attributes to argument values should be
-		relied upon.
+        The :attr:`params` attribute is an object with attributes
+        containing the values of the parsed command line arguments.
+        Specifically, its an instance of :class:`argparse.Namespace`,
+        but only the mapping of attributes to argument values should be
+        relied upon.
+
+:mod:`cli.log` -- logging applications
+--------------------------------------
+
+.. module:: cli.log
+    :synopsis: Logging applications.
+
+Logging applications use the standard library :mod:`logging` module to
+handle log messages.
+
+.. class:: LoggingApp(main=None, stream=sys.stdout, logfile=None, message_format="%(message)s", date_format="%(asctime)s %(message)s", **kwargs)
+
+    The :class:`LoggingApp` further extends the :class:`CommandLineApp`,
+    allowing command line configuration of the application logger. In
+    addition to those supported by the standard :class:`Application` and
+    :class:`CommandLineApp`, arguments are:
+
+	*stream* is an open file object to which the log messages will be
+	written. By default, this is standard output (not standard error, as
+	might be expected).
+
+	*logfile* is the name of a file which will be opened by the
+	:class:`logging.FileHandler`.
+
+	*message_format* and *date_format* are passed directly to the 
+	:class:`CommandLineLogger` and are interprested as in the 
+	:mod:`logging` package.
+
+	.. method: setup()
+
+		Configure the :class:`LoggingApp`.
+
+		This method adds the :cmdoption:`-l`, :cmdoption:`q`,
+		:cmdoption:`-s` and :cmdoption:`-v` parameters to the
+		application and instantiates the :attr:`log` attribute.
+
+	.. method: pre_run()
+		
+		Set the verbosity level and configure the logger.
+
+        The application passes the :attr:`params` object to the
+        :class:`CommandLineLogger`'s special :meth:`setLevel` method to
+		set the logger's verbosity and then initializes the logging
+		handlers. If the :attr:`logfile` attribute is not ``None``, it
+		is passed to a :class:`logging.FileHandler` instance and that is
+		added to the handler list. Otherwise, if the :attr:`stream`
+		attribute is not ``None``, it is passed to a
+		:class:`logging.StreamHandler` instance and that becomes the
+		main handler.
+
+.. class:: CommandLineLogger
+
+	This class extends the default :mod:`logging` logger, teaching it
+	how to interpret an :attr:`Application.params` instance when setting
+	the logger level.
+
+	.. method: setLevel(ns)
+
+		Set the logger verbosity level.
+
+		*ns* is an object with :attr:`verbose`, :attr:`quiet` and
+		:attr:`silent` attributes. :attr:`verbose` and :attr:`quiet` may
+		be positive integers or zero; :attr:`silent` is ``True`` or ``False``.
+		If :attr:`silent` is True, the logger's level will be set to
+		:attr:`silent_level`. Otherwise, the difference between
+		:attr:`quiet` and :attr:`verbose` will be multiplied by 10 so it
+		fits on the standard logging scale and then added to
+		:attr:`default_level`.
+
+	.. attribute: default_level
+
+		An integer representing the default logging level.
+
+		Default: :data:`logging.WARN` (only warning messages will be
+		shown).
+
+	.. attribute: silent_level
+		
+		An integer representing the silent logging level.
+
+		Default: :data:`logging.CRITICAL' (only critical messages will
+		be shown).
+
+:mod:`cli.daemon` -- daemonizing applications
+---------------------------------------------
+
+.. module:: cli.daemon
+    :synopsis: Daemonizing applications.
+
+Daemonizing applications run in the background, forking themselves off.
+
+.. class:: DaemonizingApp(main=None, pidfile=None, chdir='/', null="/dev/null", **kwargs)
+
+    The :class:`DaemonizingApp` extends the :class:`LoggingApp` (for
+    it's not very helpful to daemonize without being able to log
+    messages somewhere). In addition to those supported by the
+    standard :class:`Application`, :class:`CommandLineApp` and
+    :class:`LoggingApp`, arguments are:
+
+    *pidfile* is a string pointing to a file where the application will
+    write its process ID after it daemonizes. If it is ``None``, no such
+    file will be created.
+
+    *chdir* is a string pointing to a directory to which the application
+    will change after it daemonizes.
+
+    *null* is a string representing a file that will be opened to
+    replace stdin, stdout and stderr when the application daemonizes. By
+    default, this :data:`os.path.devnull`.
+
+    .. method: setup()
+
+        Configure the :class:`DaemonizingApp`.
+
+        This method adds the :cmdoption:`-d`, :cmdoption:`u`,
+        and :cmdoption:`-p` parameters to the application.
+
+    .. method: daemonize()
+
+        Run in the background.
+
+        :meth:`daemonize` must be called explicitly by the application
+        when it's ready to fork into the background. It forks, flushes
+        and replaces stdin, stderr and stdout with the open :attr:`null`
+        file and, if requested on the command line, writes its PID to a
+        file and changes user/group.
