@@ -161,7 +161,7 @@ applications and is a good place to start when looking to extend
     *profiler* is a :class:`Profiler` instance. If not ``None``, the
     profiler will be available to the running application.
 
-    In all but a very few cases, subclases that override the constructor
+    In all but a very few cases, subclasses that override the constructor
     should call :method:`Application.__init__` at the end of the
     overridden method to ensure that the :method:`setup` method is
     called.
@@ -321,7 +321,7 @@ handle log messages.
     :class:`logging.FileHandler`.
 
     *message_format* and *date_format* are passed directly to the 
-    :class:`CommandLineLogger` and are interprested as in the 
+    :class:`CommandLineLogger` and are interpreted as in the 
     :mod:`logging` package.
 
     .. method: setup()
