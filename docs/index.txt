@@ -109,6 +109,75 @@ Daemonizing::
 
 ..highlight:: python
 
+Basic usage
+-----------
+
+While the :mod:`cli` modules provide a simple API for designing your own
+applications, the default implementations are intended to be flexible
+enough to cover most use cases. No matter which :class:`Application` you
+use, the basic pattern is the same: create a callable that does the
+work, wrap it in an :class:`Application`, add some parameters and call
+its :meth:`run` method.
+
+Your callable may be a simple function or a more complex class that
+implements the :meth:`__call__` protocol. Either way, it should accept a
+single :data:`app` instance as its only argument. It will use this
+object to interact with the application framework, find out what
+arguments were passed on the command line, log messages, etc.
+
+You can wrap the callable in one of two ways. First,
+:class:`Application` can be thought of as a decorator (see :pep:`318`
+for more information). For example::
+
+    @cli.Application
+    def yourapp(app):
+        do_stuff()
+
+If you need to pass keyword arguments to the application, you can still
+use the decorator pattern::
+
+    @cli.CommandLineApp(argv=["-v"])
+    def yourapp(app):
+        do_stuff()
+
+If you don't like decorators (or your interpreter doesn't support them),
+you can also simply pass your application callable to the
+:class:`Application`::
+
+    def yourapp(app):
+        do_stuff()
+
+    yourapp = cli.CommandLineApp(yourapp)
+
+Most of the supplied :class:`Application` implementations support
+parameters. Parameters determine how your users interact with your
+program on the command line. To add parameters to your application, call
+:meth:`add_param` after you've wrapped your callable::
+
+    yourapp.add_param("-v", "--verbose", help="increase the verbosity", default=0, action="count")
+
+The interface here is the same as that implemented by
+:class:`argparse.ArgumentParser`. In this case, an :attr:`verbose`
+attribute will be created on the :attr:`app.params` object with an
+integer representing the desired verbosity level.
+
+Once you've added all the parameters you need (if any -- the default
+implementations include sensible defaults), simply call the :meth:`run`
+method on the wrapped callable. It's best to do this only if your script
+is actually being run, so shield it with a conditional::
+
+    if __name__ == "__main__":
+        yourapp.run()
+
+This will allow you to import your application and tweak it
+programmatically from another script without actually invoking it.
+
+Command line best practices
+---------------------------
+
+Extending :class:`Application`
+------------------------------
+
 :mod:`cli.app` -- basic applications
 ------------------------------------
 
