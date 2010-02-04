@@ -108,3 +108,52 @@ Daemonizing::
     About to daemonize
 
 ..highlight:: python
+
+:mod:`cli.app` -- basic applications
+------------------------------------
+
+.. module:: cli.app
+    :synopsis: Basic applications.
+
+The :mod:`cli.app` module establishes the basis for all of the other
+applications and is a good place to start when looking to extend
+:class:`Application` functionality or to understand the basic API.
+
+
+.. class:: Application(main=None, name=None, exit_after_main=True, stdin=None, stdout=None, version=None, description=None, argv=None, profiler=None)
+    
+    :class:`Application` constructors should always be called with
+    keyword arguments, though the *main* argument may be passed
+    positionally (as when :class:`Application` or its subclasses are
+    instantiated as decorators). Arguments are:
+
+    *main* is the callable object that performs the main work of the
+    application. The callable must accept an :class:`Application`
+    instance as its sole argument. If *main* is ``None``, it is assumed that
+    a valid callable will be passed to the :meth:`__call__` method (when
+    using an :class:`Application` instance as a decorator).
+
+    *name* is the name of the application itself. If *name* is not ``None``,
+    the :attr:`name` property will inspect the :attr:`main` callable and
+    use its function or class name.
+
+    *exit_after_main* determines whether the application will call
+    :func:`sys.exit` after :attr:`main` completes.
+
+    *stdin*, *stderr* and *stdout* are file objects that represent the 
+    usual application input and outputs. If they are ``None``, they will
+    be replaced with :data:`sys.stdin`, :data:`sys.stderr` and
+    :data:`sys.stdout`, respectively.
+
+    *version* is a string representing the application's version.
+
+    *description* is a string describing the application. If
+    *description* is ``None``, the :attr:`description` property will use
+    the :attr:`main` callable's :attr:`__doc__` attribute instead.
+
+    *argv* is a list of strings representing the options passed on the
+    command line. If *argv* is ``None``, :data:`sys.argv` will be used
+    instead.
+
+    *profiler* is a :class:`Profiler` instance. If not ``None``, the
+    profiler will be available to the running application.
