@@ -239,20 +239,20 @@ applications and is a good place to start when looking to extend
 
 .. class:: CommandLineApp(main=None, usage=None, epilog=True, **kwargs)
 
-	Command line applications extend the basic :class:`Application`
-	framework to support command line parsing using the :mod:`argparse`
-	module. As with :class:`Application` itself, *main* should be a
-	callable. Other arguments are:
+    Command line applications extend the basic :class:`Application`
+    framework to support command line parsing using the :mod:`argparse`
+    module. As with :class:`Application` itself, *main* should be a
+    callable. Other arguments are:
 
-	*usage* is a string describing command line usage of the
-	application. If it is not supplied, :mod:`argparse` will
-	automatically generate a usage statement based on the application's
-	parameters.
+    *usage* is a string describing command line usage of the
+    application. If it is not supplied, :mod:`argparse` will
+    automatically generate a usage statement based on the application's
+    parameters.
 
-	*epilog* is text appended to the argument descriptions.
+    *epilog* is text appended to the argument descriptions.
 
-	The rest of the arguments are passed to the :class:`Application`
-	constructor.
+    The rest of the arguments are passed to the :class:`Application`
+    constructor.
 
     .. method: setup()
 
@@ -265,29 +265,29 @@ applications and is a good place to start when looking to extend
 
     .. method: pre_run()
 
-		Parse command line.
+        Parse command line.
 
         During :meth:`pre_run`, :class:`CommandLineApp`
         passes the application's :attr:`argv` attribute to
         :meth:`argparse.ArgumentParser.parse_args`. The results are
         stored in :attr:`params`.
 
-	.. method: add_param(*args, **kwargs)
+    .. method: add_param(*args, **kwargs)
 
-		Add a parameter.
+        Add a parameter.
 
-		:meth:`add_param` wraps
-		:meth:`argparse.ArgumentParser.add_argument`, storing the
-		parameter options in a dictionary. This information can be used
-		later by other subclasses when deciding whether to override
-		parameters.
+        :meth:`add_param` wraps
+        :meth:`argparse.ArgumentParser.add_argument`, storing the
+        parameter options in a dictionary. This information can be used
+        later by other subclasses when deciding whether to override
+        parameters.
 
-	.. method: update_params(**params)
+    .. method: update_params(**params)
 
-		Update the parameter namespace.
+        Update the parameter namespace.
 
-		The keys and values in *params* will become the names and values
-		of attributes in the :attr:`params` attribute.
+        The keys and values in *params* will become the names and values
+        of attributes in the :attr:`params` attribute.
 
     .. attribute:: params
 
