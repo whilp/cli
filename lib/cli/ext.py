@@ -1,5 +1,4 @@
-import os
-import sys
+import _ext
 
 """Includes:
     argparse - 2010.02.01
@@ -8,16 +7,14 @@ import sys
 """
 
 __all__ = ["argparse"]
-compat_dir = os.path.abspath(os.path.dirname(__file__))
+ext = "cli._ext"
 
 name, module = None, None
 for name in __all__:
     try:
         module = __import__(name)
     except ImportError:
-        sys.path.insert(0, compat_dir)
-        module = __import__(name)
-        sys.path.pop(0)
+        module = __import__('.'.join((ext, name)), fromlist=[ext])
     locals()[name] = module
 
-del(os, sys, compat_dir, name, module)
+del(ext, module, name)

@@ -17,7 +17,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import logging
 logging.logMultiprocessing = 0
 
-from cli.ext.argparse import Namespace
+from cli.ext import argparse
 from cli.log import CommandLineLogger, LoggingApp
 
 from tests import AppTest, BaseTest, DecoratorTests
@@ -25,7 +25,7 @@ from tests import AppTest, BaseTest, DecoratorTests
 class TestCommandLineLogger(BaseTest):
     
     def setUp(self):
-        self.fakens = Namespace()
+        self.fakens = argparse.Namespace()
         self.logger = CommandLineLogger("foo")
 
     def test_setLevel(self):
