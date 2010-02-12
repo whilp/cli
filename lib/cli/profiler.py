@@ -34,14 +34,14 @@ class Profiler(object):
     def wrap(self, wrapper, wrapped):
         update_wrapper(wrapper, wrapped)
 
-        if self.anonymous or self.isanon(wrapped.func_name):
+        if self.anonymous or self.isanon(wrapped.__name__):
             return wrapper()
         else:
             return wrapper
 
-    def isanon(self, func_name):
-        return func_name.startswith("__profiler_") or \
-            func_name == "anonymous"
+    def isanon(self, name):
+        return name.startswith("__profiler_") or \
+            name == "anonymous"
 
     def deterministic(self, func):
         from pstats import Stats
@@ -53,7 +53,7 @@ class Profiler(object):
         profiler = Profile()
 
         def wrapper(*args, **kwargs):
-            self.stdout.write("===> Profiling %s:\n" % func.func_name)
+            self.stdout.write("===> Profiling %s:\n" % func.__name__)
             profiler.runcall(func, *args, **kwargs)
             stats = Stats(profiler, stream=self.stdout)
             stats.strip_dirs().sort_stats(-1).print_stats()
@@ -80,7 +80,7 @@ class Profiler(object):
             return [timeit(func, *args, **kwargs) for i in range(self.repeat)]
 
         def wrapper(*args, **kwargs):
-            self.stdout.write("===> Profiling %s: " % func.func_name)
+            self.stdout.write("===> Profiling %s: " % func.__name__)
             result = min(repeat(func, *args, **kwargs))
             self.stdout.write("%d loops, best of %d: %s per loop\n" % (
                 self.count, self.repeat, fmtsec(result/self.count)))
