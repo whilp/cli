@@ -15,6 +15,17 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
+
+try:
+    import io as StringIO
+except ImportError:
+    try:
+        import cStringIO as StringIO
+    except ImportError:
+        import StringIO
+
+StringIO = StringIO.StringIO
+
 class update_wrapper(object):
     assignments = ('__module__', '__name__', '__doc__')
     updates = ('__dict__',)
