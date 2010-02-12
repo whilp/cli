@@ -17,12 +17,12 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
 try:
-    import io as StringIO
+    import cStringIO as StringIO
 except ImportError:
     try:
-        import cStringIO as StringIO
-    except ImportError:
         import StringIO
+    except ImportError:
+        import io as StringIO
 
 StringIO = StringIO.StringIO
 
