@@ -69,10 +69,9 @@ class TestConfigFileApp(AppTest, DecoratorTests):
     app_cls = ConfigFileApp
 
     def test_read_config_file(self):
-        self.app.configfile = StringIO("""
-        [default]
-        verbose = 3
-        """)
+        self.app.configfile = StringIO("[app]\nverbose = 3")
+        self.app.add_param("-v", "--verbose", default=0, help="raise the verbosity",
+                action="count")
         self.app.run()
 
-        #self.assertEqual(self.app.params.verbose, 0)
+        self.assertEqual(self.app.params.verbose, 3)

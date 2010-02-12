@@ -121,6 +121,17 @@ class ArgumentParser(argparse.ArgumentParser):
             file = self.file
         super(ArgumentParser, self)._print_message(message, file)
 
+class TypedCountAction(argparse._CountAction):
+    """A count action with a type.
+
+    This helps other configuration parsers figure out what dest should
+    look like in the end.
+    """
+    
+    def __init__(self, option_strings, dest, type=int, **kwargs):
+        super(TypedCountAction, self).__init__(option_strings, dest, **kwargs)
+        self.type = type
+
 class CommandLineApp(Application):
     """A command line application.
 
@@ -136,7 +147,7 @@ class CommandLineApp(Application):
         self.usage = usage
         self.epilog = epilog
         self.params = argparse.Namespace()
-        self._params = {}
+        self.actions = {}
 
         super(CommandLineApp, self).__init__(main, **kwargs)
 
@@ -151,6 +162,8 @@ class CommandLineApp(Application):
             file=self.stdout,
             )
 
+        self.argparser.register("action", "count", TypedCountAction)
+
         # We add this ourselves to avoid clashing with -v/verbose.
         if self.version is not None:
             self.add_param(
@@ -159,7 +172,7 @@ class CommandLineApp(Application):
 
     def add_param(self, *args, **kwargs):
         action = self.argparser.add_argument(*args, **kwargs)
-        self._params[action.dest] = action
+        self.actions[action.dest] = action
         return action
 
     def update_params(self, **params):
@@ -182,16 +195,18 @@ class ConfigFileApp(CommandLineApp):
         self.cp = ConfigParser()
 
     def pre_run(self):
-        ok = False
+        items = True
         try:
-            ok = self.cp.read(self.configfile)
-            if not ok:
-                ok = self.cp.readfp(self.configfile)
-        except (TypeError, IOError, OSError):
-            return
-        if not ok:
-            return
+            self.cp.readfp(self.configfile)
+        except AttributeError:
+            try:
+                self.cp.read(self.configfile)
+            except TypeError:
+                items = False
 
-        self.update_params(*self.cp.items("default"))
-        self.update_params(*self.cp.items(self.name))
+        if items:
+            items = {}
+            for k, v in self.cp.items(self.name):
+                items[k] = self.actions[k].type(v)
+            self.update_params(**items)
         super(ConfigFileApp, self).pre_run()
