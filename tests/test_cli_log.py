@@ -74,9 +74,8 @@ class TestLoggingApp(AppTest, DecoratorTests):
     def test_no_stream_or_logfile(self):
         self.app.logfile = None
         self.app.stream = None
-        self.app.setup()
 
-        self.app.pre_run()
+        self.app.run()
 
         # We shouldn't see anything here.
         self.app.log.critical("foo")

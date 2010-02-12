@@ -63,7 +63,6 @@ class TestCommandLineApp(AppTest, DecoratorTests):
 
     def test_version(self):
         self.app.version = "0.1"
-        self.app.setup()
         self.app.run()
 
 class TestConfigFileApp(AppTest, DecoratorTests):
@@ -74,7 +73,6 @@ class TestConfigFileApp(AppTest, DecoratorTests):
         [default]
         verbose = 3
         """)
-        self.app.setup()
-        self.app.pre_run()
+        self.app.run()
 
         #self.assertEqual(self.app.params.verbose, 0)
