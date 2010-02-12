@@ -16,13 +16,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
 from cli.profiler import Profiler
+from cli.util import StringIO
 
 from tests import BaseTest
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 
 class TestProfiler(BaseTest):
 

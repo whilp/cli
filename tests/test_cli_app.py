@@ -16,13 +16,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
 from cli.app import Application, CommandLineApp
+from cli.util import StringIO
 
 from tests import AppTest, DecoratorTests
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 
 class TestApplication(DecoratorTests, AppTest):
     app_cls = Application
