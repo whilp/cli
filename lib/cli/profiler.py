@@ -19,9 +19,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 try:
     from functools import update_wrapper
 except ImportError:	# pragma: no cover
-    from util import update_wrapper
+    from .util import update_wrapper
 
-from util import fmtsec
+from .util import fmtsec
 
 class Profiler(object):
 
