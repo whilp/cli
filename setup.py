@@ -34,4 +34,7 @@ setup_options = {
     "test_suite": "tests",
 }
 
+if sys.version_info >= (3, 0):
+    setup_options["use_2to3"] = True
+
 setup(**setup_options)
