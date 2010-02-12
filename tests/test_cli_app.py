@@ -15,7 +15,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.app import Application, CommandLineApp, ConfigFileApp
+from cli.app import Application, CommandLineApp
 
 from tests import AppTest, DecoratorTests
 
@@ -64,14 +64,3 @@ class TestCommandLineApp(AppTest, DecoratorTests):
     def test_version(self):
         self.app.version = "0.1"
         self.app.run()
-
-class TestConfigFileApp(AppTest, DecoratorTests):
-    app_cls = ConfigFileApp
-
-    def test_read_config_file(self):
-        self.app.configfile = StringIO("[app]\nverbose = 3")
-        self.app.add_param("-v", "--verbose", default=0, help="raise the verbosity",
-                action="count")
-        self.app.run()
-
-        self.assertEqual(self.app.params.verbose, 3)

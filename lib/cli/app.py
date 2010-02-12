@@ -19,8 +19,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import os
 import sys
 
-from ConfigParser import ConfigParser
-
 from cli.ext import argparse
 from cli.profiler import Profiler
 
@@ -121,17 +119,6 @@ class ArgumentParser(argparse.ArgumentParser):
             file = self.file
         super(ArgumentParser, self)._print_message(message, file)
 
-class TypedCountAction(argparse._CountAction):
-    """A count action with a type.
-
-    This helps other configuration parsers figure out what dest should
-    look like in the end.
-    """
-    
-    def __init__(self, option_strings, dest, type=int, **kwargs):
-        super(TypedCountAction, self).__init__(option_strings, dest, **kwargs)
-        self.type = type
-
 class CommandLineApp(Application):
     """A command line application.
 
@@ -162,8 +149,6 @@ class CommandLineApp(Application):
             file=self.stdout,
             )
 
-        self.argparser.register("action", "count", TypedCountAction)
-
         # We add this ourselves to avoid clashing with -v/verbose.
         if self.version is not None:
             self.add_param(
@@ -183,30 +168,3 @@ class CommandLineApp(Application):
         super(CommandLineApp, self).pre_run()
         ns = self.argparser.parse_args(self.argv)
         self.update_params(**vars(ns))
-
-class ConfigFileApp(CommandLineApp):
-    
-    def __init__(self, main=None, configfile=None, **kwargs):
-        self.configfile = configfile
-        super(ConfigFileApp, self).__init__(main, **kwargs)
-
-    def setup(self):
-        super(ConfigFileApp, self).setup()
-        self.cp = ConfigParser()
-
-    def pre_run(self):
-        items = True
-        try:
-            self.cp.readfp(self.configfile)
-        except AttributeError:
-            try:
-                self.cp.read(self.configfile)
-            except TypeError:
-                items = False
-
-        if items:
-            items = {}
-            for k, v in self.cp.items(self.name):
-                items[k] = self.actions[k].type(v)
-            self.update_params(**items)
-        super(ConfigFileApp, self).pre_run()
