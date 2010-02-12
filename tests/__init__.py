@@ -18,7 +18,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import unittest
 
 class BaseTest(unittest.TestCase):
-	pass
+    pass
 
 class AppTest(BaseTest):
     app_cls = None
@@ -53,8 +53,8 @@ class DecoratorTests(object):
             def __call__(self, app):
                 pass
         # Required in Python 2.4.
-		foo = foo()
-		foo.__name__ = "foo"
+        foo = foo()
+        foo.__name__ = "foo"
         foo = self.app_cls(foo)
         setattr(foo, "__name__", "foo")
 
