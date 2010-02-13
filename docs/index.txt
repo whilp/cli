@@ -15,6 +15,18 @@ made available through the :class:`cli.app.Application` class, an instance of
 which is passed to your script at run time. Even though it is
 featureful, :mod:`cli` is decidedly unmagical.
 
+Installing :mod:`cli`
+---------------------
+
+.. highlight:: none
+
+You can install the latest version of :mod:`cli` using :command:`pip`::
+    
+    $ pip install pyCLI
+
+A quick tour of :mod:`cli`'s features
+-------------------------------------
+
 .. highlight:: python
 
 Command line parsing::
