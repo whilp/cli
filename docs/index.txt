@@ -11,7 +11,7 @@ developing testable, robust and easy-to-use command line applications.
 With :mod:`cli`, your scripts (and larger applications) can use Python's
 extensive standard library to parse configuration files and command line
 parameters, log messages and even daemonize. All of these services are
-made available through the :class:`Application` class, an instance of
+made available through the :class:`cli.app.Application` class, an instance of
 which is passed to your script at run time. Even though it is
 featureful, :mod:`cli` is decidedly unmagical.
 
@@ -120,9 +120,9 @@ Basic usage
 
 While the :mod:`cli` modules provide a simple API for designing your own
 applications, the default implementations are intended to be flexible
-enough to cover most use cases. No matter which :class:`Application` you
+enough to cover most use cases. No matter which :class:`cli.app.Application` you
 use, the basic pattern is the same: create a callable that does the
-work, wrap it in an :class:`Application`, add some parameters and call
+work, wrap it in an :class:`cli.app.Application`, add some parameters and call
 its :meth:`run` method.
 
 Your callable may be a simple function or a more complex class that
@@ -132,7 +132,7 @@ object to interact with the application framework, find out what
 arguments were passed on the command line, log messages, etc.
 
 You can wrap the callable in one of two ways. First,
-:class:`Application` can be thought of as a decorator (see :pep:`318`
+:class:`cli.app.Application` can be thought of as a decorator (see :pep:`318`
 for more information). For example::
 
     @cli.Application
@@ -148,14 +148,14 @@ use the decorator pattern::
 
 If you don't like decorators (or your interpreter doesn't support them),
 you can also simply pass your application callable to the
-:class:`Application`::
+:class:`cli.app.Application`::
 
     def yourapp(app):
         do_stuff()
 
     yourapp = cli.CommandLineApp(yourapp)
 
-Most of the supplied :class:`Application` implementations support
+Most of the supplied :class:`cli.app.Application` implementations support
 parameters. Parameters determine how your users interact with your
 program on the command line. To add parameters to your application, call
 :meth:`add_param` after you've wrapped your callable::
@@ -181,8 +181,8 @@ programmatically from another script without actually invoking it.
 Command line best practices
 ---------------------------
 
-Extending :class:`Application`
-------------------------------
+Extending :class:`cli.app.Application`
+--------------------------------------
 
 .. automodule:: cli.app
 
