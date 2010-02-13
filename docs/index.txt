@@ -208,13 +208,13 @@ Extending :class:`cli.app.Application`
 Testing :class:`cli`
 --------------------
 
-cli ships with a number of unittests that help ensure that the code run
+cli ships with a number of unit tests that help ensure that the code run
 correctly. The tests live in the ``tests`` package and can be run by
 ``setup.py``::
 
     $ python setup.py test
 
-You can get a sense for how completely the unittests exercise cli by
+You can get a sense for how completely the unit tests exercise cli by
 running the coverage_ tool::
 
     $ coverage run --branch setup.py test
@@ -229,8 +229,8 @@ It's useful to omit the third party code directory (``ext``) as well as
 the path to the Python standard library as well as ``setup.py`` and the
 tests themselves.
 
-All new code in cli should be accompanied by unittests. Eventually,
-the unittests should be complemented by a set of functional tests
+All new code in cli should be accompanied by unit tests. Eventually,
+the unit tests should be complemented by a set of functional tests
 (especially to stress things like the daemon code).
 
 .. _coverage:   http://nedbatchelder.com/code/coverage/
