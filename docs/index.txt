@@ -491,3 +491,33 @@ Daemonizing applications run in the background, forking themselves off.
         and replaces stdin, stderr and stdout with the open :attr:`null`
         file and, if requested on the command line, writes its PID to a
         file and changes user/group.
+
+Testing :class:`cli`
+--------------------
+
+cli ships with a number of unittests that help ensure that the code run
+correctly. The tests live in the ``tests`` package and can be run by
+``setup.py``::
+
+    $ python setup.py test
+
+You can get a sense for how completely the unittests exercise cli by
+running the coverage_ tool::
+
+    $ coverage run --branch setup.py test
+
+``coverage`` tracks the code statements and branches that the test suite
+touches and can generate a report listing the lines of code that are
+missed::
+
+    $ coverage report -m --omit "tests,/home/will/lib,lib/cli/ext,setup"
+
+It's useful to omit the third party code directory (``ext``) as well as
+the path to the Python standard library as well as ``setup.py`` and the
+tests themselves.
+
+All new code in cli should be accompanied by unittests. Eventually,
+the unittests should be complemented by a set of functional tests
+(especially to stress things like the daemon code).
+
+.. _coverage:   http://nedbatchelder.com/code/coverage/
