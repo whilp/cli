@@ -194,7 +194,10 @@ Extending :class:`Application`
 
 .. automodule:: cli.log
 
-.. autoclass: cli.log.LoggingApp
+.. autoclass:: cli.log.LoggingApp
+    :members:
+
+.. autoclass:: cli.log.CommandLineLogger
     :members:
 
 :mod:`cli.daemon` -- daemonizing applications

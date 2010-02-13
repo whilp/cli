@@ -70,7 +70,7 @@ class CommandLineLogger(logging.Logger):
     silent_level = logging.CRITICAL
     """An integer representing the silent logging level.
 
-    Default: :data:`logging.CRITICAL' (only critical messages will
+    Default: :data:`logging.CRITICAL` (only critical messages will
     be shown).
     """
 
@@ -98,10 +98,10 @@ class CommandLineLogger(logging.Logger):
 class LoggingApp(CommandLineApp):
     """A command-line application that knows how to log.
 
-    The :class:`LoggingApp` further extends the :class:`CommandLineApp`,
+    The :class:`LoggingApp` further extends the :class:`cli.app.CommandLineApp`,
     allowing command line configuration of the application logger. In
-    addition to those supported by the standard :class:`Application` and
-    :class:`CommandLineApp`, arguments are:
+    addition to those supported by the standard :class:`cli.app.Application` and
+    :class:`cli.app.CommandLineApp`, arguments are:
 
     *stream* is an open file object to which the log messages will be
     written. By default, this is standard output (not standard error, as
@@ -127,8 +127,8 @@ class LoggingApp(CommandLineApp):
     def setup(self):
         """Configure the :class:`LoggingApp`.
 
-        This method adds the :cmdoption:`-l`, :cmdoption:`q`,
-        :cmdoption:`-s` and :cmdoption:`-v` parameters to the
+        This method adds the :option:`-l`, :option:`q`,
+        :option:`-s` and :option:`-v` parameters to the
         application and instantiates the :attr:`log` attribute.
         """
         super(LoggingApp, self).setup()
