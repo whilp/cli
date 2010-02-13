@@ -33,6 +33,8 @@ Command line parsing::
 
 .. highlight:: none
 
+When run, this script produces the following output::
+
     $ python ls.py -h
     usage: ls [-h] [-l]
 
