@@ -61,6 +61,8 @@ Logging::
 
 .. highlight:: none
 
+Which produces the following::
+
     $ python sleep.py -h
     usage: sleep [-h] [-l] [-q] [-s] [-v] seconds
 
@@ -93,6 +95,8 @@ Daemonizing::
 
 .. highlight:: none
 
+And on the command line::
+
     $ python daemon.py -h
     usage: daemon [-h] [-l] [-q] [-s] [-v] [-d] [-u USER] [-p PIDFILE]
 
@@ -109,7 +113,7 @@ Daemonizing::
     $ python daemon.py -d -vv
     About to daemonize
 
-..highlight:: python
+.. highlight:: python
 
 Basic usage
 -----------
