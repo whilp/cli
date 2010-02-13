@@ -1,6 +1,12 @@
-"""cli.log - logging applications
+"""\
+:mod:`cli.log` -- logging applications
+--------------------------------------
 
-Copyright (c) 2008-2010 Will Maier <will@m.aier.us>
+Logging applications use the standard library :mod:`logging` module to
+handle log messages.
+"""
+
+__license__ = """Copyright (c) 2008-2010 Will Maier <will@m.aier.us>
 
 Permission to use, copy, modify, and distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -23,7 +29,7 @@ from logging import Formatter, StreamHandler
 
 from cli.app import CommandLineApp
 
-__all__ = ["LoggingApp"]
+__all__ = ["LoggingApp", "CommandLineLogger"]
 
 # Silence multiprocessing errors.
 logging.logMultiprocessing = 0
@@ -37,7 +43,7 @@ class FileHandler(logging.FileHandler):
         multiple threads that still need to write to it. Python
         should GC the fd when it goes out of scope, anyway.
         """
-        pass	# pragma: no cover
+        pass    # pragma: no cover
 
 class NullHandler(logging.Handler):
     """A blackhole handler.
@@ -56,17 +62,29 @@ class CommandLineLogger(logging.Logger):
     set its verbosity levels based on a populated argparse.Namespace.
     """
     default_level = logging.WARN
+    """An integer representing the default logging level.
+
+    Default: :data:`logging.WARN` (only warning messages will be
+    shown).
+    """
     silent_level = logging.CRITICAL
+    """An integer representing the silent logging level.
+
+    Default: :data:`logging.CRITICAL' (only critical messages will
+    be shown).
+    """
 
     def setLevel(self, ns):
-        """Set the logging level of this handler.
+        """Set the logger verbosity level.
 
-        ns is an object (like an argparse.Namespace) with the following
-        attributes:
-            
-            verbose     integer
-            quiet       integer
-            silent      True/False
+        *ns* is an object with :attr:`verbose`, :attr:`quiet` and
+        :attr:`silent` attributes. :attr:`verbose` and :attr:`quiet` may
+        be positive integers or zero; :attr:`silent` is ``True`` or ``False``.
+        If :attr:`silent` is True, the logger's level will be set to
+        :attr:`silent_level`. Otherwise, the difference between
+        :attr:`quiet` and :attr:`verbose` will be multiplied by 10 so it
+        fits on the standard logging scale and then added to
+        :attr:`default_level`.
         """
         level = self.default_level + (10 * (ns.quiet - ns.verbose))
 
@@ -80,13 +98,21 @@ class CommandLineLogger(logging.Logger):
 class LoggingApp(CommandLineApp):
     """A command-line application that knows how to log.
 
-    A LoggingApp provides a 'log' attribute, which is a logger (from
-    the logging module). The logger's verbosity is controlled via
-    handy options ('verbose', 'quiet', 'silent') and sends its
-    output to stderr by default (though it will log to a file if the
-    'logfile' attribute is not None). Non-stderr streams can be
-    requested by setting the 'stream' attribute to something besides
-    None.
+    The :class:`LoggingApp` further extends the :class:`CommandLineApp`,
+    allowing command line configuration of the application logger. In
+    addition to those supported by the standard :class:`Application` and
+    :class:`CommandLineApp`, arguments are:
+
+    *stream* is an open file object to which the log messages will be
+    written. By default, this is standard output (not standard error, as
+    might be expected).
+
+    *logfile* is the name of a file which will be opened by the
+    :class:`logging.FileHandler`.
+
+    *message_format* and *date_format* are passed directly to the 
+    :class:`CommandLineLogger` and are interpreted as in the 
+    :mod:`logging` package.
     """
 
     def __init__(self, main=None, stream=sys.stdout, logfile=None,
@@ -99,6 +125,12 @@ class LoggingApp(CommandLineApp):
         super(LoggingApp, self).__init__(main, **kwargs)
 
     def setup(self):
+        """Configure the :class:`LoggingApp`.
+
+        This method adds the :cmdoption:`-l`, :cmdoption:`q`,
+        :cmdoption:`-s` and :cmdoption:`-v` parameters to the
+        application and instantiates the :attr:`log` attribute.
+        """
         super(LoggingApp, self).setup()
 
         # Add logging-related options.
@@ -124,7 +156,18 @@ class LoggingApp(CommandLineApp):
         self.log.level = self.log.default_level
 
     def pre_run(self):
-        """Configure logging before running the app."""
+        """Set the verbosity level and configure the logger.
+
+        The application passes the :attr:`params` object to the
+        :class:`CommandLineLogger`'s special :meth:`setLevel` method to
+        set the logger's verbosity and then initializes the logging
+        handlers. If the :attr:`logfile` attribute is not ``None``, it
+        is passed to a :class:`logging.FileHandler` instance and that is
+        added to the handler list. Otherwise, if the :attr:`stream`
+        attribute is not ``None``, it is passed to a
+        :class:`logging.StreamHandler` instance and that becomes the
+        main handler.
+        """
         super(LoggingApp, self).pre_run()
         self.log.setLevel(self.params)
 
