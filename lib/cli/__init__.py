@@ -12,9 +12,9 @@ into a single, consistent application interface.
 # pragma: no cover
 
 __project__ = "pyCLI"
-__version__ = "0.3.4"
+__version__ = "1.0"
 __package__ = "cli"
-__description__ = "Simple, Object-Oriented approach to Python CLI apps"
+__description__ = "Simple, object-oriented approach to Python CLI apps"
 __author__ = "Will Maier"
 __author_email__ = "will@m.aier.us"
 __url__ = "http://code.lfod.us/cli"
@@ -25,9 +25,10 @@ __classifiers__ = [
     "Programming Language :: Python :: 2.5",
     "Programming Language :: Python :: 2.6",
     "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Environment :: Console",
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
 ] 
 __keywords__ = "command line application framework"
 
