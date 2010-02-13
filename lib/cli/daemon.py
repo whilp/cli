@@ -1,5 +1,11 @@
-"""cli.daemon - daemonizing applications
+"""\
+:mod:`cli.daemon` -- daemonizing applications
+---------------------------------------------
 
+Daemonizing applications run in the background, forking themselves off.
+"""
+
+__license__ = """
 Copyright (c) 2008-2010 Will Maier <will@m.aier.us>
 
 Permission to use, copy, modify, and distribute this software for any
@@ -25,6 +31,23 @@ __all__ = ["DaemonizingApp"]
 
 class DaemonizingApp(LoggingApp):
     """A command-line application that knows how to daemonize.
+
+    The :class:`DaemonizingApp` extends the :class:`LoggingApp` (for
+    it's not very helpful to daemonize without being able to log
+    messages somewhere). In addition to those supported by the
+    standard :class:`Application`, :class:`CommandLineApp` and
+    :class:`LoggingApp`, arguments are:
+
+    *pidfile* is a string pointing to a file where the application will
+    write its process ID after it daemonizes. If it is ``None``, no such
+    file will be created.
+
+    *chdir* is a string pointing to a directory to which the application
+    will change after it daemonizes.
+
+    *null* is a string representing a file that will be opened to
+    replace stdin, stdout and stderr when the application daemonizes. By
+    default, this :data:`os.path.devnull`.
     """
 
     def __init__(self, main=None, pidfile=None,
@@ -35,6 +58,11 @@ class DaemonizingApp(LoggingApp):
         super(DaemonizingApp, self).__init__(main, **kwargs)
 
     def setup(self):
+        """Configure the :class:`DaemonizingApp`.
+
+        This method adds the :option:`-d`, :option:`u`,
+        and :option:`-p` parameters to the application.
+        """
         super(DaemonizingApp, self).setup()
 
         # Add daemonizing options.
@@ -46,10 +74,13 @@ class DaemonizingApp(LoggingApp):
                 help="write PID to PIDFILE after daemonizing")
 
     def daemonize(self):
-        """Daemonize the application.
-        
-        Send the application to the background, redirecting
-        stdin/stdout and changing its UID if requested.
+        """Run in the background.
+
+        :meth:`daemonize` must be called explicitly by the application
+        when it's ready to fork into the background. It forks, flushes
+        and replaces stdin, stderr and stdout with the open :attr:`null`
+        file and, if requested on the command line, writes its PID to a
+        file and changes user/group.
         """
         if os.fork(): sys.exit(0)
         os.umask(0) 

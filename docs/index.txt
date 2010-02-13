@@ -200,49 +200,10 @@ Extending :class:`Application`
 .. autoclass:: cli.log.CommandLineLogger
     :members:
 
-:mod:`cli.daemon` -- daemonizing applications
----------------------------------------------
+.. automodule:: cli.daemon
 
-.. module:: cli.daemon
-    :synopsis: Daemonizing applications.
-
-Daemonizing applications run in the background, forking themselves off.
-
-.. class:: DaemonizingApp(main=None, pidfile=None, chdir='/', null="/dev/null", **kwargs)
-
-    The :class:`DaemonizingApp` extends the :class:`LoggingApp` (for
-    it's not very helpful to daemonize without being able to log
-    messages somewhere). In addition to those supported by the
-    standard :class:`Application`, :class:`CommandLineApp` and
-    :class:`LoggingApp`, arguments are:
-
-    *pidfile* is a string pointing to a file where the application will
-    write its process ID after it daemonizes. If it is ``None``, no such
-    file will be created.
-
-    *chdir* is a string pointing to a directory to which the application
-    will change after it daemonizes.
-
-    *null* is a string representing a file that will be opened to
-    replace stdin, stdout and stderr when the application daemonizes. By
-    default, this :data:`os.path.devnull`.
-
-    .. method: setup()
-
-        Configure the :class:`DaemonizingApp`.
-
-        This method adds the :cmdoption:`-d`, :cmdoption:`u`,
-        and :cmdoption:`-p` parameters to the application.
-
-    .. method: daemonize()
-
-        Run in the background.
-
-        :meth:`daemonize` must be called explicitly by the application
-        when it's ready to fork into the background. It forks, flushes
-        and replaces stdin, stderr and stdout with the open :attr:`null`
-        file and, if requested on the command line, writes its PID to a
-        file and changes user/group.
+.. autoclass:: cli.daemon.DaemonizingApp
+    :members:
 
 Testing :class:`cli`
 --------------------
