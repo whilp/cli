@@ -17,7 +17,7 @@ __package__ = "cli"
 __description__ = "Simple, object-oriented approach to Python CLI apps"
 __author__ = "Will Maier"
 __author_email__ = "will@m.aier.us"
-__url__ = "http://code.lfod.us/cli"
+__url__ = "http://packages.python.org/pyCLI/"
 
 # See http://pypi.python.org/pypi?%3Aaction=list_classifiers.
 __classifiers__ = [

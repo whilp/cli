@@ -20,9 +20,17 @@ Installing :mod:`cli`
 
 .. highlight:: none
 
-You can install the latest version of :mod:`cli` using :command:`pip`::
+You can install the latest stable version of :mod:`cli` using :command:`pip`::
     
     $ pip install pyCLI
+
+You can also browse the project's `Mercurial`_ `repository`_. If you'd
+like to contribute changes, start by cloning the repository::
+
+    $ hg clone http://code.lfod.us/cli
+
+.. _Mercurial:  http://mercurial.selenic.com/
+.. _repository: http://code.lfod.us/cli
 
 A quick tour of :mod:`cli`'s features
 -------------------------------------
@@ -195,6 +203,9 @@ Command line best practices
 
 Extending :class:`cli.app.Application`
 --------------------------------------
+
+API
+---
 
 .. automodule:: cli.app
 
