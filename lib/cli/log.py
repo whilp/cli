@@ -113,15 +113,21 @@ class LoggingApp(CommandLineApp):
     *message_format* and *date_format* are passed directly to the 
     :class:`CommandLineLogger` and are interpreted as in the 
     :mod:`logging` package.
+
+    If *root* is True, the :class:`LoggingApp` will make itself the root
+    logger. This means that, for example, code that knows nothing about
+    the :class:`LoggingApp` can inherit its verbosity level, formatters
+    and handlers.
     """
 
     def __init__(self, main=None, stream=sys.stdout, logfile=None,
             message_format="%(message)s", 
-            date_format="%(asctime)s %(message)s", **kwargs):
+            date_format="%(asctime)s %(message)s", root=True, **kwargs):
         self.logfile = logfile
         self.stream = stream
         self.message_format = message_format
         self.date_format = date_format
+        self.root = root
         super(LoggingApp, self).__init__(main, **kwargs)
 
     def setup(self):
@@ -154,6 +160,10 @@ class LoggingApp(CommandLineApp):
         self.formatter = message_formatter
 
         self.log.level = self.log.default_level
+
+        # If requested, make our logger the root.
+        if self.root:
+            logging.Logger.root = self.log
 
     def pre_run(self):
         """Set the verbosity level and configure the logger.
