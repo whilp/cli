@@ -183,8 +183,8 @@ class LoggingApp(CommandLineApp):
         self.log.setLevel(self.params)
 
         self.log.handlers = []
-        if self.logfile is not None:
-            file_handler = FileHandler(self.logfile)
+        if self.params.logfile is not None:
+            file_handler = FileHandler(self.params.logfile)
             file_handler.setFormatter(self.formatter) # pragma: no cover
             self.log.addHandler(file_handler)
         elif self.stream is not None:
