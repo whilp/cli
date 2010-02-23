@@ -163,6 +163,7 @@ class LoggingApp(CommandLineApp):
 
         # If requested, make our logger the root.
         if self.root:
+            logging.Logger.manager.root = self.log
             logging.Logger.root = self.log
 
     def pre_run(self):
