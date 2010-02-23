@@ -32,6 +32,10 @@ like to contribute changes, start by cloning the repository::
 .. _Mercurial:  http://mercurial.selenic.com/
 .. _repository: http://code.lfod.us/cli
 
+You can also follow the project's `changelog`_.
+
+.. _changelog:  http://code.lfod.us/cli/log
+
 A quick tour of :mod:`cli`'s features
 -------------------------------------
 
