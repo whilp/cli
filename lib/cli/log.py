@@ -141,7 +141,7 @@ class LoggingApp(CommandLineApp):
 
         # Add logging-related options.
         self.add_param("-l", "--logfile", default=self.logfile, 
-                help="log to file (default: log to stdout)", action="count")
+                help="log to file (default: log to stdout)")
         self.add_param("-q", "--quiet", default=0, help="decrease the verbosity",
                 action="count")
         self.add_param("-s", "--silent", default=False, help="only log warnings",
