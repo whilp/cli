@@ -96,17 +96,17 @@ class DaemonizingApp(LoggingApp):
         os.dup2(so.fileno(), self.stdout.fileno())
         os.dup2(se.fileno(), self.stderr.fileno())
 
-        if self.args.pidfile:
-            self.log.debug("Writing pidfile %s", self.args.pidfile)
-            pidfile = open(self.args.pidfile, 'w')
+        if self.params.pidfile:
+            self.log.debug("Writing pidfile %s", self.params.pidfile)
+            pidfile = open(self.params.pidfile, 'w')
             pidfile.write('%i\n' % os.getpid())
             pidfile.close()
 
-        if self.args.user:
+        if self.params.user:
             import grp
             import pwd
             delim = ':'
-            user, sep, group = self.args.user.partition(delim)
+            user, sep, group = self.params.user.partition(delim)
 
             # If group isn't specified, try to use the username as
             # the group.
