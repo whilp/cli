@@ -102,17 +102,21 @@ class ConfigApp(CommandLineApp):
             self.log.debug("Unable to parse config file")
             return
 
-        self.config = parsed
-        parameters = self.configparams(self.config)
+        self.config = argparse.Namespace(**parsed)
 
+        parameters = parsed.get("parameters", None)
+        if parameters is None:
+            self.log.debug("No parameters defined in config file")
+            return
+
+        parameters = argparse.Namespace(**self.configparams(parameters))
         self.params = self.update_params(parameters, self.params)
 
     def parseconfig(self, config):
         """Parse a configuration file, returning a dictionary.
 
         Try each registered configuration parser (see
-        :attr:`configparsers`) in order until one of them succeeds; return the
-        resulting Namespace instance.
+        :attr:`configparsers`) in order until one of them succeeds.
         """
         parsed = None
         for name, parser in self.configparsers:
@@ -124,28 +128,23 @@ class ConfigApp(CommandLineApp):
 
         return parsed
 
-    def configparams(self, config):
+    def configparams(self, parameters):
         """Extract parameter values from a parsed config file.
 
-        *config* is a Namespace instance with a *parameters* attribute.
-        For each action defined by :meth:`add_param` and saved in :attr:`actions`,
-        check for an attribute on the *parameters* attribute with the
-        same name. If it exists, its value is passed to the
+        *parameters* is a dictionary containing the keys and values from
+        the parameters section of a config file. For each action
+        defined by :meth:`add_param` and saved in :attr:`actions`,
+        check for an If it exists, its value is passed to the
         :class:`argparse.Action` instance. If the action is a
         :class:`argparse._CountAction`, the value should be a integer;
         for an interger *n*, the action will be called *n* times. For
         other actions, the value is passed directly to the action.
         """
 
-        parameters = getattr(config, "parameters", None)
-        if parameters is None:
-            self.log.debug("No parameters defined in config file")
-            return
-
         pns = argparser.Namespace()
         Nothing = object()
         for name, action in self.actions.items():
-            values = getattr(parameters, name, Nothing)
+            values = parameters.get(name, Nothing)
             if values is Nothing:
                 break
 
