@@ -15,9 +15,36 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.config import ConfigApp
+from cli.config import ConfigApp, IniConfigParser
+from cli.util import StringIO
 
 from tests import AppTest, BaseTest, DecoratorTests
+
+class ConfigParserTest(BaseTest):
+    configdict = {
+        "parameters": {"verbose": '3', "logfile": "/tmp/foo", "foo": '"bar"'},
+        "othersection": {"otherparam": "othervalue"},
+    }
+    
+    def setUp(self):
+        self.parser = self.parser_cls()
+        self.configfile = StringIO(self.configstr)
+
+class TestIniConfigParser(ConfigParserTest):
+    parser_cls = IniConfigParser
+    configstr = """\
+[parameters]
+verbose = 3
+logfile = /tmp/foo
+foo = "bar"
+
+[othersection]
+otherparam = othervalue
+"""
+
+    def test_read_valid(self):
+        out = self.parser.read(self.configfile)
+        self.assertEqual(self.configdict, out)
 
 class TestConfigApp(AppTest, DecoratorTests):
     app_cls = ConfigApp

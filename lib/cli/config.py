@@ -22,10 +22,37 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
+from ConfigParser import ConfigParser
+
 from cli.app import CommandLineApp
 from cli.ext import argparse
 
 __all__ = ["ConfigApp"]
+
+class BaseParser(object):
+
+    def read(self, config):
+        raise NotImplementedError
+
+    def write(self, config, buffer):
+        raise NotImplementedError
+
+class IniConfigParser(BaseParser):
+
+    def read(self, config):
+        parser = ConfigParser()
+        parser.readfp(config)
+
+        return dict((s, dict(parser.items(s))) for s in parser.sections())
+
+    def write(self, config, buffer):
+        parser = ConfigParser()
+        for section, items in config.items():
+            parser.add_section(section)
+            for k, v in items.items():
+                parser.set(section, k, v)
+
+        parser.write(buffer)
 
 class ConfigApp(CommandLineApp):
     """A command-line application that reads a configuration file.
