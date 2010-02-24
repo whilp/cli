@@ -290,14 +290,16 @@ class CommandLineApp(Application):
         self.actions[action.dest] = action
         return action
 
-    def update_params(self, **params):
-        """Update the parameter namespace.
+    def update_params(self, params, newparams):
+        """Update a parameter namespace.
 
-        The keys and values in *params* will become the names and values
-        of attributes in the :attr:`params` attribute.
+        The *params* instance will be updated with the names and values
+        from *newparams* and then returned.
         """
-        for k, v in params.items():
-            setattr(self.params, k, v)
+        for k, v in vars(newparams).items():
+            setattr(params, k, v)
+
+        return params
 
     def pre_run(self):
         """Parse command line.
@@ -309,4 +311,4 @@ class CommandLineApp(Application):
         """
         super(CommandLineApp, self).pre_run()
         ns = self.argparser.parse_args(self.argv)
-        self.update_params(**vars(ns))
+        self.params = self.update_params(self.params, ns)
