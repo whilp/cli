@@ -37,7 +37,8 @@ except ImportError:
 from cli.app import CommandLineApp
 from cli.ext import argparse
 
-__all__ = ["ConfigApp"]
+__all__ = ["BaseParser", "ConfigApp", "IniConfigParser", "JSONConfigParser",
+    "PythonConfigParser"]
 
 class BaseParser(object):
     """Defines the parser API.

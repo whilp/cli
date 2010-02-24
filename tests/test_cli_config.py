@@ -15,7 +15,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.config import ConfigApp, JSONConfigParser, IniConfigParser, PythonConfigParser
+from cli.config import *
 from cli.util import StringIO
 
 from tests import AppTest, BaseTest, DecoratorTests
