@@ -30,7 +30,21 @@ class ConfigParserTest(BaseTest):
         self.parser = self.parser_cls()
         self.configfile = StringIO(self.configstr)
 
-class TestIniConfigParser(ConfigParserTest):
+class ParserTests(object):
+
+    def test_read_valid(self):
+        out = self.parser.read(self.configfile)
+        self.assertEqual(self.configdict, out)
+
+    def test_equivalent(self):
+        tmp = StringIO()
+        parsed = self.parser.read(self.configfile)
+        self.parser.write(parsed, tmp)
+        tmp.seek(0)
+        parsed2 = self.parser.read(tmp)
+        self.assertEqual(parsed, parsed2)
+
+class TestIniConfigParser(ConfigParserTest, ParserTests):
     parser_cls = IniConfigParser
     configstr = """\
 [parameters]
@@ -41,10 +55,6 @@ foo = "bar"
 [othersection]
 otherparam = othervalue
 """
-
-    def test_read_valid(self):
-        out = self.parser.read(self.configfile)
-        self.assertEqual(self.configdict, out)
 
 class TestConfigApp(AppTest, DecoratorTests):
     app_cls = ConfigApp
