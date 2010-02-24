@@ -34,7 +34,7 @@ except ImportError:
     except ImportError:
         pass
 
-from cli.app import CommandLineApp
+from cli.log import LoggingApp
 from cli.ext import argparse
 
 __all__ = ["BaseParser", "ConfigApp", "IniConfigParser", "JSONConfigParser",
@@ -152,7 +152,7 @@ if json is not None:
         def write(self, config, buffer):
             json.dump(config, buffer)
 
-class ConfigApp(CommandLineApp):
+class ConfigApp(LoggingApp):
     """A command-line application that reads a configuration file.
 
     A :class:`ConfigApp` is a :class:`CommandLineApp` that optionally
