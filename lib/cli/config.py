@@ -85,7 +85,7 @@ class ConfigApp(CommandLineApp):
         First, parse arguments on the command line (so that the user can
         specify an alternate configuration file). Then, call each of the
         registered parsers on the configuration file until it is
-        successfully parsed (see :meth:`parseconf`). If the parsed
+        successfully parsed (see :meth:`parseconfig`). If the parsed
         configuration file contains a *parameters* section, pass those
         values to the :class:`argparse.Action` instances created by
         :meth:`add_param`. Finally, update the config file
@@ -97,7 +97,7 @@ class ConfigApp(CommandLineApp):
         if self.params.configfile is None:
             return
 
-        parsed = self.parseconf(self.params.configfile)
+        parsed = self.parseconfig(self.params.configfile)
         if parsed is None:
             self.log.debug("Unable to parse config file")
             return
@@ -107,8 +107,8 @@ class ConfigApp(CommandLineApp):
 
         self.params = self.update_params(parameters, self.params)
 
-    def parseconf(self, config):
-        """Parse a configuration file, returning a Namespace instance.
+    def parseconfig(self, config):
+        """Parse a configuration file, returning a dictionary.
 
         Try each registered configuration parser (see
         :attr:`configparsers`) in order until one of them succeeds; return the
