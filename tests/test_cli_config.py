@@ -15,7 +15,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.config import ConfigApp, JSONConfigParser, IniConfigParser
+from cli.config import ConfigApp, JSONConfigParser, IniConfigParser, PythonConfigParser
 from cli.util import StringIO
 
 from tests import AppTest, BaseTest, DecoratorTests
@@ -64,6 +64,13 @@ class TestJSONConfigParser(ConfigParserTest, ParserTests):
 "othersection":
         {"otherparam": "othervalue"}
 }
+"""
+
+class TestPythonConfigParser(ConfigParserTest, ParserTests):
+    parser_cls = PythonConfigParser
+    configstr = """\
+parameters = {"verbose": "3", "logfile": "/tmp/foo", "foo": "bar"}
+othersection = {"otherparam": "othervalue"}
 """
 
 class TestConfigApp(AppTest, DecoratorTests):

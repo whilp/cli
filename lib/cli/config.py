@@ -23,6 +23,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
 from ConfigParser import ConfigParser
+from pprint import pprint
 
 json = None
 try:
@@ -62,6 +63,20 @@ class IniConfigParser(BaseParser):
                 parser.set(section, k, v)
 
         parser.write(buffer)
+
+class PythonConfigParser(BaseParser):
+
+    def read(self, config):
+        _locals = {}
+        exec config.read() in _locals
+
+        return dict((k, v) for k, v in _locals.items() if not k.startswith("__"))
+
+    def write(self, config, buffer):
+        for k, items in config.items():
+            buffer.write("%s = " % k)
+            pprint(items, buffer)
+            buffer.write('\n')
 
 if json is not None:
     class JSONConfigParser(BaseParser):
