@@ -15,15 +15,15 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.config import ConfigApp, IniConfigParser
+from cli.config import ConfigApp, JSONConfigParser, IniConfigParser
 from cli.util import StringIO
 
 from tests import AppTest, BaseTest, DecoratorTests
 
 class ConfigParserTest(BaseTest):
     configdict = {
-        "parameters": {"verbose": '3', "logfile": "/tmp/foo", "foo": '"bar"'},
-        "othersection": {"otherparam": "othervalue"},
+        u"parameters": {u"verbose": u'3', u"logfile": u"/tmp/foo", u"foo": u"bar"},
+        u"othersection": {u"otherparam": u"othervalue"},
     }
     
     def setUp(self):
@@ -50,10 +50,20 @@ class TestIniConfigParser(ConfigParserTest, ParserTests):
 [parameters]
 verbose = 3
 logfile = /tmp/foo
-foo = "bar"
+foo = bar
 
 [othersection]
 otherparam = othervalue
+"""
+
+class TestJSONConfigParser(ConfigParserTest, ParserTests):
+    parser_cls = JSONConfigParser
+    configstr = """\
+{"parameters":
+        {"verbose": "3", "logfile": "/tmp/foo", "foo": "bar"},
+"othersection":
+        {"otherparam": "othervalue"}
+}
 """
 
 class TestConfigApp(AppTest, DecoratorTests):

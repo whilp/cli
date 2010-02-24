@@ -24,6 +24,15 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 from ConfigParser import ConfigParser
 
+json = None
+try:
+    import json
+except ImportError:
+    try:
+        import simplejson as json
+    except ImportError:
+        pass
+
 from cli.app import CommandLineApp
 from cli.ext import argparse
 
@@ -53,6 +62,15 @@ class IniConfigParser(BaseParser):
                 parser.set(section, k, v)
 
         parser.write(buffer)
+
+if json is not None:
+    class JSONConfigParser(BaseParser):
+        
+        def read(self, config):
+            return json.load(config)
+
+        def write(self, config, buffer):
+            json.dump(config, buffer)
 
 class ConfigApp(CommandLineApp):
     """A command-line application that reads a configuration file.
