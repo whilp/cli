@@ -40,14 +40,51 @@ from cli.ext import argparse
 __all__ = ["ConfigApp"]
 
 class BaseParser(object):
+    """Defines the parser API.
+
+    Parsers must provide implementations for both :meth:`read` and
+    :meth:`write`. Calls to either :meth:`read` or :meth:`write` should
+    be idempotent; that is, they should not change the parser's overall
+    state.
+
+    All configuration files should include one or more sections. Each
+    section may contain one or more key/value pairs. Some configuration
+    parsers may support typed data or nested sections.
+
+    If present, a :class:`ConfigApp` will examine the special "parameters"
+    section and use it to find values for options not specified on the
+    command line.
+    """
 
     def read(self, config):
+        """Read a configuration file.
+
+        *config* is a file-like object with data in a format the
+        parser understands. The parser calls the file-like object's
+        :meth:`read` method, parses the contents and returns a
+        dictionary representing the configuration.
+        """
         raise NotImplementedError
 
     def write(self, config, buffer):
+        """Serialize the provided configuration and write it out.
+
+        *config* should be a dictionary with section names as its keys.
+        Its values should also be dictionaries containing key/value
+        pairs. *buffer* should be a file-like object. The parser will
+        format the configuration dictionary and write it to the output
+        buffer.
+        """
         raise NotImplementedError
 
 class IniConfigParser(BaseParser):
+    """An .ini-style configuration file parser.
+
+    The :class:`IniConfigParser` uses the standard
+    :class:`ConfigParser.ConfigParser` to read and write its
+    configuration files; see the ConfigParser documentation for a
+    description of the format.
+    """
 
     def read(self, config):
         parser = ConfigParser()
@@ -65,6 +102,21 @@ class IniConfigParser(BaseParser):
         parser.write(buffer)
 
 class PythonConfigParser(BaseParser):
+    """A Python configuration file parser.
+
+    Python configuration files contain Python code that can be parsed by
+    the interpreter's *exec* statement. The file must contain a series
+    of dictionaries, each with any number of keys and values. For
+    example::
+
+        parameters = {
+            "verbose": 3,
+        }
+        database = {
+            "host": "localhost",
+            "user": "admin",
+        }
+    """
 
     def read(self, config):
         _locals = {}
@@ -80,6 +132,18 @@ class PythonConfigParser(BaseParser):
 
 if json is not None:
     class JSONConfigParser(BaseParser):
+        """A JSON configuration file parser.
+
+        This parser reads configuration files written to conform to
+        :rfc:`4627` using the :module:`json` or :module:`simplejson`
+        modules. The root of the JSON document should be a dictionary with strings
+        as its keys and other dictionaries as its values. For example::
+
+            {
+                "parameters": {"verbose": 3},
+                "database": {"host": "localhost", "user": "admin"}
+            }
+        """
         
         def read(self, config):
             return json.load(config)
