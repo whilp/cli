@@ -167,7 +167,12 @@ class ConfigApp(CommandLineApp):
     to a configuration file. If *configfile* is None, no configuration
     file will be read.
     """
-    configparsers = []
+    configparsers = [
+        ("ini", IniConfigParser),
+        ("python", PythonConfigParser),
+    ]
+    if json is not None:
+        configparsers.append(("json", JSONConfigParser))
     """A list of registered config file parsers.
 
     Each entry in the list should be a two-item tuple::
