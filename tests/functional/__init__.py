@@ -14,18 +14,19 @@ class FunctionalTest(BaseTest):
     scriptdir = os.path.join(os.path.dirname(__file__), "scripts")
 
     def setUp(self):
-        if self.testdir is None:
-            self.testdir = mkdtemp(prefix="functests-")
-        if not os.path.isdir(self.testdir):
-            os.mkdir(self.testdir)
-        self.env = TestFileEnvironment(os.path.join(self.testdir, "scripttest"))
+        self._testdir = self.testdir
+        if self._testdir is None:
+            self._testdir = mkdtemp(prefix="functests-")
+        if not os.path.isdir(self._testdir):
+            os.mkdir(self._testdir)
+        self.env = TestFileEnvironment(os.path.join(self._testdir, "scripttest"))
 
         addTypeEqualityFunc = getattr(self, "addTypeEqualityFunc", None)
         if callable(addTypeEqualityFunc):
             addTypeEqualityFunc(str, "assertMultiLineEqual")
 
     def tearDown(self):
-        rmtree(self.testdir)
+        rmtree(self._testdir)
 
     def run_script(self, script, *args, **kwargs):
         script = os.path.join(self.scriptdir, script)
