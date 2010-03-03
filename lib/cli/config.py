@@ -231,7 +231,13 @@ class ConfigApp(LoggingApp):
             self.log.debug("Unable to parse config file")
             return
 
-        self.config = argparse.Namespace(**parsed)
+        self.config = argparse.Namespace()
+        # What follows is more or less Namespace's constructor. We do it
+        # ourselves, though, because we otherwise get:
+        #   TypeError: __init__() keywords must be strings
+        # This occurs when the keys are unicode objects.
+        for k, v in parsed.items():
+            setattr(self.config, k, v)
 
         parameters = parsed.get("parameters", None)
         if parameters is None:
@@ -241,7 +247,7 @@ class ConfigApp(LoggingApp):
         # Update the default values of the existing actions. When we run
         # our parents' pre_run() method again, they'll pick up the new
         # defaults.
-        for k, v in parsed.items():
+        for k, v in parameters.items():
             action = self.actions.get(k, None)
             if action is None:
                 self.log.debug("No parameter matches default '%s' specified "
