@@ -4,13 +4,14 @@ import cli
 
 @cli.Application
 def application(app):
-    write = lambda msg, s=app.stdout: s.write(msg + "\n")
+    write = lambda msg: app.stdout.write(str(msg) + "\n")
     write("This is a basic application")
-    write("Its name is %s" % app.name)
-    write("Its version is %s" % app.version)
+    write("Its name is '%s'" % app.name)
+    write("Its version is '%s'" % app.version)
     write("Its running with the following arguments: %s" % app.argv)
-    write("Its description is:)
+    write("Its description is:")
     write(app.description)
+    write("And it's done")
 
 if __name__ == "__main__":
     application.run()
