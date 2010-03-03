@@ -20,24 +20,13 @@ try:
 except ImportError:
     import unittest
 
+import cli.test
+
 class BaseTest(unittest.TestCase):
     pass
 
-class AppTest(BaseTest):
-    app_cls = None
-    default_kwargs = {
-        "argv": [],
-        "exit_after_main": False
-    }
-
-    def setUp(self):
-        kwargs = self.default_kwargs.copy()
-        kwargs.update(getattr(self, "kwargs", {}))
-        @self.app_cls(**kwargs)
-        def app(app):
-            """This is the description."""
-            pass
-        self.app = app
+class AppTest(cli.test.AppTest, BaseTest):
+	pass
 
 class DecoratorTests(object):
 
