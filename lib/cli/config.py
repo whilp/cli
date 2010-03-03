@@ -195,7 +195,7 @@ class ConfigApp(LoggingApp):
         """
         super(ConfigApp, self).setup()
 
-        # Add daemonizing options.
+        # Add config options.
         configdefault = "no configuration file is read"
         if self.configfile is not None:
             configdefault = self.configfile
@@ -223,7 +223,6 @@ class ConfigApp(LoggingApp):
 
         if self.params.configfile is None:
             return
-        print "foo"
 
         parsed = self.configparser.read(self.params.configfile)
         if parsed is None:
@@ -243,7 +242,7 @@ class ConfigApp(LoggingApp):
         for k, v in parsed.items():
             action = self.actions.get(k, None)
             if action is None:
-                self.debug("No parameter matches default '%s' specified "
+                self.log.debug("No parameter matches default '%s' specified "
                     "parameters section of config file", k)
                 continue
 
