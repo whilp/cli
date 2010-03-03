@@ -183,9 +183,10 @@ class ConfigApp(LoggingApp):
     values of the sections, respectively.
     """
 
-    def __init__(self, main=None, configfile=None, **kwargs):
+    def __init__(self, main=None, configfile=None, configparser_factory=None, **kwargs):
         self.configfile = configfile
-        self.configparser = self.configparser_factory()
+        if configparser_factory is not None:
+            self.configparser_factory = configparser_factory
         super(ConfigApp, self).__init__(main, **kwargs)
 
     def setup(self):
@@ -194,6 +195,7 @@ class ConfigApp(LoggingApp):
         This method adds the :option:`-f` parameter to the application.
         """
         super(ConfigApp, self).setup()
+        self.configparser = self.configparser_factory()
 
         # Add config options.
         configdefault = "no configuration file is read"
