@@ -14,7 +14,10 @@ class FunctionalTest(BaseTest):
     scriptdir = os.path.join(os.path.dirname(__file__), "scripts")
 
     def setUp(self):
-        self.testdir = mkdtemp(prefix="functests-")
+        if self.testdir is None:
+            self.testdir = mkdtemp(prefix="functests-")
+        if not os.path.isdir(self.testdir):
+            os.mkdir(self.testdir)
         self.env = TestFileEnvironment(os.path.join(self.testdir, "scripttest"))
 
         addTypeEqualityFunc = getattr(self, "addTypeEqualityFunc", None)
