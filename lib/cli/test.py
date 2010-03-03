@@ -55,7 +55,7 @@ class AppTest(unittest.TestCase):
         :meth:`setUp` instantiates :attr:`app_cls` and stores it
         :at attr:`app`. Test methods should call the application's
         ::meth:`setup`, :meth:`pre_run` and :meth:`run` methods as
-		necessary.
+        necessary.
         """
         kwargs = self.default_kwargs.copy()
         kwargs.update(getattr(self, "kwargs", {}))
