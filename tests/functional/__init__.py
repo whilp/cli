@@ -1,5 +1,6 @@
 import os
 
+from shutil import rmtree
 from tempfile import mkdtemp
 
 from scripttest import TestFileEnvironment
@@ -13,14 +14,15 @@ class FunctionalTest(BaseTest):
     scriptdir = os.path.join(os.path.dirname(__file__), "scripts")
 
     def setUp(self):
-        testdir = self.testdir
-        if self.testdir is None:
-            testdir = mkdtemp(prefix="functests-")
-        self.env = TestFileEnvironment(os.path.join(testdir, "scripttest"))
+        self.testdir = mkdtemp(prefix="functests-")
+        self.env = TestFileEnvironment(os.path.join(self.testdir, "scripttest"))
 
         addTypeEqualityFunc = getattr(self, "addTypeEqualityFunc", None)
         if callable(addTypeEqualityFunc):
             addTypeEqualityFunc(str, "assertMultiLineEqual")
+
+    def tearDown(self):
+        rmtree(self.testdir)
 
     def run_script(self, script, *args, **kwargs):
         script = os.path.join(self.scriptdir, script)
