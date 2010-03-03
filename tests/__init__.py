@@ -22,9 +22,15 @@ class BaseTest(unittest.TestCase):
 
 class AppTest(BaseTest):
     app_cls = None
+    default_kwargs = {
+        "argv": [],
+        "exit_after_main": False
+    }
 
     def setUp(self):
-        @self.app_cls(exit_after_main=False, argv=[])
+        kwargs = self.default_kwargs.copy()
+        kwargs.update(getattr(self, "kwargs", {}))
+        @self.app_cls(**kwargs)
         def app(app):
             """This is the description."""
             pass
