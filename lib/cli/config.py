@@ -167,19 +167,12 @@ class ConfigApp(LoggingApp):
     to a configuration file. If *configfile* is None, no configuration
     file will be read.
     """
-    configparsers = [
-        ("ini", IniConfigParser),
-        ("python", PythonConfigParser),
-    ]
-    if json is not None:
-        configparsers.append(("json", JSONConfigParser))
-    """A list of registered config file parsers.
+    configparser_factory = IniConfigParser
+    """A factory that produces configuration parsers.
 
-    Each entry in the list should be a two-item tuple::
-
-        (name, parserfunc)
-
-    The parsers will be called in order by :meth:`pre_run`.
+    Usually, the factory will be a class that inherits from
+    :class:`BaseConfigParser`. It must implement :meth:`read` and
+    :meth:`write` methods.
     """
     config = None
     """A Namespace instance.
@@ -192,6 +185,7 @@ class ConfigApp(LoggingApp):
 
     def __init__(self, main=None, configfile=None, **kwargs):
         self.configfile = configfile
+        self.configparser = self.configparser_factory()
         super(ConfigApp, self).__init__(main, **kwargs)
 
     def setup(self):
@@ -212,15 +206,14 @@ class ConfigApp(LoggingApp):
     def pre_run(self):
         """Parse the configuration file and update the parameters.
 
-        First, parse arguments on the command line (so that the user can
-        specify an alternate configuration file). Then, call each of the
-        registered parsers on the configuration file until it is
-        successfully parsed (see :meth:`parseconfig`). If the parsed
-        configuration file contains a *parameters* section, pass those
-        values to the :class:`argparse.Action` instances created by
-        :meth:`add_param`. Finally, update the config file
-        parameters with the parameters found on the command line and
-        then save the merged parameters as :attr:`params`.
+        First, parse arguments on the command line (so that the user
+        can specify an alternate configuration file). Then, call the
+        :attr:`configparser`'s :meth:`read` method on the config file.
+        If the parsed configuration file contains a *parameters*
+        section, pass those values to the :class:`argparse.Action`
+        instances created by :meth:`add_param`. Finally, update the
+        config file parameters with the parameters found on the command
+        line and then save the merged parameters as :attr:`params`.
         """
         # Parse the command line so that the user can specify an
         # alternate config file. If we find a valid config file, we'll
@@ -232,7 +225,7 @@ class ConfigApp(LoggingApp):
             return
         print "foo"
 
-        parsed = self.parseconfig(self.params.configfile)
+        parsed = self.configparser.read(self.params.configfile)
         if parsed is None:
             self.log.debug("Unable to parse config file")
             return
@@ -257,22 +250,6 @@ class ConfigApp(LoggingApp):
             action.default = v
 
         super(ConfigApp, self).pre_run()
-
-    def parseconfig(self, config):
-        """Parse a configuration file, returning a dictionary.
-
-        Try each registered configuration parser (see
-        :attr:`configparsers`) in order until one of them succeeds.
-        """
-        parsed = None
-        for name, parser in self.configparsers:
-            self.log.debug("Trying config parser %s")
-            parsed = parser(config)
-            if parsed is not None:
-                self.log.debug("Config parser %s succeeded")
-                break
-
-        return parsed
 
     def configparams(self, parameters):
         """Extract parameter values from a parsed config file.
