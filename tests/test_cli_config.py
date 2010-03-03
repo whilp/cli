@@ -77,17 +77,24 @@ class TestConfigApp(AppTest, DecoratorTests):
     app_cls = ConfigApp
 
     def setUp(self):
-        super(TestConfigApp, self).setUp()
         self.configfile = StringIO("""\
-[parameters]
-verbose = 3
-logfile = /tmp/foo
+{
+    "parameters": {
+        "verbose": 3,
+        "logfile": "/tmp/foo"
+    },
+    "othersection": {
+        "otherkey": "othervalue"
+    }
+}""")
+        self.kwargs = {
+            "configfile": self.configfile,
+            "configparser_factory": JSONConfigParser,
+        }
+        super(TestConfigApp, self).setUp()
 
-[othersection]
-otherkey = othervalue
-""")
-
-    def test_config_parsing(self):
+    def test_config_parsing_params(self):
+        self.app.configparser_factory = JSONConfigParser
         self.app.configfile = self.configfile
         self.app.run()
         self.assertEqual(self.app.params.verbose, 3)
