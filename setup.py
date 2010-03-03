@@ -34,6 +34,7 @@ setup_options = {
     "test_suite": "tests",
 }
 
+# Enable 2to3 on 3.x.
 if sys.version_info >= (3, 0):
     setup_options["use_2to3"] = True
 
