@@ -75,3 +75,19 @@ othersection = {"otherparam": "othervalue"}
 
 class TestConfigApp(AppTest, DecoratorTests):
     app_cls = ConfigApp
+
+    def setUp(self):
+        super(TestConfigApp, self).setUp()
+        self.configfile = StringIO("""\
+[parameters]
+verbose = 3
+logfile = /tmp/foo
+
+[othersection]
+otherkey = othervalue
+""")
+
+    def test_config_parsing(self):
+        self.app.configfile = self.configfile
+        self.app.run()
+        self.assertEqual(self.app.params.verbose, 3)

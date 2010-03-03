@@ -222,10 +222,15 @@ class ConfigApp(LoggingApp):
         parameters with the parameters found on the command line and
         then save the merged parameters as :attr:`params`.
         """
+        # Parse the command line so that the user can specify an
+        # alternate config file. If we find a valid config file, we'll
+        # end up doing this twice, so it's important that ConfigApp's
+        # parents' pre_run() methods not have unexpected sideeffects.
         super(ConfigApp, self).pre_run()
 
         if self.params.configfile is None:
             return
+        print "foo"
 
         parsed = self.parseconfig(self.params.configfile)
         if parsed is None:
@@ -239,8 +244,19 @@ class ConfigApp(LoggingApp):
             self.log.debug("No parameters defined in config file")
             return
 
-        parameters = argparse.Namespace(**self.configparams(parameters))
-        self.params = self.update_params(parameters, self.params)
+        # Update the default values of the existing actions. When we run
+        # our parents' pre_run() method again, they'll pick up the new
+        # defaults.
+        for k, v in parsed.items():
+            action = self.actions.get(k, None)
+            if action is None:
+                self.debug("No parameter matches default '%s' specified "
+                    "parameters section of config file", k)
+                continue
+
+            action.default = v
+
+        super(ConfigApp, self).pre_run()
 
     def parseconfig(self, config):
         """Parse a configuration file, returning a dictionary.
