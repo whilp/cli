@@ -295,6 +295,12 @@ class CommandLineApp(Application):
 
         The *params* instance will be updated with the names and values
         from *newparams* and then returned.
+
+        .. versionchanged:: 1.0.2
+            :meth:`update_params` expects and returns
+            :class:`argparse.Namespace` instances; previously, it took
+            keyword arguments and updated :attr:`params` itself. This is
+            now left to the caller.
         """
         for k, v in vars(newparams).items():
             setattr(params, k, v)
