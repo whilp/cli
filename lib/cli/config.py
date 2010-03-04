@@ -136,9 +136,10 @@ if json is not None:
         """A JSON configuration file parser.
 
         This parser reads configuration files written to conform to
-        :rfc:`4627` using the :module:`json` or :module:`simplejson`
-        modules. The root of the JSON document should be a dictionary with strings
-        as its keys and other dictionaries as its values. For example::
+        :rfc:`4627` using the :mod:`json` or :mod:`simplejson` modules.
+        The root of the JSON document should be a dictionary with
+        strings as its keys and other dictionaries as its values. For
+        example::
 
             {
                 "parameters": {"verbose": 3},
