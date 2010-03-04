@@ -40,18 +40,18 @@ __all__ = ["AppTest", "FunctionalTest"]
 class AppTest(unittest.TestCase):
     """An application test, based on :class:`unittest.TestCase`.
 
-    :class:`AppTest` provides a simple :meth:`setUp` method to
-    instantiate :attr:`app_cls`, your application. :attr:`default_kwargs`
-    will be passed to the new application then.
+    :class:`AppTest` provides a simple :meth:`setUp` method
+    to instantiate :attr:`app_cls`, your application's class.
+    :attr:`default_kwargs` will be passed to the new application then.
     """
     app_cls = None
-    """An application, usually descended from :class:`cli.Application`."""
+    """An application, usually descended from :class:`cli.app.Application`."""
 
     default_kwargs = {
         "argv": [],
         "exit_after_main": False
     }
-    """Default keyword arguments that will be passed to the new App instance.
+    """Default keyword arguments that will be passed to the new :class:`cli.app.Application` instance.
 
     By default, the application won't see any command line arguments and
     will not raise SystemExit when the :func:`main` function returns.
@@ -60,10 +60,11 @@ class AppTest(unittest.TestCase):
     def setUp(self):
         """Set up the application.
 
-        :meth:`setUp` instantiates :attr:`app_cls` and stores it
-        :at attr:`app`. Test methods should call the application's
-        ::meth:`setup`, :meth:`pre_run` and :meth:`run` methods as
-        necessary.
+        :meth:`setUp` instantiates :attr:`app_cls` and
+        stores it at :attr:`app`. Test methods should call
+        the application's :meth:`cli.app.Application.setup`,
+        :meth:`cli.app.Application.pre_run` and
+        :meth:`cli.app.Application.run` methods as necessary.
         """
         kwargs = self.default_kwargs.copy()
         kwargs.update(getattr(self, "kwargs", {}))
@@ -92,7 +93,7 @@ class FunctionalTest(unittest.TestCase):
         """Prepare for the functional test.
 
         :meth:`setUp` creates the test's working directory. If
-        the unittest2 package is present, it also makes sure that
+        the :mod:`unittest2` package is present, it also makes sure that
         differences in the test's standard err and output are presented
         using :class:`unittest2.TestCase.assertMultiLineEqual`. Finally,
         :meth:`setUp` instantiates the

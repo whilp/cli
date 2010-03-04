@@ -32,11 +32,11 @@ __all__ = ["DaemonizingApp"]
 class DaemonizingApp(LoggingApp):
     """A command-line application that knows how to daemonize.
 
-    The :class:`DaemonizingApp` extends the :class:`LoggingApp` (for
-    it's not very helpful to daemonize without being able to log
-    messages somewhere). In addition to those supported by the
-    standard :class:`Application`, :class:`CommandLineApp` and
-    :class:`LoggingApp`, arguments are:
+    The :class:`DaemonizingApp` extends the :class:`cli.log.LoggingApp`
+    (for it's not very helpful to daemonize without being able to log
+    messages somewhere). In addition to those supported by the standard
+    :class:`cli.app.Application`, :class:`cli.app.CommandLineApp` and
+    :class:`cli.log.LoggingApp`, arguments are:
 
     *pidfile* is a string pointing to a file where the application will
     write its process ID after it daemonizes. If it is ``None``, no such

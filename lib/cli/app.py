@@ -70,8 +70,8 @@ class Application(object):
     command line. If *argv* is ``None``, :data:`sys.argv` will be used
     instead.
 
-    *profiler* is a :class:`Profiler` instance. If not ``None``, the
-    profiler will be available to the running application.
+    *profiler* is a :class:`cli.profiler.Profiler` instance. If not
+    ``None``, the profiler will be available to the running application.
 
     In all but a very few cases, subclasses that override the constructor
     should call :meth:`Application.__init__` at the end of the

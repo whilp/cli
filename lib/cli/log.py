@@ -58,8 +58,9 @@ class NullHandler(logging.Handler):
 class CommandLineLogger(logging.Logger):
     """Provide extra configuration smarts for loggers.
 
-    In addition to the powers of a regular logger, a CommandLineLogger can
-    set its verbosity levels based on a populated argparse.Namespace.
+    In addition to the powers of a regular logger, a
+    :class:`CommandLineLogger` can set its verbosity levels based on a
+    populated :class:`argparse.Namespace`.
     """
     default_level = logging.WARN
     """An integer representing the default logging level.
@@ -169,15 +170,16 @@ class LoggingApp(CommandLineApp):
     def pre_run(self):
         """Set the verbosity level and configure the logger.
 
-        The application passes the :attr:`params` object to the
-        :class:`CommandLineLogger`'s special :meth:`setLevel` method to
-        set the logger's verbosity and then initializes the logging
-        handlers. If the :attr:`logfile` attribute is not ``None``, it
-        is passed to a :class:`logging.FileHandler` instance and that is
-        added to the handler list. Otherwise, if the :attr:`stream`
-        attribute is not ``None``, it is passed to a
-        :class:`logging.StreamHandler` instance and that becomes the
-        main handler.
+        The application passes the :attr:`params` object
+        to the :class:`CommandLineLogger`'s special
+        :meth:`CommandLineLogger.setLevel` method to set the logger's
+        verbosity and then initializes the logging handlers. If the
+        :attr:`logfile` attribute is not ``None``, it is passed to a
+        :class:`logging.FileHandler` instance and that is added to the
+        handler list. Otherwise, if the :attr:`stream` attribute is
+        not ``None``, it is passed to a :class:`logging.StreamHandler`
+        instance and that becomes the main handler.
+
         """
         super(LoggingApp, self).pre_run()
         self.log.setLevel(self.params)

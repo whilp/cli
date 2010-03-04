@@ -85,6 +85,13 @@ class IniConfigParser(BaseParser):
     :class:`ConfigParser.ConfigParser` to read and write its
     configuration files; see the ConfigParser documentation for a
     description of the format.
+
+    .. note::
+
+        :class:`ConfigParser.ConfigParser` values are always strings.
+        This makes this parser unsuitable (without extension) for things
+        like setting a default value for the verbose parameter (which
+        must be an integer).
     """
 
     def read(self, config):
@@ -156,13 +163,13 @@ if json is not None:
 class ConfigApp(LoggingApp):
     """A command-line application that reads a configuration file.
 
-    A :class:`ConfigApp` is a :class:`CommandLineApp` that optionally
-    reads a configuration file on startup. This configuration file can
-    be written in one of several formats and may define an additional
-    set of default parameter values. Values defined on the command line
-    override those in the config file. In addition to those supported by
-    the standard :class:`Application` and :class:`CommandLineApp`,
-    arguments are:
+    A :class:`ConfigApp` is a :class:`cli.log.LoggingApp` that
+    optionally reads a configuration file on startup. This configuration
+    file can be written in one of several formats and may define an
+    additional set of default parameter values. Values defined on the
+    command line override those in the config file. In addition to
+    those supported by the standard :class:`cli.app.Application` and
+    :class:`cli.log.LoggingApp`, arguments are:
 
     *configfile* is a file-like object or a string representing a path
     to a configuration file. If *configfile* is None, no configuration
@@ -172,8 +179,8 @@ class ConfigApp(LoggingApp):
     """A factory that produces configuration parsers.
 
     Usually, the factory will be a class that inherits from
-    :class:`BaseConfigParser`. It must implement :meth:`read` and
-    :meth:`write` methods.
+    :class:`BaseParser`. It must override the :meth:`BaseParser.read`
+    and :meth:`BaseParser.write` methods.
     """
     config = None
     """A Namespace instance.
@@ -214,9 +221,10 @@ class ConfigApp(LoggingApp):
         :attr:`configparser`'s :meth:`read` method on the config file.
         If the parsed configuration file contains a *parameters*
         section, pass those values to the :class:`argparse.Action`
-        instances created by :meth:`add_param`. Finally, update the
-        config file parameters with the parameters found on the command
-        line and then save the merged parameters as :attr:`params`.
+        instances created by :meth:`cli.app.CommandLineApp.add_param`.
+        Finally, update the config file parameters with the parameters
+        found on the command line and then save the merged parameters as
+        :attr:`cli.app.CommandLineApp.params`.
         """
         # Parse the command line so that the user can specify an
         # alternate config file. If we find a valid config file, we'll
