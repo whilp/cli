@@ -278,7 +278,7 @@ class ConfigApp(LoggingApp):
         check for an If it exists, its value is passed to the
         :class:`argparse.Action` instance. If the action is a
         :class:`argparse._CountAction`, the value should be a integer;
-        for an interger *n*, the action will be called *n* times. For
+        for an integer *n*, the action will be called *n* times. For
         other actions, the value is passed directly to the action.
         """
 
