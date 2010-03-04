@@ -15,20 +15,18 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
+import cli.test
 
 class BaseTest(unittest.TestCase):
     pass
 
-class AppTest(BaseTest):
-    app_cls = None
-
-    def setUp(self):
-        @self.app_cls(exit_after_main=False, argv=[])
-        def app(app):
-            """This is the description."""
-            pass
-        self.app = app
+class AppTest(cli.test.AppTest, BaseTest):
+	pass
 
 class DecoratorTests(object):
 

@@ -70,8 +70,8 @@ class Application(object):
     command line. If *argv* is ``None``, :data:`sys.argv` will be used
     instead.
 
-    *profiler* is a :class:`Profiler` instance. If not ``None``, the
-    profiler will be available to the running application.
+    *profiler* is a :class:`cli.profiler.Profiler` instance. If not
+    ``None``, the profiler will be available to the running application.
 
     In all but a very few cases, subclasses that override the constructor
     should call :meth:`Application.__init__` at the end of the
@@ -290,14 +290,22 @@ class CommandLineApp(Application):
         self.actions[action.dest] = action
         return action
 
-    def update_params(self, **params):
-        """Update the parameter namespace.
+    def update_params(self, params, newparams):
+        """Update a parameter namespace.
 
-        The keys and values in *params* will become the names and values
-        of attributes in the :attr:`params` attribute.
+        The *params* instance will be updated with the names and values
+        from *newparams* and then returned.
+
+        .. versionchanged:: 1.0.2
+            :meth:`update_params` expects and returns
+            :class:`argparse.Namespace` instances; previously, it took
+            keyword arguments and updated :attr:`params` itself. This is
+            now left to the caller.
         """
-        for k, v in params.items():
-            setattr(self.params, k, v)
+        for k, v in vars(newparams).items():
+            setattr(params, k, v)
+
+        return params
 
     def pre_run(self):
         """Parse command line.
@@ -309,4 +317,4 @@ class CommandLineApp(Application):
         """
         super(CommandLineApp, self).pre_run()
         ns = self.argparser.parse_args(self.argv)
-        self.update_params(**vars(ns))
+        self.params = self.update_params(self.params, ns)

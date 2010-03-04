@@ -26,9 +26,6 @@ class TestApplication(DecoratorTests, AppTest):
     def test_discover_name(self):
         self.assertEqual(self.app.name, "app")
 
-    def test_discover_description(self):
-        self.assertEqual(self.app.description, """This is the description.""")
-
     def test_exit(self):
         @self.app_cls
         def app(app):

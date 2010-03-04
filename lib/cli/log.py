@@ -58,8 +58,9 @@ class NullHandler(logging.Handler):
 class CommandLineLogger(logging.Logger):
     """Provide extra configuration smarts for loggers.
 
-    In addition to the powers of a regular logger, a CommandLineLogger can
-    set its verbosity levels based on a populated argparse.Namespace.
+    In addition to the powers of a regular logger, a
+    :class:`CommandLineLogger` can set its verbosity levels based on a
+    populated :class:`argparse.Namespace`.
     """
     default_level = logging.WARN
     """An integer representing the default logging level.
@@ -113,15 +114,21 @@ class LoggingApp(CommandLineApp):
     *message_format* and *date_format* are passed directly to the 
     :class:`CommandLineLogger` and are interpreted as in the 
     :mod:`logging` package.
+
+    If *root* is True, the :class:`LoggingApp` will make itself the root
+    logger. This means that, for example, code that knows nothing about
+    the :class:`LoggingApp` can inherit its verbosity level, formatters
+    and handlers.
     """
 
     def __init__(self, main=None, stream=sys.stdout, logfile=None,
             message_format="%(message)s", 
-            date_format="%(asctime)s %(message)s", **kwargs):
+            date_format="%(asctime)s %(message)s", root=True, **kwargs):
         self.logfile = logfile
         self.stream = stream
         self.message_format = message_format
         self.date_format = date_format
+        self.root = root
         super(LoggingApp, self).__init__(main, **kwargs)
 
     def setup(self):
@@ -135,7 +142,7 @@ class LoggingApp(CommandLineApp):
 
         # Add logging-related options.
         self.add_param("-l", "--logfile", default=self.logfile, 
-                help="log to file (default: log to stdout)", action="count")
+                help="log to file (default: log to stdout)")
         self.add_param("-q", "--quiet", default=0, help="decrease the verbosity",
                 action="count")
         self.add_param("-s", "--silent", default=False, help="only log warnings",
@@ -155,25 +162,31 @@ class LoggingApp(CommandLineApp):
 
         self.log.level = self.log.default_level
 
+        # If requested, make our logger the root.
+        if self.root:
+            logging.Logger.manager.root = self.log
+            logging.Logger.root = self.log
+
     def pre_run(self):
         """Set the verbosity level and configure the logger.
 
-        The application passes the :attr:`params` object to the
-        :class:`CommandLineLogger`'s special :meth:`setLevel` method to
-        set the logger's verbosity and then initializes the logging
-        handlers. If the :attr:`logfile` attribute is not ``None``, it
-        is passed to a :class:`logging.FileHandler` instance and that is
-        added to the handler list. Otherwise, if the :attr:`stream`
-        attribute is not ``None``, it is passed to a
-        :class:`logging.StreamHandler` instance and that becomes the
-        main handler.
+        The application passes the :attr:`params` object
+        to the :class:`CommandLineLogger`'s special
+        :meth:`CommandLineLogger.setLevel` method to set the logger's
+        verbosity and then initializes the logging handlers. If the
+        :attr:`logfile` attribute is not ``None``, it is passed to a
+        :class:`logging.FileHandler` instance and that is added to the
+        handler list. Otherwise, if the :attr:`stream` attribute is
+        not ``None``, it is passed to a :class:`logging.StreamHandler`
+        instance and that becomes the main handler.
+
         """
         super(LoggingApp, self).pre_run()
         self.log.setLevel(self.params)
 
         self.log.handlers = []
-        if self.logfile is not None:
-            file_handler = FileHandler(self.logfile)
+        if self.params.logfile is not None:
+            file_handler = FileHandler(self.params.logfile)
             file_handler.setFormatter(self.formatter) # pragma: no cover
             self.log.addHandler(file_handler)
         elif self.stream is not None:

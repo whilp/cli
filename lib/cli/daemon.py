@@ -32,11 +32,11 @@ __all__ = ["DaemonizingApp"]
 class DaemonizingApp(LoggingApp):
     """A command-line application that knows how to daemonize.
 
-    The :class:`DaemonizingApp` extends the :class:`LoggingApp` (for
-    it's not very helpful to daemonize without being able to log
-    messages somewhere). In addition to those supported by the
-    standard :class:`Application`, :class:`CommandLineApp` and
-    :class:`LoggingApp`, arguments are:
+    The :class:`DaemonizingApp` extends the :class:`cli.log.LoggingApp`
+    (for it's not very helpful to daemonize without being able to log
+    messages somewhere). In addition to those supported by the standard
+    :class:`cli.app.Application`, :class:`cli.app.CommandLineApp` and
+    :class:`cli.log.LoggingApp`, arguments are:
 
     *pidfile* is a string pointing to a file where the application will
     write its process ID after it daemonizes. If it is ``None``, no such
@@ -96,17 +96,17 @@ class DaemonizingApp(LoggingApp):
         os.dup2(so.fileno(), self.stdout.fileno())
         os.dup2(se.fileno(), self.stderr.fileno())
 
-        if self.args.pidfile:
-            self.log.debug("Writing pidfile %s", self.args.pidfile)
-            pidfile = open(self.args.pidfile, 'w')
+        if self.params.pidfile:
+            self.log.debug("Writing pidfile %s", self.params.pidfile)
+            pidfile = open(self.params.pidfile, 'w')
             pidfile.write('%i\n' % os.getpid())
             pidfile.close()
 
-        if self.args.user:
+        if self.params.user:
             import grp
             import pwd
             delim = ':'
-            user, sep, group = self.args.user.partition(delim)
+            user, sep, group = self.params.user.partition(delim)
 
             # If group isn't specified, try to use the username as
             # the group.

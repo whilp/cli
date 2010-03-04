@@ -16,6 +16,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
+import sys
+
 try:
     import cStringIO as StringIO
 except ImportError:
@@ -77,3 +79,34 @@ def fmtsec(seconds):
 
     format += " %ss"
     return format % (seconds, prefix)
+
+def trim(string):
+    """Trim whitespace from strings.
+
+    This implementation is a (nearly) verbatim copy of that proposed in PEP-257:
+
+        http://www.python.org/dev/peps/pep-0257/
+    """
+    if not string:
+        return ''
+    # Convert tabs to spaces (following the normal Python rules)
+    # and split into a list of lines:
+    lines = string.expandtabs().splitlines()
+    # Determine minimum indentation (first line doesn't count):
+    indent = sys.maxint
+    for line in lines[1:]:
+        stripped = line.lstrip()
+        if stripped:
+            indent = min(indent, len(line) - len(stripped))
+    # Remove indentation (first line is special):
+    trimmed = [lines[0].strip()]
+    if indent < sys.maxint:
+        for line in lines[1:]:
+            trimmed.append(line[indent:].rstrip())
+    # Strip off trailing and leading blank lines:
+    while trimmed and not trimmed[-1]:
+        trimmed.pop()
+    while trimmed and not trimmed[0]:
+        trimmed.pop(0)
+    # Return a single string:
+    return '\n'.join(trimmed) + "\n"
