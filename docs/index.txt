@@ -1,19 +1,7 @@
 :mod:`cli` --- command line tools
 =================================
 
-.. module:: cli
-    :synopsis: Command line tools.
-.. moduleauthor:: Will Maier <willmaier@ml1.net>
-.. sectionauthor:: Will Maier <willmaier@ml1.net>
-
-:mod:`cli` provides a suite of tools that simplify the process of
-developing testable, robust and easy-to-use command line applications.
-With :mod:`cli`, your scripts (and larger applications) can use Python's
-extensive standard library to parse configuration files and command line
-parameters, log messages and even daemonize. All of these services are
-made available through the :class:`cli.app.Application` class, an instance of
-which is passed to your script at run time. Even though it is
-featureful, :mod:`cli` is decidedly unmagical.
+.. automodule:: cli
 
 Installing :mod:`cli`
 ---------------------
