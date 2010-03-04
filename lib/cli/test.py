@@ -145,8 +145,8 @@ class FunctionalTest(unittest.TestCase):
         """
         if trim_output:
             stdout, stderr = trim(stdout), trim(stderr)
-        self.assertEqual(result.returncode, returncode,
-            "expected returncode %d, got %d" % (result.returncode, returncode))
+        self.assertEqual(returncode, result.returncode,
+            "expected returncode %d, got %d" % (returncode, result.returncode))
         self.assertEqual(result.stdout, stdout,
             "unexpected output on stdout")
         self.assertEqual(result.stderr, stderr,
