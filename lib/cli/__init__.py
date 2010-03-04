@@ -5,11 +5,11 @@ add standard `command line parsing`_; `logging`_; `unit`_ and
 easier to do the right thing, :mod:`cli` wraps all of these tools into a
 single, consistent application interface.
 
-.. _command line parsing: http://www.python.org/dev/peps/pep-0389/#deprecation-of-optparse
-.. _logging:    http://docs.python.org/library/logging.html
-.. _unit:	http://docs.python.org/library/unittest.html
-.. functional:	http://pythonpaste.org/scripttest/
-.. _profiling:  http://docs.python.org/library/profile.html
+.. _command line parsing:   http://www.python.org/dev/peps/pep-0389/#deprecation-of-optparse
+.. _logging:                http://docs.python.org/library/logging.html
+.. _unit:                   http://docs.python.org/library/unittest.html
+.. _functional:             http://pythonpaste.org/scripttest/
+.. _profiling:              http://docs.python.org/library/profile.html
 """
 
 # pragma: no cover
