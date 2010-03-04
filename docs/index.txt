@@ -202,12 +202,6 @@ is actually being run, so shield it with a conditional::
 This will allow you to import your application and tweak it
 programmatically from another script without actually invoking it.
 
-Command line best practices
----------------------------
-
-Extending :class:`cli.app.Application`
---------------------------------------
-
 API
 ---
 
