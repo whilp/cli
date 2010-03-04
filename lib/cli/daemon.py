@@ -22,6 +22,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
+__todo__ = """\
+ * when daemonized, catch exceptions and write them to app.log
+""".split(" * ")
+
 import os
 import sys
 
