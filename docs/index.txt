@@ -202,6 +202,73 @@ is actually being run, so shield it with a conditional::
 This will allow you to import your application and tweak it
 programmatically from another script without actually invoking it.
 
+Best practices
+--------------
+
+:mod:`cli` is designed to encourage a simple set of best practices in
+script development. Following this simple guide will help you write
+robust, maintainable and user-friendly scripts.
+
+Use a standard style
+++++++++++++++++++++
+
+A standard and clear coding style will make it easier for you to read
+your scripts months or years after you first wrote them. A good style
+will also help other people quickly understand your code so that they
+can use it, too and (hopefully) help you improve it.
+
+Since you're writing your scripts in Python, it is strongly recommended
+that you follow the coding style described in :pep:`8`. This style is
+easy to read and will be recognized by most people familiar with Python.
+
+Modularize
+++++++++++
+
+Monolithic code is hard to read. By breaking your script into functions,
+classes and maybe even separate modules, you help the reader (including
+your future self) navigate the code. Modular code can also be easily
+reused so that you don't have to continually reimplement useful
+functions in all of your scripts.
+
+When writing or refactoring your code to make it more modular, a good
+rule of thumb is to break large functions or methods into chunks that
+fit on a single screen (perhaps up to 50 lines of code or so). These
+chunks are large enough to get the job done but small enough for your
+reader to fully comprehend them.
+
+Share your code
++++++++++++++++
+
+If you've written modular code, you'll find it easy to package it for
+wider distribution. Sharing your code helps other programmers or system
+administrators solve similar problems. Even better, the more users you
+have, the more likely you are to receive support or contributions from
+your community.
+
+Start with the `Hitchhiker's Guide to Packaging`_, which will soon become
+part of the official `Python documentation`_.
+
+.. _Hitchhiker's Guide to Packaging:    http://guide.python-distribute.org/
+.. _Python documentation:       		http://www.python.org/doc/
+
+Test your code
+++++++++++++++
+
+In most cases, you can make your code more robust by adding tests to
+verify specific algorithms or even the macro behavior of the entire
+script. For testing small chunks of your code (unit tests), :mod:`cli`
+provides :class:`cli.test.AppTest`, a :class:`unittest.TestCase`
+with a few customizations to make it more useful for testing
+command line applications. To test larger behavior (functional
+tests), use :class:`cli.test.FunctionalTest`. :mod:`cli` itself
+uses both of these classes for its own tests; for examples, see the
+:file:`tests/functional/` directory shipped with the :mod:`cli` package.
+
+When packaging your scripts, use Titus' `SomePackage`_ as a guide for
+integrating your tests.
+
+.. _SomePackage:    http://github.com/ctb/SomePackage
+
 API
 ---
 
