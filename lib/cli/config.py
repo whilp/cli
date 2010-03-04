@@ -2,6 +2,8 @@
 :mod:`cli.config` -- applications that read config files
 --------------------------------------------------------
 
+.. versionadded:: 1.0.1
+
 The :mod:`cli.config` module provides an application that knows how to
 read a variety of config file formats.
 """

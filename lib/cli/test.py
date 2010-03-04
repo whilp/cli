@@ -2,6 +2,8 @@
 :mod:`cli.test` -- functional and unit test support
 ---------------------------------------------------
 
+.. versionadded:: 1.0.1
+
 This module provides support for easily writing both functional and
 unit tests for your scripts.
 """
