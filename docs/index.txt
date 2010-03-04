@@ -213,6 +213,14 @@ API
 
 .. automodule:: cli.app
     :members:
+    :show-inheritance:
+    :exclude-members: Application
+
+    .. autoclass:: Application
+        :members:
+        :show-inheritance:
+
+        .. automethod:: __call__(main)
 
 .. automodule:: cli.log
     :members:
