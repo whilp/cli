@@ -1,14 +1,10 @@
 """\
- 
-.. moduleauthor:: Will Maier <willmaier@ml1.net>
-.. sectionauthor:: Will Maier <willmaier@ml1.net>
-
-The :mod:`cli` package is a framework for making simple, correct command
-line applications in Python. With :mod:`cli`, you can quickly add
-standard `command line parsing`_; `logging`_; `unit`_ and `functional`_
-testing; `configuration file parsing`_; and `profiling`_ to your CLI
-apps. To make it easier to do the right thing, :mod:`cli` wraps all of
-these tools into a single, consistent application interface.
+The cli package is a framework for making simple, correct command
+line applications in Python. With cli, you can quickly add standard
+`command line parsing`_; `logging`_; `unit`_ and `functional`_ testing;
+`configuration file parsing`_; and `profiling`_ to your CLI apps. To
+make it easier to do the right thing, cli wraps all of these tools into
+a single, consistent application interface.
 
 .. _command line parsing:   http://www.python.org/dev/peps/pep-0389/#deprecation-of-optparse
 .. _logging:                http://docs.python.org/library/logging.html
