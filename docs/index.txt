@@ -224,15 +224,19 @@ API
 
 .. automodule:: cli.log
     :members:
+    :show-inheritance:
 
 .. automodule:: cli.daemon
     :members:
+    :show-inheritance:
 
 .. automodule:: cli.config
     :members:
+    :show-inheritance:
 
 .. automodule:: cli.test
     :members:
+    :show-inheritance:
 
 Testing :mod:`cli`
 ------------------
