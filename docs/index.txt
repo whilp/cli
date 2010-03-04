@@ -230,6 +230,10 @@ API
     :members:
     :show-inheritance:
 
+.. automodule:: cli.profiler
+    :members:
+    :show-inheritance:
+
 .. automodule:: cli.config
     :members:
     :show-inheritance:
