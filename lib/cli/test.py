@@ -90,6 +90,10 @@ class FunctionalTest(unittest.TestCase):
     """
     testdir = None
     scriptdir = None
+    run_kwargs = {
+        "expect_stderr": True,
+        "expect_error": True,
+    }
 
     def setUp(self):
         """Prepare for the functional test.
@@ -125,10 +129,13 @@ class FunctionalTest(unittest.TestCase):
         """Run a test script.
 
         *script* is prepended with the path to :attr:`scriptdir` before
-        it, *args* and *kwargs* are passed to :attr:`env`.
+        it, *args* and *kwargs* are passed to :attr:`env`. Default
+        keyword arguments are specified in :attr:`run_kwargs`.
         """
+        _kwargs = self.run_kwargs.copy()
+        _kwargs.update(kwargs)
         script = os.path.join(self.scriptdir, script)
-        return self.env.run(script, *args, **kwargs)
+        return self.env.run(script, *args, **_kwargs)
 
     def assertScriptDoes(self, result, stdout='', stderr='', returncode=0, trim_output=True):
         """Fail if the result object's stdout, stderr and returncode are unexpected.
