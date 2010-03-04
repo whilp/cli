@@ -23,7 +23,7 @@ from tests.functional import FunctionalTest
 class TestApplication(FunctionalTest):
 
     def test_run(self):
-        result = self.run_script("application -h")
+        result = self.run_script("application")
         self.assertScriptDoes(result, stdout="""\
             This is a basic application
             Its name is 'application'
