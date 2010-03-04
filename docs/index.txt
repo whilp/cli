@@ -232,6 +232,12 @@ API
 .. autoclass:: cli.daemon.DaemonizingApp
     :members:
 
+.. automodule:: cli.config
+    :members:
+
+.. automodule:: cli.test
+    :members:
+
 Testing :class:`cli`
 --------------------
 
