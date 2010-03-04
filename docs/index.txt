@@ -212,24 +212,12 @@ API
 ---
 
 .. automodule:: cli.app
-
-.. autoclass:: cli.app.Application
-    :members:
-
-.. autoclass:: cli.app.CommandLineApp
     :members:
 
 .. automodule:: cli.log
-
-.. autoclass:: cli.log.LoggingApp
-    :members:
-
-.. autoclass:: cli.log.CommandLineLogger
     :members:
 
 .. automodule:: cli.daemon
-
-.. autoclass:: cli.daemon.DaemonizingApp
     :members:
 
 .. automodule:: cli.config
