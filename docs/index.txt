@@ -29,19 +29,9 @@ A quick tour of :mod:`cli`'s features
 
 .. highlight:: python
 
-Command line parsing::
+Command line parsing:
 
-    #!/usr/bin/env python
-    import cli
-
-    @cli.CommandLineApp
-    def ls(app):
-        pass
-    
-    ls.add_param("-l", "--long", help="list in long format", default=False, action="store_true")
-
-    if __name__ == "__main__":
-        ls.run()
+.. literalinclude:: /tests/functional/scripts/ls
 
 .. highlight:: none
 
@@ -56,20 +46,9 @@ When run, this script produces the following output::
 
 .. highlight:: python
 
-Logging::
+Logging:
 
-    #!/usr/bin/env python
-    import time
-    import cli
-    @cli.LoggingApp
-    def sleep(app):
-        app.log.debug("About to sleep for %d seconds" % app.params.seconds)
-        time.sleep(app.params.seconds)
-    
-    sleep.add_param("seconds", help="time to sleep", default=1, type=int)
-
-    if __name__ == "__main__":
-        sleep.run()
+.. literalinclude:: /tests/functional/scripts/sleep
 
 .. highlight:: none
 
@@ -92,18 +71,9 @@ Which produces the following::
 
 .. highlight:: python
 
-Daemonizing::
+Daemonizing:
 
-    #!/usr/bin/env python
-    import cli
-    @cli.DaemonizingApp
-    def daemon(app):
-        if app.params.daemonize:
-            app.log.info("About to daemonize")
-            app.daemonize()
-
-    if __name__ == "__main__":
-        daemon.run()
+.. literalinclude:: /tests/functional/scripts/daemon
 
 .. highlight:: none
 

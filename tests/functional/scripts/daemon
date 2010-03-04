@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+import cli
+
+@cli.DaemonizingApp
+def daemon(app):
+    if app.params.daemonize:
+        app.log.info("About to daemonize")
+        app.daemonize()
+
+if __name__ == "__main__":
+    daemon.run()
