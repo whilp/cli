@@ -32,8 +32,7 @@ try:
 except ImportError:
     import unittest
 
-from scripttest import TestFileEnvironment
-
+from cli.ext import scripttest
 from cli.util import trim
 
 __all__ = ["AppTest", "FunctionalTest"]
@@ -105,7 +104,7 @@ class FunctionalTest(unittest.TestCase):
             self._testdir = mkdtemp(prefix="functests-")
         if not os.path.isdir(self._testdir):
             os.mkdir(self._testdir)
-        self.env = TestFileEnvironment(os.path.join(self._testdir, "scripttest"))
+        self.env = scripttest.TestFileEnvironment(os.path.join(self._testdir, "scripttest"))
 
         addTypeEqualityFunc = getattr(self, "addTypeEqualityFunc", None)
         if callable(addTypeEqualityFunc):
