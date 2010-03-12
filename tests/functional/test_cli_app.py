@@ -32,3 +32,20 @@ class TestApplication(FunctionalTest):
             Its description is:
             None
             And it's done""")
+
+    def test_raises_an_exception(self):
+        result = self.run_script("brokenapp")
+		result.stderr = self.unitrace(result.stderr)
+"""
+Traceback (most recent call last):
+  File "/home/will/share/cli/tests/functional/scripts/brokenapp", line 14, in <module>
+    application.run()
+  File "/home/will/share/cli/lib/cli/app.py", line 202, in run
+    returned = self.main(self)
+  File "/home/will/share/cli/tests/functional/scripts/brokenapp", line 10, in application
+    whoops = 1/0
+ZeroDivisionError: integer division or modulo by zero
+"""
+        self.assertScriptDoes(result, returncode=1, stdout="""\
+            This is a broken application
+            What happens if we divide 1 by 0?""")
