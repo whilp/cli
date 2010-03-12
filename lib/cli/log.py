@@ -153,12 +153,7 @@ class LoggingApp(CommandLineApp):
         # Create logger.
         logging.setLoggerClass(CommandLineLogger)
         self.log = logging.getLogger(self.name)
-
-        # Create formatters.
-        message_formatter = Formatter(self.message_format)
-        date_formatter = Formatter(self.date_format)
-        verbose_formatter = Formatter()
-        self.formatter = message_formatter
+        self.formatter = Formatter(fmt=self.message_format, datefmt=self.date_format)
 
         self.log.level = self.log.default_level
 
