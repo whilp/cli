@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+
+import cli
+
+@cli.Application
+def application(app):
+    write = lambda msg: app.stdout.write(str(msg) + "\n")
+    write("This is a broken application")
+    write("What happens if we divide 1 by 0?")
+    whoops = 1/0
+    write("Ooops!")
+
+if __name__ == "__main__":
+    application.run()
