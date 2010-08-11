@@ -31,7 +31,7 @@ import sys
 
 __all__ = ["DaemonizingMixin"]
 
-class DaemonizingApp(object):
+class DaemonizingMixin(object):
     """A command-line application that knows how to daemonize.
 
     The :class:`DaemonizingMixin` requires the :class:`cli.log.LoggingMixin`
@@ -58,7 +58,7 @@ class DaemonizingApp(object):
         self.null = null
 
     def setup(self):
-        """Configure the :class:`DaemonizingApp`.
+        """Configure the :class:`DaemonizingMixin`.
 
         This method adds the :option:`-d`, :option:`u`,
         and :option:`-p` parameters to the application.
