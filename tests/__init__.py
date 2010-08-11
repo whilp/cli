@@ -26,7 +26,7 @@ class BaseTest(unittest.TestCase):
     pass
 
 class AppTest(cli.test.AppTest, BaseTest):
-	pass
+    pass
 
 class DecoratorTests(object):
 
