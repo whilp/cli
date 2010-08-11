@@ -223,7 +223,7 @@ class ArgumentParser(argparse.ArgumentParser):
             file = self.file
         super(ArgumentParser, self)._print_message(message, file)
 
-class CommandLineApp(Application):
+class CommandLineMixin(object):
     """A command line application.
 
     Command line applications extend the basic :class:`Application`
@@ -253,13 +253,11 @@ class CommandLineApp(Application):
     relied upon.
     """
 
-    def __init__(self, main=None, usage=None, epilog=None, **kwargs):
+    def __init__(self, usage=None, epilog=None, **kwargs):
         self.usage = usage
         self.epilog = epilog
         self.actions = {}
         self.params = argparse.Namespace()
-
-        super(CommandLineApp, self).__init__(main, **kwargs)
 
     def setup(self):
         """Configure the :class:`CommandLineApp`.
@@ -269,7 +267,6 @@ class CommandLineApp(Application):
         (:option:`-V`, to avoid clashing with :option:`-v`
         verbose).
         """
-        super(CommandLineApp, self).setup()
         self.argparser = self.argparser_factory(
             prog=self.name,
             usage=self.usage,
@@ -323,6 +320,5 @@ class CommandLineApp(Application):
         :meth:`argparse.ArgumentParser.parse_args`. The results are
         stored in :attr:`params`.
         """
-        super(CommandLineApp, self).pre_run()
         ns = self.argparser.parse_args(self.argv)
         self.params = self.update_params(self.params, ns)
