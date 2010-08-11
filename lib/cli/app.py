@@ -36,7 +36,7 @@ import sys
 from cli.ext import argparse
 from cli.profiler import Profiler
 
-__all__ = ["Application", "CommandLineMixin"]
+__all__ = ["Application", "CommandLineApp", "CommandLineMixin"]
 
 class Application(object):
     """An application.
@@ -322,3 +322,6 @@ class CommandLineMixin(object):
         """
         ns = self.argparser.parse_args(self.argv)
         self.params = self.update_params(self.params, ns)
+
+class CommandLineApp(CommandLineMixin, Application):
+    pass
