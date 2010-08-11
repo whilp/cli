@@ -324,4 +324,11 @@ class CommandLineMixin(object):
         self.params = self.update_params(self.params, ns)
 
 class CommandLineApp(CommandLineMixin, Application):
-    pass
+    
+    def __init__(self, main=None, **kwargs):
+        CommandLineMixin.__init__(self, **kwargs)
+        Application.__init__(self, main, **kwargs)
+
+    def setup(self):
+        Application.setup(self)
+        CommandLineMixin.setup(self)
