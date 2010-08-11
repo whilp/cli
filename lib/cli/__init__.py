@@ -61,11 +61,3 @@ __todo__ = """\
     * more tests
     * add Windows registry/OS X plist support (sekhmet)
 """
-
-# Import API-level elements.
-from cli.app import *
-from cli.daemon import *
-from cli.log import *
-from cli.config import *
-from cli.test import *
-
