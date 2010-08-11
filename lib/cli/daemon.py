@@ -29,6 +29,9 @@ __todo__ = """\
 import os
 import sys
 
+from cli.app import CommandLineApp, CommandLineMixin, Application
+from cli.log import LoggingMixin
+
 __all__ = ["DaemonizingMixin"]
 
 class DaemonizingMixin(object):
@@ -118,3 +121,23 @@ class DaemonizingMixin(object):
         os.chdir(self.chdir)
 
         return True
+
+class DaemonizingApp(
+    DaemonizingMixin, LoggingMixin, CommandLineMixin, Application):
+
+    def __init__(self, main=None, **kwargs):
+        DaemonizingMixin.__init__(self, **kwargs)
+        LoggingMixin.__init__(self, **kwargs)
+        CommandLineMixin.__init__(self, **kwargs)
+        Application.__init__(self, main, **kwargs)
+
+    def setup(self):
+        Application.setup(self)
+        CommandLineMixin.setup(self)
+        LoggingMixin.setup(self)
+        DaemonizingMixin.setup(self)
+
+    def pre_run(self):
+        Application.pre_run(self)
+        CommandLineMixin.pre_run(self)
+        LoggingMixin.pre_run(self)
