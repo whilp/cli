@@ -27,7 +27,7 @@ import sys
 
 from logging import Formatter, StreamHandler
 
-from cli.app import Application, CommandLineMixin
+from cli.app import CommandLineApp, CommandLineMixin, Application
 
 __all__ = ["LoggingApp", "LoggingMixin", "CommandLineLogger"]
 
@@ -194,5 +194,18 @@ class LoggingMixin(object):
         if not self.log.handlers:
             self.log.addHandler(NullHandler())
 
-class LoggingApp(CommandLineMixin, LoggingMixin, Application):
-    pass
+class LoggingApp(LoggingMixin, CommandLineMixin, Application):
+    
+    def __init__(self, main=None, **kwargs):
+        CommandLineMixin.__init__(self, **kwargs)
+        LoggingMixin.__init__(self, **kwargs)
+        Application.__init__(self, main, **kwargs)
+
+    def setup(self):
+        Application.setup(self)
+        CommandLineMixin.setup(self)
+        LoggingMixin.setup(self)
+
+    def pre_run(self):
+        CommandLineMixin.pre_run(self)
+        LoggingMixin.pre_run(self)
