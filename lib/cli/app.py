@@ -260,7 +260,7 @@ class CommandLineMixin(object):
         self.params = argparse.Namespace()
 
     def setup(self):
-        """Configure the :class:`CommandLineApp`.
+        """Configure the :class:`CommandLineMixin`.
 
         During setup, the application instantiates the
         :class:`argparse.ArgumentParser` and adds a version parameter
@@ -315,7 +315,7 @@ class CommandLineMixin(object):
     def pre_run(self):
         """Parse command line.
 
-        During :meth:`pre_run`, :class:`CommandLineApp`
+        During :meth:`pre_run`, :class:`CommandLineMixin`
         passes the application's :attr:`argv` attribute to
         :meth:`argparse.ArgumentParser.parse_args`. The results are
         stored in :attr:`params`.
