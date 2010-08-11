@@ -33,7 +33,7 @@ class TestCommandLineLogger(BaseTest):
         self.fakens.silent = False
         self.fakens.quiet = 0
 
-		# The logger should start at 0.
+        # The logger should start at 0.
         self.assertEqual(self.logger.level, 0)
 
 		# Given the default input, it should be set to WARNING.
