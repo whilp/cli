@@ -89,7 +89,7 @@ class Application(object):
 
     def __init__(self, main=None, name=None, exit_after_main=True, stdin=None, stdout=None,
             stderr=None, version=None, description=None, argv=None,
-            profiler=None):
+            profiler=None, **kwargs):
         self._name = name
         self.exit_after_main = exit_after_main
         self.stdin = stdin and stdin or sys.stdin
