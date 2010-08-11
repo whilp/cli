@@ -15,7 +15,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.app import Application, CommandLineApp
+from cli.app import Application
 from cli.util import StringIO
 
 from tests.functional import FunctionalTest
@@ -35,17 +35,7 @@ class TestApplication(FunctionalTest):
 
     def test_raises_an_exception(self):
         result = self.run_script("brokenapp")
-		result.stderr = self.unitrace(result.stderr)
-"""
-Traceback (most recent call last):
-  File "/home/will/share/cli/tests/functional/scripts/brokenapp", line 14, in <module>
-    application.run()
-  File "/home/will/share/cli/lib/cli/app.py", line 202, in run
-    returned = self.main(self)
-  File "/home/will/share/cli/tests/functional/scripts/brokenapp", line 10, in application
-    whoops = 1/0
-ZeroDivisionError: integer division or modulo by zero
-"""
+        result.stderr = self.unitrace(result.stderr)
         self.assertScriptDoes(result, returncode=1, stdout="""\
             This is a broken application
             What happens if we divide 1 by 0?""")
