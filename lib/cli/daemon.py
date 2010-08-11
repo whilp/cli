@@ -29,18 +29,16 @@ __todo__ = """\
 import os
 import sys
 
-from cli.log import LoggingApp
+__all__ = ["DaemonizingMixin"]
 
-__all__ = ["DaemonizingApp"]
-
-class DaemonizingApp(LoggingApp):
+class DaemonizingApp(object):
     """A command-line application that knows how to daemonize.
 
-    The :class:`DaemonizingApp` extends the :class:`cli.log.LoggingApp`
+    The :class:`DaemonizingMixin` requires the :class:`cli.log.LoggingMixin`
     (for it's not very helpful to daemonize without being able to log
     messages somewhere). In addition to those supported by the standard
-    :class:`cli.app.Application`, :class:`cli.app.CommandLineApp` and
-    :class:`cli.log.LoggingApp`, arguments are:
+    :class:`cli.app.Application`, :class:`cli.app.CommandLineMixin` and
+    :class:`cli.log.LoggingMixin`, arguments are:
 
     *pidfile* is a string pointing to a file where the application will
     write its process ID after it daemonizes. If it is ``None``, no such
@@ -54,12 +52,10 @@ class DaemonizingApp(LoggingApp):
     default, this :data:`os.path.devnull`.
     """
 
-    def __init__(self, main=None, pidfile=None,
-            chdir='/', null=os.path.devnull, **kwargs):
+    def __init__(self, pidfile=None, chdir='/', null=os.path.devnull, **kwargs):
         self.pidfile = pidfile
         self.chdir = chdir
         self.null = null
-        super(DaemonizingApp, self).__init__(main, **kwargs)
 
     def setup(self):
         """Configure the :class:`DaemonizingApp`.
@@ -67,8 +63,6 @@ class DaemonizingApp(LoggingApp):
         This method adds the :option:`-d`, :option:`u`,
         and :option:`-p` parameters to the application.
         """
-        super(DaemonizingApp, self).setup()
-
         # Add daemonizing options.
         self.add_param("-d", "--daemonize", default=False, action="store_true",
                 help="run the application in the background")
@@ -124,4 +118,3 @@ class DaemonizingApp(LoggingApp):
         os.chdir(self.chdir)
 
         return True
-
