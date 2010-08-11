@@ -27,7 +27,9 @@ import sys
 
 from logging import Formatter, StreamHandler
 
-__all__ = ["LoggingMixin", "CommandLineLogger"]
+from cli.app import Application, CommandLineMixin
+
+__all__ = ["LoggingApp", "LoggingMixin", "CommandLineLogger"]
 
 # Silence multiprocessing errors.
 logging.logMultiprocessing = 0
@@ -191,3 +193,6 @@ class LoggingMixin(object):
         # The null handler simply drops all messages.
         if not self.log.handlers:
             self.log.addHandler(NullHandler())
+
+class LoggingApp(CommandLineMixin, LoggingMixin, Application):
+    pass
