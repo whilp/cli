@@ -36,7 +36,7 @@ import sys
 from cli.ext import argparse
 from cli.profiler import Profiler
 
-__all__ = ["Application", "CommandLineApp"]
+__all__ = ["Application", "CommandLineMixin"]
 
 class Application(object):
     """An application.
