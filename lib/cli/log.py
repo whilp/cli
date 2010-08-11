@@ -207,5 +207,6 @@ class LoggingApp(LoggingMixin, CommandLineMixin, Application):
         LoggingMixin.setup(self)
 
     def pre_run(self):
+        Application.pre_run(self)
         CommandLineMixin.pre_run(self)
         LoggingMixin.pre_run(self)
