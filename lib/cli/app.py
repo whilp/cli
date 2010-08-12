@@ -38,6 +38,16 @@ from cli.profiler import Profiler
 
 __all__ = ["Application", "CommandLineApp", "CommandLineMixin"]
 
+class Error(Exception):
+    pass
+
+class Abort(Error):
+
+    def __init__(self, status):
+        self.status = status
+        message = "Application terminated (%s)" % self.status
+        super(Abort, self).__init__(message, self.status)
+
 class Application(object):
     """An application.
     
@@ -207,7 +217,10 @@ class Application(object):
         """
         self.pre_run()
 
-        returned = self.main(self)
+        try:
+            returned = self.main(self)
+        except Abort, e:
+            returned = e.status
 
         return self.post_run(returned)
 
