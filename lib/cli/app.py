@@ -115,6 +115,8 @@ class Application(object):
 
         if main is not None:
             self.main = main
+
+        if getattr(self, "main", None) is not None:
             self.setup()
 
     def __call__(self, main):
@@ -217,8 +219,11 @@ class Application(object):
         """
         self.pre_run()
 
+        args = (self,)
+        if isinstance(getattr(self.main, "im_self", None), self.__class__):
+            args = ()
         try:
-            returned = self.main(self)
+            returned = self.main(*args)
         except Abort, e:
             returned = e.status
 
