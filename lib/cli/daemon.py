@@ -32,7 +32,7 @@ import sys
 from cli.app import CommandLineApp, CommandLineMixin, Application
 from cli.log import LoggingMixin
 
-__all__ = ["DaemonizingMixin"]
+__all__ = ["DaemonizingApp", "DaemonizingMixin"]
 
 class DaemonizingMixin(object):
     """A command-line application that knows how to daemonize.
@@ -124,6 +124,12 @@ class DaemonizingMixin(object):
 
 class DaemonizingApp(
     DaemonizingMixin, LoggingMixin, CommandLineMixin, Application):
+    """A daemonizing application.
+
+    This class simply glues together the base :class:`Application`,
+    :class:`DaemonizingMixin` and other mixins that provide necessary
+    functionality.
+    """
 
     def __init__(self, main=None, **kwargs):
         DaemonizingMixin.__init__(self, **kwargs)

@@ -195,6 +195,11 @@ class LoggingMixin(object):
             self.log.addHandler(NullHandler())
 
 class LoggingApp(LoggingMixin, CommandLineMixin, Application):
+    """A logging application.
+
+    This class simply glues together the base :class:`Application`,
+    :class:`LoggingMixin` and other mixins that provide necessary functionality.
+    """
     
     def __init__(self, main=None, **kwargs):
         CommandLineMixin.__init__(self, **kwargs)

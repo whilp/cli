@@ -42,6 +42,11 @@ class Error(Exception):
     pass
 
 class Abort(Error):
+    """Raised when an application exits unexpectedly.
+
+    :class:`Abort` takes a single integer argument indicating the exit status of
+    the application.
+    """
 
     def __init__(self, status):
         self.status = status
@@ -342,6 +347,11 @@ class CommandLineMixin(object):
         self.params = self.update_params(self.params, ns)
 
 class CommandLineApp(CommandLineMixin, Application):
+    """A command line application.
+
+    This class simply glues together the base :class:`Application` and
+    :class:`CommandLineMixin`.
+    """
     
     def __init__(self, main=None, **kwargs):
         CommandLineMixin.__init__(self, **kwargs)
