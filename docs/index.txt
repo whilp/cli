@@ -55,17 +55,18 @@ Logging:
 Which produces the following::
 
     $ python sleep.py -h
-    usage: sleep [-h] [-l] [-q] [-s] [-v] seconds
+    usage: sleep [-h] [-l LOGFILE] [-q] [-s] [-v] seconds
 
     positional arguments:
-      seconds        time to sleep
+      seconds               time to sleep
 
     optional arguments:
-      -h, --help     show this help message and exit
-      -l, --logfile  log to file (default: log to stdout)
-      -q, --quiet    decrease the verbosity
-      -s, --silent   only log warnings
-      -v, --verbose  raise the verbosity
+      -h, --help            show this help message and exit
+      -l LOGFILE, --logfile LOGFILE
+                            log to file (default: log to stdout)
+      -q, --quiet           decrease the verbosity
+      -s, --silent          only log warnings
+      -v, --verbose         raise the verbosity
     $ python sleep.py -vv 3
     About to sleep for 3 seconds
 
@@ -80,11 +81,12 @@ Daemonizing:
 And on the command line::
 
     $ python daemon.py -h
-    usage: daemon [-h] [-l] [-q] [-s] [-v] [-d] [-u USER] [-p PIDFILE]
+    usage: daemon [-h] [-l LOGFILE] [-q] [-s] [-v] [-d] [-u USER] [-p PIDFILE]
 
     optional arguments:
       -h, --help            show this help message and exit
-      -l, --logfile         log to file (default: log to stdout)
+      -l LOGFILE, --logfile LOGFILE
+                            log to file (default: log to stdout)
       -q, --quiet           decrease the verbosity
       -s, --silent          only log warnings
       -v, --verbose         raise the verbosity
