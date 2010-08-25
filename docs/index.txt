@@ -272,10 +272,6 @@ API
     :members:
     :show-inheritance:
 
-.. automodule:: cli.config
-    :members:
-    :show-inheritance:
-
 .. automodule:: cli.test
     :members:
     :show-inheritance:
