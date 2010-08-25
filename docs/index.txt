@@ -119,14 +119,14 @@ You can wrap the callable in one of two ways. First,
 :class:`cli.app.Application` can be thought of as a decorator (see :pep:`318`
 for more information). For example::
 
-    @cli.Application
+    @cli.app.Application
     def yourapp(app):
         do_stuff()
 
 If you need to pass keyword arguments to the application, you can still
 use the decorator pattern::
 
-    @cli.CommandLineApp(argv=["-v"])
+    @cli.app.CommandLineApp(argv=["-v"])
     def yourapp(app):
         do_stuff()
 
@@ -137,14 +137,25 @@ you can also simply pass your application callable to the
     def yourapp(app):
         do_stuff()
 
-    yourapp = cli.CommandLineApp(yourapp)
+    yourapp = cli.app.CommandLineApp(yourapp)
+
+Some more complex scripts and applications may benefit from subclassing the
+:class:`cli.app.Application` class itself. This approach can help make your 
+code more reusable::
+
+    class YourApp(cli.app.CommandLineApp):
+        
+        def main(self):
+            do_stuff()
 
 Most of the supplied :class:`cli.app.Application` implementations support
 parameters. Parameters determine how your users interact with your
 program on the command line. To add parameters to your application, call
-:meth:`add_param` after you've wrapped your callable::
+:meth:`add_param` after you've wrapped your callable (or in its :meth:`setup`
+method)::
 
-    yourapp.add_param("-v", "--verbose", help="increase the verbosity", default=0, action="count")
+    yourapp.add_param("-v", "--verbose", default=0, action="count",
+        help="increase the verbosity", )
 
 The interface here is the same as that implemented by
 :class:`argparse.ArgumentParser`. In this case, an :attr:`verbose`
