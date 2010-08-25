@@ -12,17 +12,17 @@ You can install the latest stable version of :mod:`cli` using :command:`pip`::
     
     $ pip install pyCLI
 
-You can also browse the project's `Mercurial`_ `repository`_. If you'd
-like to contribute changes, start by cloning the repository::
+Public repositories for the project are hosted at `github`_ and `bitbucket`_, so
+you can use either `git`_ or `Mercurial`_ to get a copy of the project's code
+and history::
+	
+	$ hg clone http://bitbucket.org/lt_kije/cli
+	$ git clone git://github.com/wcmaier/cli.git
 
-    $ hg clone http://code.lfod.us/cli
-
+.. _github:		http://github.com/wcmaier/cli
+.. _bitbucket:	http://bitbucket.org/lt_kije/cli
+.. _git:		http://git-scm.com/
 .. _Mercurial:  http://mercurial.selenic.com/
-.. _repository: http://code.lfod.us/cli
-
-You can also follow the project's `changelog`_.
-
-.. _changelog:  http://code.lfod.us/cli/log
 
 A quick tour of :mod:`cli`'s features
 -------------------------------------
