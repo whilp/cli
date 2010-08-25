@@ -148,6 +148,12 @@ code more reusable::
         def main(self):
             do_stuff()
 
+When subclassing :class:`cli.app.Application`, you'll likely want to incorporate
+functionality from the other application classes (like
+:class:`cli.app.CommandLineApp`). To do this, simply call methods from the
+appropriate mixin classes (like :class:`cli.app.CommandLineMixin`) -- in fact,
+this is how the application classes themselves work.
+
 Most of the supplied :class:`cli.app.Application` implementations support
 parameters. Parameters determine how your users interact with your
 program on the command line. To add parameters to your application, call
