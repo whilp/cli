@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import time
-import cli
+import cli.log
 
-@cli.LoggingApp
+@cli.log.LoggingApp
 def sleep(app):
     app.log.debug("About to sleep for %d seconds" % app.params.seconds)
     time.sleep(app.params.seconds)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import cli
+import cli.app
 
-@cli.CommandLineApp
+@cli.app.CommandLineApp
 def ls(app):
     pass
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import cli
+import cli.daemon
 
-@cli.DaemonizingApp
+@cli.daemon.DaemonizingApp
 def daemon(app):
     if app.params.daemonize:
         app.log.info("About to daemonize")
