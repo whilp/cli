@@ -129,6 +129,10 @@ class DaemonizingApp(
     This class simply glues together the base :class:`Application`,
     :class:`DaemonizingMixin` and other mixins that provide necessary
     functionality.
+
+    .. versionchanged:: 1.0.4
+
+    Actual functionality moved to :class:`DaemonizingMixin`.
     """
 
     def __init__(self, main=None, **kwargs):

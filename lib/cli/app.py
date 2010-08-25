@@ -46,6 +46,8 @@ class Abort(Error):
 
     :class:`Abort` takes a single integer argument indicating the exit status of
     the application.
+
+    .. versionadded:: 1.0.4
     """
 
     def __init__(self, status):
@@ -351,6 +353,10 @@ class CommandLineApp(CommandLineMixin, Application):
 
     This class simply glues together the base :class:`Application` and
     :class:`CommandLineMixin`.
+
+    .. versionchanged: 1.0.4
+
+    Actual functionality moved to :class:`CommandLineMixin`.
     """
     
     def __init__(self, main=None, **kwargs):

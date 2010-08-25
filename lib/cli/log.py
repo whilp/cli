@@ -199,6 +199,10 @@ class LoggingApp(LoggingMixin, CommandLineMixin, Application):
 
     This class simply glues together the base :class:`Application`,
     :class:`LoggingMixin` and other mixins that provide necessary functionality.
+
+    .. versionchanged:: 1.0.4
+
+    Actual functionality moved to :class:`LoggingMixin`.
     """
     
     def __init__(self, main=None, **kwargs):
