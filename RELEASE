@@ -1,0 +1,8 @@
+Release checklist
+=================
+
+ 1. hg up stable
+ 2. hg merge default; hg ci -m "Merge stable."
+ 3. <increment cli.__version__>
+ 4. hg tag vN.N.N
+ 5. hg up default; hack...
