@@ -26,7 +26,7 @@ class BaseTest(unittest.TestCase):
     pass
 
 class AppTest(cli.test.AppTest, BaseTest):
-	pass
+    pass
 
 class DecoratorTests(object):
 
@@ -57,3 +57,19 @@ class DecoratorTests(object):
         setattr(foo, "__name__", "foo")
 
         self.assertEqual(foo.name, "foo")
+    
+    def test_subclass(self):
+        cls = self.app_cls
+        class Test(cls):
+            
+            def __init__(self, main=None, **kwargs):
+                cls.__init__(self, main, **kwargs)
+                self.exit_after_main = False
+
+            def pre_run(self):
+                # Skip things like CLI parsing...
+                pass
+            
+            def main(self):
+                return 0
+        self.assertEqual(Test().run(), 0)

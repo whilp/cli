@@ -23,13 +23,37 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
+__todo__ = """\
+ * handle exceptions?
+    http://blog.bstpierre.org/python-exception-handling-cleanup-and-reraise
+    http://blog.ianbicking.org/2007/09/12/re-raising-exceptions/
+    http://www.doughellmann.com/articles/how-tos/python-exception-handling/index.html
+""".split(" * ")
+
 import os
 import sys
 
 from cli.ext import argparse
 from cli.profiler import Profiler
 
-__all__ = ["Application", "CommandLineApp"]
+__all__ = ["Application", "CommandLineApp", "CommandLineMixin"]
+
+class Error(Exception):
+    pass
+
+class Abort(Error):
+    """Raised when an application exits unexpectedly.
+
+    :class:`Abort` takes a single integer argument indicating the exit status of
+    the application.
+
+    .. versionadded:: 1.0.4
+    """
+
+    def __init__(self, status):
+        self.status = status
+        message = "Application terminated (%s)" % self.status
+        super(Abort, self).__init__(message, self.status)
 
 class Application(object):
     """An application.
@@ -78,11 +102,11 @@ class Application(object):
     overridden method to ensure that the :meth:`setup` method is
     called.
     """
+    main = None
 
     def __init__(self, main=None, name=None, exit_after_main=True, stdin=None, stdout=None,
             stderr=None, version=None, description=None, argv=None,
-            profiler=None):
-        self.main = main
+            profiler=None, **kwargs):
         self._name = name
         self.exit_after_main = exit_after_main
         self.stdin = stdin and stdin or sys.stdin
@@ -97,6 +121,9 @@ class Application(object):
             self.profiler = Profiler(self.stderr, anonymous=True)
 
         if main is not None:
+            self.main = main
+
+        if getattr(self, "main", None) is not None:
             self.setup()
 
     def __call__(self, main):
@@ -199,7 +226,13 @@ class Application(object):
         """
         self.pre_run()
 
-        returned = self.main(self)
+        args = (self,)
+        if isinstance(getattr(self.main, "im_self", None), self.__class__):
+            args = ()
+        try:
+            returned = self.main(*args)
+        except Abort, e:
+            returned = e.status
 
         return self.post_run(returned)
 
@@ -215,7 +248,7 @@ class ArgumentParser(argparse.ArgumentParser):
             file = self.file
         super(ArgumentParser, self)._print_message(message, file)
 
-class CommandLineApp(Application):
+class CommandLineMixin(object):
     """A command line application.
 
     Command line applications extend the basic :class:`Application`
@@ -245,23 +278,20 @@ class CommandLineApp(Application):
     relied upon.
     """
 
-    def __init__(self, main=None, usage=None, epilog=None, **kwargs):
+    def __init__(self, usage=None, epilog=None, **kwargs):
         self.usage = usage
         self.epilog = epilog
         self.actions = {}
         self.params = argparse.Namespace()
 
-        super(CommandLineApp, self).__init__(main, **kwargs)
-
     def setup(self):
-        """Configure the :class:`CommandLineApp`.
+        """Configure the :class:`CommandLineMixin`.
 
         During setup, the application instantiates the
         :class:`argparse.ArgumentParser` and adds a version parameter
         (:option:`-V`, to avoid clashing with :option:`-v`
         verbose).
         """
-        super(CommandLineApp, self).setup()
         self.argparser = self.argparser_factory(
             prog=self.name,
             usage=self.usage,
@@ -310,11 +340,29 @@ class CommandLineApp(Application):
     def pre_run(self):
         """Parse command line.
 
-        During :meth:`pre_run`, :class:`CommandLineApp`
+        During :meth:`pre_run`, :class:`CommandLineMixin`
         passes the application's :attr:`argv` attribute to
         :meth:`argparse.ArgumentParser.parse_args`. The results are
         stored in :attr:`params`.
         """
-        super(CommandLineApp, self).pre_run()
         ns = self.argparser.parse_args(self.argv)
         self.params = self.update_params(self.params, ns)
+
+class CommandLineApp(CommandLineMixin, Application):
+    """A command line application.
+
+    This class simply glues together the base :class:`Application` and
+    :class:`CommandLineMixin`.
+
+    .. versionchanged: 1.0.4
+
+    Actual functionality moved to :class:`CommandLineMixin`.
+    """
+    
+    def __init__(self, main=None, **kwargs):
+        CommandLineMixin.__init__(self, **kwargs)
+        Application.__init__(self, main, **kwargs)
+
+    def setup(self):
+        Application.setup(self)
+        CommandLineMixin.setup(self)

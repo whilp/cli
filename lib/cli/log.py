@@ -27,9 +27,9 @@ import sys
 
 from logging import Formatter, StreamHandler
 
-from cli.app import CommandLineApp
+from cli.app import CommandLineApp, CommandLineMixin, Application
 
-__all__ = ["LoggingApp", "CommandLineLogger"]
+__all__ = ["LoggingApp", "LoggingMixin", "CommandLineLogger"]
 
 # Silence multiprocessing errors.
 logging.logMultiprocessing = 0
@@ -96,13 +96,13 @@ class CommandLineLogger(logging.Logger):
 
         self.level = level
 
-class LoggingApp(CommandLineApp):
-    """A command-line application that knows how to log.
+class LoggingMixin(object):
+    """A mixin for command-line applications that knows how to log.
 
-    The :class:`LoggingApp` further extends the :class:`cli.app.CommandLineApp`,
-    allowing command line configuration of the application logger. In
+    The :class:`LoggingMixin` requires :class:`cli.app.CommandLineMixin`
+    and allows command line configuration of the application logger. In
     addition to those supported by the standard :class:`cli.app.Application` and
-    :class:`cli.app.CommandLineApp`, arguments are:
+    :class:`cli.app.CommandLineMixin`, arguments are:
 
     *stream* is an open file object to which the log messages will be
     written. By default, this is standard output (not standard error, as
@@ -115,13 +115,13 @@ class LoggingApp(CommandLineApp):
     :class:`CommandLineLogger` and are interpreted as in the 
     :mod:`logging` package.
 
-    If *root* is True, the :class:`LoggingApp` will make itself the root
+    If *root* is True, the :class:`LoggingMixin` will make itself the root
     logger. This means that, for example, code that knows nothing about
-    the :class:`LoggingApp` can inherit its verbosity level, formatters
+    the :class:`LoggingMixin` can inherit its verbosity level, formatters
     and handlers.
     """
 
-    def __init__(self, main=None, stream=sys.stdout, logfile=None,
+    def __init__(self, stream=sys.stdout, logfile=None,
             message_format="%(message)s", 
             date_format="%(asctime)s %(message)s", root=True, **kwargs):
         self.logfile = logfile
@@ -129,17 +129,14 @@ class LoggingApp(CommandLineApp):
         self.message_format = message_format
         self.date_format = date_format
         self.root = root
-        super(LoggingApp, self).__init__(main, **kwargs)
 
     def setup(self):
-        """Configure the :class:`LoggingApp`.
+        """Configure the :class:`LoggingMixin`.
 
         This method adds the :option:`-l`, :option:`q`,
         :option:`-s` and :option:`-v` parameters to the
         application and instantiates the :attr:`log` attribute.
         """
-        super(LoggingApp, self).setup()
-
         # Add logging-related options.
         self.add_param("-l", "--logfile", default=self.logfile, 
                 help="log to file (default: log to stdout)")
@@ -175,7 +172,6 @@ class LoggingApp(CommandLineApp):
         instance and that becomes the main handler.
 
         """
-        super(LoggingApp, self).pre_run()
         self.log.setLevel(self.params)
 
         self.log.handlers = []
@@ -191,3 +187,29 @@ class LoggingApp(CommandLineApp):
         # The null handler simply drops all messages.
         if not self.log.handlers:
             self.log.addHandler(NullHandler())
+
+class LoggingApp(LoggingMixin, CommandLineMixin, Application):
+    """A logging application.
+
+    This class simply glues together the base :class:`Application`,
+    :class:`LoggingMixin` and other mixins that provide necessary functionality.
+
+    .. versionchanged:: 1.0.4
+
+    Actual functionality moved to :class:`LoggingMixin`.
+    """
+    
+    def __init__(self, main=None, **kwargs):
+        CommandLineMixin.__init__(self, **kwargs)
+        LoggingMixin.__init__(self, **kwargs)
+        Application.__init__(self, main, **kwargs)
+
+    def setup(self):
+        Application.setup(self)
+        CommandLineMixin.setup(self)
+        LoggingMixin.setup(self)
+
+    def pre_run(self):
+        Application.pre_run(self)
+        CommandLineMixin.pre_run(self)
+        LoggingMixin.pre_run(self)

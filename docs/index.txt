@@ -12,36 +12,41 @@ You can install the latest stable version of :mod:`cli` using :command:`pip`::
     
     $ pip install pyCLI
 
-You can also browse the project's `Mercurial`_ `repository`_. If you'd
-like to contribute changes, start by cloning the repository::
+Public repositories for the project are hosted at `github`_ and `bitbucket`_, so
+you can use either `git`_ or `Mercurial`_ to get a copy of the project's code
+and history::
+    
+    $ hg clone http://bitbucket.org/wcmaier/cli
+    $ git clone git://github.com/wcmaier/cli.git
 
-    $ hg clone http://code.lfod.us/cli
-
+.. _github:     http://github.com/wcmaier/cli
+.. _bitbucket:  http://bitbucket.org/wcmaier/cli
+.. _git:        http://git-scm.com/
 .. _Mercurial:  http://mercurial.selenic.com/
-.. _repository: http://code.lfod.us/cli
 
-You can also follow the project's `changelog`_.
+If you notice a problem with :mod:`cli`, please report it using the github
+`issue tracker`_ (or, if you have a fix, send a `pull request`_).
 
-.. _changelog:  http://code.lfod.us/cli/log
+.. _issue tracker:  http://github.com/wcmaier/cli/issues
+.. _pull request:   http://github.com/wcmaier/cli/pull/new/master
+
+A note about versions
++++++++++++++++++++++
+
+:mod:`cli` is developed along two branches. The first, 'default' (or 'master' in
+git) contains new features and possible bugs -- this branch is the active
+development branch. The second, 'stable', contains releases both major and minor
+as well as bugfixes. If you'd like to help improve :mod:`cli`, take a look at
+default/master. Otherwise, stick with stable.
 
 A quick tour of :mod:`cli`'s features
 -------------------------------------
 
 .. highlight:: python
 
-Command line parsing::
+Command line parsing:
 
-    #!/usr/bin/env python
-    import cli
-
-    @cli.CommandLineApp
-    def ls(app):
-        pass
-    
-    ls.add_param("-l", "--long", help="list in long format", default=False, action="store_true")
-
-    if __name__ == "__main__":
-        ls.run()
+.. literalinclude:: /tests/functional/scripts/ls
 
 .. highlight:: none
 
@@ -56,65 +61,47 @@ When run, this script produces the following output::
 
 .. highlight:: python
 
-Logging::
+Logging:
 
-    #!/usr/bin/env python
-    import time
-    import cli
-    @cli.LoggingApp
-    def sleep(app):
-        app.log.debug("About to sleep for %d seconds" % app.params.seconds)
-        time.sleep(app.params.seconds)
-    
-    sleep.add_param("seconds", help="time to sleep", default=1, type=int)
-
-    if __name__ == "__main__":
-        sleep.run()
+.. literalinclude:: /tests/functional/scripts/sleep
 
 .. highlight:: none
 
 Which produces the following::
 
     $ python sleep.py -h
-    usage: sleep [-h] [-l] [-q] [-s] [-v] seconds
+    usage: sleep [-h] [-l LOGFILE] [-q] [-s] [-v] seconds
 
     positional arguments:
-      seconds        time to sleep
+      seconds               time to sleep
 
     optional arguments:
-      -h, --help     show this help message and exit
-      -l, --logfile  log to file (default: log to stdout)
-      -q, --quiet    decrease the verbosity
-      -s, --silent   only log warnings
-      -v, --verbose  raise the verbosity
+      -h, --help            show this help message and exit
+      -l LOGFILE, --logfile LOGFILE
+                            log to file (default: log to stdout)
+      -q, --quiet           decrease the verbosity
+      -s, --silent          only log warnings
+      -v, --verbose         raise the verbosity
     $ python sleep.py -vv 3
     About to sleep for 3 seconds
 
 .. highlight:: python
 
-Daemonizing::
+Daemonizing:
 
-    #!/usr/bin/env python
-    import cli
-    @cli.DaemonizingApp
-    def daemon(app):
-        if app.params.daemonize:
-            app.log.info("About to daemonize")
-            app.daemonize()
-
-    if __name__ == "__main__":
-        daemon.run()
+.. literalinclude:: /tests/functional/scripts/daemon
 
 .. highlight:: none
 
 And on the command line::
 
     $ python daemon.py -h
-    usage: daemon [-h] [-l] [-q] [-s] [-v] [-d] [-u USER] [-p PIDFILE]
+    usage: daemon [-h] [-l LOGFILE] [-q] [-s] [-v] [-d] [-u USER] [-p PIDFILE]
 
     optional arguments:
       -h, --help            show this help message and exit
-      -l, --logfile         log to file (default: log to stdout)
+      -l LOGFILE, --logfile LOGFILE
+                            log to file (default: log to stdout)
       -q, --quiet           decrease the verbosity
       -s, --silent          only log warnings
       -v, --verbose         raise the verbosity
@@ -147,14 +134,14 @@ You can wrap the callable in one of two ways. First,
 :class:`cli.app.Application` can be thought of as a decorator (see :pep:`318`
 for more information). For example::
 
-    @cli.Application
+    @cli.app.Application
     def yourapp(app):
         do_stuff()
 
 If you need to pass keyword arguments to the application, you can still
 use the decorator pattern::
 
-    @cli.CommandLineApp(argv=["-v"])
+    @cli.app.CommandLineApp(argv=["-v"])
     def yourapp(app):
         do_stuff()
 
@@ -165,14 +152,31 @@ you can also simply pass your application callable to the
     def yourapp(app):
         do_stuff()
 
-    yourapp = cli.CommandLineApp(yourapp)
+    yourapp = cli.app.CommandLineApp(yourapp)
+
+Some more complex scripts and applications may benefit from subclassing the
+:class:`cli.app.Application` class itself. This approach can help make your 
+code more reusable::
+
+    class YourApp(cli.app.CommandLineApp):
+        
+        def main(self):
+            do_stuff()
+
+When subclassing :class:`cli.app.Application`, you'll likely want to incorporate
+functionality from the other application classes (like
+:class:`cli.app.CommandLineApp`). To do this, simply call methods from the
+appropriate mixin classes (like :class:`cli.app.CommandLineMixin`) -- in fact,
+this is how the application classes themselves work.
 
 Most of the supplied :class:`cli.app.Application` implementations support
 parameters. Parameters determine how your users interact with your
 program on the command line. To add parameters to your application, call
-:meth:`add_param` after you've wrapped your callable::
+:meth:`add_param` after you've wrapped your callable (or in its :meth:`setup`
+method)::
 
-    yourapp.add_param("-v", "--verbose", help="increase the verbosity", default=0, action="count")
+    yourapp.add_param("-v", "--verbose", default=0, action="count",
+        help="increase the verbosity", )
 
 The interface here is the same as that implemented by
 :class:`argparse.ArgumentParser`. In this case, an :attr:`verbose`
@@ -280,10 +284,6 @@ API
     :show-inheritance:
 
 .. automodule:: cli.profiler
-    :members:
-    :show-inheritance:
-
-.. automodule:: cli.config
     :members:
     :show-inheritance:
 

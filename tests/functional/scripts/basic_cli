@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import cli
+import cli.app
 
-@cli.ComandLineApp
+@cli.app.ComandLineApp
 def commandlineapp(app):
     write = lambda msg, s=app.stdout: s.write(msg + "\n")
     write("This is a command line application")

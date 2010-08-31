@@ -22,21 +22,26 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
+__todo__ = """\
+ * when daemonized, catch exceptions and write them to app.log
+""".split(" * ")
+
 import os
 import sys
 
-from cli.log import LoggingApp
+from cli.app import CommandLineApp, CommandLineMixin, Application
+from cli.log import LoggingMixin
 
-__all__ = ["DaemonizingApp"]
+__all__ = ["DaemonizingApp", "DaemonizingMixin"]
 
-class DaemonizingApp(LoggingApp):
+class DaemonizingMixin(object):
     """A command-line application that knows how to daemonize.
 
-    The :class:`DaemonizingApp` extends the :class:`cli.log.LoggingApp`
+    The :class:`DaemonizingMixin` requires the :class:`cli.log.LoggingMixin`
     (for it's not very helpful to daemonize without being able to log
     messages somewhere). In addition to those supported by the standard
-    :class:`cli.app.Application`, :class:`cli.app.CommandLineApp` and
-    :class:`cli.log.LoggingApp`, arguments are:
+    :class:`cli.app.Application`, :class:`cli.app.CommandLineMixin` and
+    :class:`cli.log.LoggingMixin`, arguments are:
 
     *pidfile* is a string pointing to a file where the application will
     write its process ID after it daemonizes. If it is ``None``, no such
@@ -50,21 +55,17 @@ class DaemonizingApp(LoggingApp):
     default, this :data:`os.path.devnull`.
     """
 
-    def __init__(self, main=None, pidfile=None,
-            chdir='/', null=os.path.devnull, **kwargs):
+    def __init__(self, pidfile=None, chdir='/', null=os.path.devnull, **kwargs):
         self.pidfile = pidfile
         self.chdir = chdir
         self.null = null
-        super(DaemonizingApp, self).__init__(main, **kwargs)
 
     def setup(self):
-        """Configure the :class:`DaemonizingApp`.
+        """Configure the :class:`DaemonizingMixin`.
 
         This method adds the :option:`-d`, :option:`u`,
         and :option:`-p` parameters to the application.
         """
-        super(DaemonizingApp, self).setup()
-
         # Add daemonizing options.
         self.add_param("-d", "--daemonize", default=False, action="store_true",
                 help="run the application in the background")
@@ -121,3 +122,32 @@ class DaemonizingApp(LoggingApp):
 
         return True
 
+class DaemonizingApp(
+    DaemonizingMixin, LoggingMixin, CommandLineMixin, Application):
+    """A daemonizing application.
+
+    This class simply glues together the base :class:`Application`,
+    :class:`DaemonizingMixin` and other mixins that provide necessary
+    functionality.
+
+    .. versionchanged:: 1.0.4
+
+    Actual functionality moved to :class:`DaemonizingMixin`.
+    """
+
+    def __init__(self, main=None, **kwargs):
+        DaemonizingMixin.__init__(self, **kwargs)
+        LoggingMixin.__init__(self, **kwargs)
+        CommandLineMixin.__init__(self, **kwargs)
+        Application.__init__(self, main, **kwargs)
+
+    def setup(self):
+        Application.setup(self)
+        CommandLineMixin.setup(self)
+        LoggingMixin.setup(self)
+        DaemonizingMixin.setup(self)
+
+    def pre_run(self):
+        Application.pre_run(self)
+        CommandLineMixin.pre_run(self)
+        LoggingMixin.pre_run(self)

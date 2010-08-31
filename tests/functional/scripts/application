@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import cli
+import cli.app
 
-@cli.Application
+@cli.app.Application
 def application(app):
     write = lambda msg: app.stdout.write(str(msg) + "\n")
     write("This is a basic application")

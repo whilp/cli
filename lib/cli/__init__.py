@@ -2,13 +2,12 @@
 The cli package is a framework for making simple, correct command
 line applications in Python. With cli, you can quickly add standard
 `command line parsing`_; `logging`_; `unit`_ and `functional`_ testing;
-`configuration file parsing`_; and `profiling`_ to your CLI apps. To
-make it easier to do the right thing, cli wraps all of these tools into
-a single, consistent application interface.
+and `profiling`_ to your CLI apps. To make it easier to do the right 
+thing, cli wraps all of these tools into a single, consistent application 
+interface.
 
 .. _command line parsing:   http://www.python.org/dev/peps/pep-0389/#deprecation-of-optparse
 .. _logging:                http://docs.python.org/library/logging.html
-.. _configuration file parsing: http://docs.python.org/library/configparser.html
 .. _unit:                   http://docs.python.org/library/unittest.html
 .. _functional:             http://pythonpaste.org/scripttest/
 .. _profiling:              http://docs.python.org/library/profile.html
@@ -17,7 +16,7 @@ a single, consistent application interface.
 # pragma: no cover
 
 __project__ = "pyCLI"
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 __package__ = "cli"
 __description__ = "Simple, object-oriented approach to Python CLI apps"
 __author__ = "Will Maier"
@@ -61,11 +60,3 @@ __todo__ = """\
     * more tests
     * add Windows registry/OS X plist support (sekhmet)
 """
-
-# Import API-level elements.
-from cli.app import *
-from cli.daemon import *
-from cli.log import *
-from cli.config import *
-from cli.test import *
-
