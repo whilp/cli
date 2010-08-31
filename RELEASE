@@ -6,3 +6,7 @@ Release checklist
  3. <increment cli.__version__>
  4. hg tag vN.N.N
  5. hg up default; hack...
+
+See also:
+
+    http://stevelosh.com/blog/2010/05/mercurial-workflows-stable-default/
