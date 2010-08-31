@@ -15,14 +15,29 @@ You can install the latest stable version of :mod:`cli` using :command:`pip`::
 Public repositories for the project are hosted at `github`_ and `bitbucket`_, so
 you can use either `git`_ or `Mercurial`_ to get a copy of the project's code
 and history::
-	
-	$ hg clone http://bitbucket.org/lt_kije/cli
-	$ git clone git://github.com/wcmaier/cli.git
+    
+    $ hg clone http://bitbucket.org/wcmaier/cli
+    $ git clone git://github.com/wcmaier/cli.git
 
-.. _github:		http://github.com/wcmaier/cli
-.. _bitbucket:	http://bitbucket.org/lt_kije/cli
-.. _git:		http://git-scm.com/
+.. _github:     http://github.com/wcmaier/cli
+.. _bitbucket:  http://bitbucket.org/wcmaier/cli
+.. _git:        http://git-scm.com/
 .. _Mercurial:  http://mercurial.selenic.com/
+
+If you notice a problem with :mod:`cli`, please report it using the github
+`issue tracker`_ (or, if you have a fix, send a `pull request`_).
+
+.. _issue tracker:  http://github.com/wcmaier/cli/issues
+.. _pull request:   http://github.com/wcmaier/cli/pull/new/master
+
+A note about versions
++++++++++++++++++++++
+
+:mod:`cli` is developed along two branches. The first, 'default' (or 'master' in
+git) contains new features and possible bugs -- this branch is the active
+development branch. The second, 'stable', contains releases both major and minor
+as well as bugfixes. If you'd like to help improve :mod:`cli`, take a look at
+default/master. Otherwise, stick with stable.
 
 A quick tour of :mod:`cli`'s features
 -------------------------------------
