@@ -111,7 +111,12 @@ class FunctionalTest(unittest.TestCase):
             self._testdir = mkdtemp(prefix="functests-")
         if not os.path.isdir(self._testdir):
             os.mkdir(self._testdir)
-        self.env = scripttest.TestFileEnvironment(os.path.join(self._testdir, "scripttest"))
+        path = os.environ.get("PATH", '').split(':')
+        path.append(self.scriptdir)
+        self.env = scripttest.TestFileEnvironment(
+            base_path=os.path.join(self._testdir, "scripttest"),
+            script_path=path,
+        )
 
         addTypeEqualityFunc = getattr(self, "addTypeEqualityFunc", None)
         if callable(addTypeEqualityFunc):
@@ -128,13 +133,17 @@ class FunctionalTest(unittest.TestCase):
     def run_script(self, script, *args, **kwargs):
         """Run a test script.
 
-        *script* is prepended with the path to :attr:`scriptdir` before
-        it, *args* and *kwargs* are passed to :attr:`env`. Default
-        keyword arguments are specified in :attr:`run_kwargs`.
+        *script*, *args* and *kwargs* are passed to :attr:`env`. Default keyword
+        arguments are specified in :attr:`run_kwargs`.
+
+        .. versionchanged:: 1.1.1
+
+        :attr:`scriptdir` is no longer prepended to *script* before passing it
+        to :attr:`env`. Instead, it is added to the env's *script_path* during
+        :meth:`setUp`.
         """
         _kwargs = self.run_kwargs.copy()
         _kwargs.update(kwargs)
-        script = os.path.join(self.scriptdir, script)
         return self.env.run(script, *args, **_kwargs)
 
     def assertScriptDoes(self, result, stdout='', stderr='', returncode=0, trim_output=True):
