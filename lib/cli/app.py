@@ -397,11 +397,21 @@ class CommandLineMixin(object):
         """Parse command line.
 
         During :meth:`pre_run`, :class:`CommandLineMixin`
-        passes the application's :attr:`argv` attribute to
-        :meth:`argparse.ArgumentParser.parse_args`. The results are
-        stored in :attr:`params`.
+        calls :meth:`argparse.ArgumentParser.parse_args`. The results are
+        stored in :attr:`params`. 
+
+        ..versionchanged:: 1.1.1
+
+        If :meth:`argparse.ArgumentParser.parse_args` raises SystemExit but
+        :attr:`exit_after_main` is not True, raise Abort instead.
         """
-        ns = self.argparser.parse_args(self.argv)
+        try:
+            ns = self.argparser.parse_args()
+        except SystemExit, e:
+            if self.exit_after_main:
+                raise
+            else:
+                raise Abort(e.code)
         self.params = self.update_params(self.params, ns)
 
 class CommandLineApp(CommandLineMixin, Application):
