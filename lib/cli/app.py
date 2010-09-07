@@ -113,7 +113,7 @@ class Application(object):
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
         self.version = version
-        self.argv = argv
+        self.argv = argv if argv is not None else sys.argv
         self._description = description
 
         self.profiler = profiler
@@ -237,16 +237,71 @@ class Application(object):
         return self.post_run(returned)
 
 class ArgumentParser(argparse.ArgumentParser):
-    """This subclass makes it easier to redirect ArgumentParser's output."""
+    """This subclass makes it easier to test ArgumentParser.
 
-    def __init__(self, file=None, **kwargs):
-        self.file = file
+    Unwrapped, :class:`argparse.ArgumentParser` checks the sys module for
+    stdout, stderr and argv at several points. This wrapper class moves all of
+    these checks into instantiation (except for :attr:`prog`, which is a
+    property).
+
+    .. versionchanged:: 1.1.1
+
+    The *stdout* and *stderr* options replace *file* (which was present until 1.1.1);
+    *argv* is added.
+    """
+
+    def __init__(self, stdout=None, stderr=None, argv=None, **kwargs):
+        self.stdout = stdout if stdout else sys.stdout
+        self.stderr = stderr if stderr else sys.stderr
+        self.argv = argv if argv is not None else sys.argv
+        self._prog = kwargs.get("prog", None)
         super(ArgumentParser, self).__init__(**kwargs)
 
+    @property
+    def prog(self):
+        """Return or lookup the program's name.
+
+        If :attr:`_prog` is None, returns the first element in the :attr:`argv`
+        list.
+        """
+        prog = self._prog
+        if prog is None:
+            prog = os.path.basename(self.argv[0])
+        return prog
+
+    @prog.setter
+    def prog(self, value):
+        self._prog = value
+
+    def parse_known_args(self, args=None, namespace=None):
+        """If *args* is None, use :attr:`argv`, not :data:`sys.argv`."""
+        if args is None:
+            args = self.argv[1:]
+        return super(ArgumentParser, self).parse_known_args(args, namespace)
+
     def _print_message(self, message, file=None):
+        """If *file* is None, use :attr:`stdout` instead of :data:`sys.stdout`.
+
+        .. versionchanged:: 1.1.1
+
+        Previously used :attr:`file`, which is now :attr:`stdout`.
+        """
         if file is None:    # pragma: no cover
-            file = self.file
+            file = self.stdout
+        if message:
+            message = unicode(message)
         super(ArgumentParser, self)._print_message(message, file)
+
+    def exit(self, status=0, message=None):
+        """If *message* is not None, write it to :attr:`stderr` instead of :data:`sys.stderr`."""
+        if message:
+            self.stderr.write(unicode(message))
+        super(ArgumentParser, self).exit(status, message=None)
+
+    def error(self, message):
+        """Write *message* to :attr:`stderr` instead of :data:`sys.stderr`."""
+        self.print_usage(self.stderr)
+        self.exit(2, u"%s: error: %s\n" % (self.prog, message))
 
 class CommandLineMixin(object):
     """A command line application.
@@ -298,7 +353,8 @@ class CommandLineMixin(object):
             description=self.description,
             epilog=self.epilog,
             prefix_chars=self.prefix,
-            file=self.stdout,
+            stdout=self.stdout,
+            stderr=self.stderr,
             )
 
         # We add this ourselves to avoid clashing with -v/verbose.
