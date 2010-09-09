@@ -159,6 +159,8 @@ class LoggingMixin(object):
         # If requested, make our logger the root.
         if self.root:
             logging.root = self.log
+            logging.Logger.root = self.log
+            logging.Logger.manager = logging.Manager(self.log)
 
     def pre_run(self):
         """Set the verbosity level and configure the logger.
