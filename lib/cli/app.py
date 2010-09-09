@@ -260,21 +260,23 @@ class ArgumentParser(argparse.ArgumentParser):
         self._prog = kwargs.get("prog", None)
         super(ArgumentParser, self).__init__(**kwargs)
 
-    @property
-    def prog(self):
-        """Return or lookup the program's name.
+    def get_prog(self):
 
-        If :attr:`_prog` is None, returns the first element in the :attr:`argv`
-        list.
-        """
         prog = self._prog
         if prog is None:
             prog = os.path.basename(self.argv[0])
         return prog
 
-    @prog.setter
-    def prog(self, value):
+    def set_prog(self, value):
         self._prog = value
+
+    prog = property(get_prog, set_prog, doc= """\
+        Return or lookup the program's name.
+
+        If :attr:`_prog` is None, returns the first element in the :attr:`argv`
+        list.
+        """)
+    del(get_prog, set_prog)
 
     def parse_known_args(self, args=None, namespace=None):
         """If *args* is None, use :attr:`argv`, not :data:`sys.argv`."""
