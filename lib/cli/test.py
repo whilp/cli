@@ -26,6 +26,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import io
 import os
+import shlex
 
 from shutil import rmtree
 from tempfile import mkdtemp
