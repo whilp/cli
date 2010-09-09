@@ -67,14 +67,12 @@ class TestLoggingApp(tests.AppTest):
     app_cls = FakeLoggingApp
 
     def test_setup_log(self):
-        self.app.argv = ["-vvv"]
-        self.app.run()
-        self.assertEqual(self.app.params.verbose, 3)
-        self.assertEqual(self.app.log.level, logging.DEBUG)
+        _, app = self.runapp(self.app_cls, "test -vvv")
+        self.assertEqual(app.params.verbose, 3)
+        self.assertEqual(app.log.level, logging.DEBUG)
 
-        self.app.argv = "-vvv -qqq".split()
-        self.app.run()
-        self.assertEqual(self.app.log.level, logging.WARNING)
+        _, app = self.runapp(self.app_cls, "test -vvv -qqq")
+        self.assertEqual(app.log.level, logging.WARNING)
 
     def test_no_stream_or_logfile(self):
         self.app.logfile = None

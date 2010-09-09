@@ -28,6 +28,5 @@ class TestDaemonizingApp(tests.AppTest):
     app_cls = FakeDaemonizingApp
 
     def test_parse_args(self):
-        self.app.argv = ["-d"]
-        self.app.run()
-        self.assertEqual(self.app.params.daemonize, True)
+        _, app = self.runapp(self.app_cls, "test -d")
+        self.assertEqual(app.params.daemonize, True)
