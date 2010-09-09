@@ -17,10 +17,15 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 from cli.daemon import DaemonizingApp
 
-from tests import AppTest, DecoratorTests
+import tests
 
-class TestDaemonizingApp(AppTest, DecoratorTests):
-    app_cls = DaemonizingApp
+class FakeDaemonizingApp(DaemonizingApp):
+    
+    def main(self):
+        pass
+
+class TestDaemonizingApp(tests.AppTest):
+    app_cls = FakeDaemonizingApp
 
     def test_parse_args(self):
         self.app.argv = ["-d"]

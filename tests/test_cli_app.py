@@ -18,10 +18,20 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 from cli.app import Application, CommandLineApp
 from cli.util import StringIO
 
-from tests import AppTest, DecoratorTests
+import tests
 
-class TestApplication(DecoratorTests, AppTest):
-    app_cls = Application
+class FakeApp(Application):
+    
+    def main(self):
+        pass
+
+class FakeCommandLineApp(CommandLineApp):
+    
+    def main(self):
+        pass
+
+class TestApplication(tests.AppTest):
+    app_cls = FakeApp
     
     def test_discover_name(self):
         self.assertEqual(self.app.name, "app")
@@ -45,8 +55,8 @@ class TestApplication(DecoratorTests, AppTest):
         app.main = lambda app: "foo"
         self.assertEqual(app.run(), 1)
 
-class TestCommandLineApp(AppTest, DecoratorTests):
-    app_cls = CommandLineApp
+class TestCommandLineApp(tests.AppTest):
+    app_cls = FakeCommandLineApp
 
     def test_parse_args(self):
         self.app.add_param("-f", "--foo", default=None)

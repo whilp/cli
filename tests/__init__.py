@@ -15,17 +15,17 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
+__test__ = False
+
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
 import cli.test
+from cli.test import AppMixin
 
 class BaseTest(unittest.TestCase):
-    pass
-
-class AppTest(cli.test.AppTest, BaseTest):
     pass
 
 class DecoratorTests(object):
@@ -73,3 +73,9 @@ class DecoratorTests(object):
             def main(self):
                 return 0
         self.assertEqual(Test().run(), 0)
+
+class AppTest(DecoratorTests, AppMixin, BaseTest):
+
+    def setUp(self):
+        BaseTest.setUp(self)
+        _, self.app = self.runapp(self.app_cls, "")
