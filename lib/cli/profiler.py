@@ -121,7 +121,7 @@ class Profiler(object):
         profiler = Profile()
 
         def wrapper(*args, **kwargs):
-            self.stdout.write("===> Profiling %s:\n" % func.__name__)
+            self.stdout.write(u"===> Profiling %s:\n" % func.__name__)
             profiler.runcall(func, *args, **kwargs)
             self.stats = Stats(profiler, stream=self.stdout)
             self.stats.strip_dirs().sort_stats(-1).print_stats()
@@ -160,9 +160,9 @@ class Profiler(object):
             return [timeit(func, *args, **kwargs) for i in range(self.repeat)]
 
         def wrapper(*args, **kwargs):
-            self.stdout.write("===> Profiling %s: " % func.__name__)
+            self.stdout.write(u"===> Profiling %s: " % func.__name__)
             self.result = min(repeat(func, *args, **kwargs))
-            self.stdout.write("%d loops, best of %d: %s per loop\n" % (
+            self.stdout.write(u"%d loops, best of %d: %s per loop\n" % (
                 self.count, self.repeat, fmtsec(self.result/self.count)))
 
         return self.wrap(wrapper, func)

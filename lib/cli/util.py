@@ -19,14 +19,16 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import sys
 
 try:
-    import cStringIO as StringIO
+    import io as StringIO
 except ImportError:
-    try:
-        import StringIO
-    except ImportError:
-        import io as StringIO
+    import StringIO
 
-StringIO = StringIO.StringIO
+BaseStringIO = StringIO.StringIO
+
+class StringIO(BaseStringIO):
+    
+    def write(self, s):
+        BaseStringIO.write(self, unicode(s))
 
 class update_wrapper(object):
     assignments = ('__module__', '__name__', '__doc__')

@@ -24,7 +24,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
-import io
 import os
 import shlex
 
@@ -38,7 +37,7 @@ except ImportError:
 
 from cli.app import Abort
 from cli.ext import scripttest
-from cli.util import trim
+from cli.util import StringIO, trim
 
 __all__ = ["AppTest", "FunctionalTest"]
 
@@ -111,7 +110,7 @@ class AppMixin(object):
         :attr:`default_kwargs` and passed to the application as well.
 
         If *stdout* or *stderr* keys are not set in either *kwargs* or
-        :attr:`default_kwargs`, new :class:`io.StringIO` instances will be
+        :attr:`default_kwargs`, new :class:`StringIO` instances will be
         used as temporary buffers for application output.
 
         Returns (status, app), where *status* is the application's return code
@@ -119,8 +118,8 @@ class AppMixin(object):
         """
         _kwargs = self.kwargs.copy()
         _kwargs.update(kwargs)
-        _kwargs["stdout"] = _kwargs.get("stdout", io.StringIO())
-        _kwargs["stderr"] = _kwargs.get("stderr", io.StringIO())
+        _kwargs["stdout"] = _kwargs.get("stdout", StringIO())
+        _kwargs["stderr"] = _kwargs.get("stderr", StringIO())
         if cmd:
             _kwargs["argv"] = shlex.split(cmd)
         app = app_cls(**_kwargs)
