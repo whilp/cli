@@ -34,7 +34,7 @@ class TestApplication(tests.AppTest):
     app_cls = FakeApp
     
     def test_discover_name(self):
-        self.assertEqual(self.app.name, "app")
+        self.assertEqual(self.app.name, "main")
 
     def test_exit(self):
         @self.app_cls
@@ -59,10 +59,15 @@ class TestCommandLineApp(tests.AppTest):
     app_cls = FakeCommandLineApp
 
     def test_parse_args(self):
-        self.app.add_param("-f", "--foo", default=None)
-        self.app.argv = ["-f", "bar"]
-        self.app.run()
-        self.assertEqual(self.app.params.foo, "bar")
+        app_cls = self.app_cls
+        class Test(app_cls):
+            
+            def setup(self):
+                app_cls.setup(self)
+                self.add_param("-f", "--foo", default=None)
+
+        status, app = self.runapp(Test, "test -f bar")
+        self.assertEqual(app.params.foo, "bar")
 
     def test_version(self):
         self.app.version = "0.1"
