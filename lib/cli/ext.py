@@ -19,7 +19,7 @@ for name in __all__:
     try:
         module = __import__(name)
     except ImportError:
-        module = __import__('.'.join((ext, name)), fromlist=[ext])
+        module = __import__('.'.join((ext, name)), {}, {}, [ext])
     locals()[name] = module
 
 del(ext, module, name, project)
