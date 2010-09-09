@@ -356,6 +356,7 @@ class CommandLineMixin(object):
             description=self.description,
             epilog=self.epilog,
             prefix_chars=self.prefix,
+            argv=self.argv,
             stdout=self.stdout,
             stderr=self.stderr,
             )
