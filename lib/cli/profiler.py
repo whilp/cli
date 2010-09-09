@@ -29,7 +29,7 @@ try:
 except ImportError: # pragma: no cover
     from cli.util import update_wrapper
 
-from cli.util import fmtsec
+from cli.util import Stats, fmtsec
 
 __all__ = ["Profiler"]
 
@@ -112,7 +112,6 @@ class Profiler(object):
         to :attr:`stdout`. The profiling statistics are saved to the
         :attr:`stats` attribute after the run.
         """
-        from pstats import Stats
 
         try:
             from cProfile import Profile
