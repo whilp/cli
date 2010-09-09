@@ -87,6 +87,8 @@ class CommandLineLogger(logging.Logger):
         fits on the standard logging scale and then added to
         :attr:`default_level`.
         """
+        if not hasattr(ns, "quiet"):
+            return logging.Logger.setLevel(self, ns)
         level = self.default_level + (10 * (ns.quiet - ns.verbose))
 
         if ns.silent:
