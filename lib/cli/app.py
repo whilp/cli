@@ -35,6 +35,7 @@ import sys
 
 from cli.ext import argparse
 from cli.profiler import Profiler
+from cli.util import ifelse
 
 __all__ = ["Application", "CommandLineApp", "CommandLineMixin"]
 
@@ -113,7 +114,9 @@ class Application(object):
         self.stdout = stdout and stdout or sys.stdout
         self.stderr = stderr and stderr or sys.stderr
         self.version = version
-        self.argv = argv if argv is not None else sys.argv
+        self.argv = argv
+        if argv is None:
+            self.argv = sys.argv
         self._description = description
 
         self.profiler = profiler
@@ -251,9 +254,9 @@ class ArgumentParser(argparse.ArgumentParser):
     """
 
     def __init__(self, stdout=None, stderr=None, argv=None, **kwargs):
-        self.stdout = stdout if stdout else sys.stdout
-        self.stderr = stderr if stderr else sys.stderr
-        self.argv = argv if argv is not None else sys.argv
+        self.stdout = ifelse(stdout, stdout is not None, sys.stdout)
+        self.stderr = ifelse(stderr, stderr is not None, sys.stderr)
+        self.argv = ifelse(argv, argv is not None, sys.argv)
         self._prog = kwargs.get("prog", None)
         super(ArgumentParser, self).__init__(**kwargs)
 

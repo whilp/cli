@@ -110,3 +110,14 @@ def trim(string):
         trimmed.pop(0)
     # Return a single string:
     return '\n'.join(trimmed) + "\n"
+
+def ifelse(a, predicate, b):
+    """Return *a* if *predicate* evaluates to True; else *b*.
+
+    This emulates the logic of the if..else ternary operator introduced in
+    Python 2.5.
+	"""
+    if predicate:
+        return a
+    else:
+        return b
