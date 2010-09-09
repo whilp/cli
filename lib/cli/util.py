@@ -148,7 +148,7 @@ def ifelse(a, predicate, b):
 
     This emulates the logic of the if..else ternary operator introduced in
     Python 2.5.
-	"""
+    """
     if predicate:
         return a
     else:
