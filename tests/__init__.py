@@ -78,4 +78,4 @@ class AppTest(DecoratorTests, AppMixin, BaseTest):
 
     def setUp(self):
         BaseTest.setUp(self)
-        _, self.app = self.runapp(self.app_cls, "")
+        _, self.app = self.runapp(self.app_cls, "foo")
