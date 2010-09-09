@@ -124,8 +124,8 @@ class LoggingMixin(object):
     """
 
     def __init__(self, stream=sys.stdout, logfile=None,
-            message_format="%(message)s", 
-            date_format="%(asctime)s %(message)s", root=True, **kwargs):
+            message_format="%(asctime)s %(message)s", 
+            date_format="%Y-%m-%dT%H:%M:%S", root=True, **kwargs):
         self.logfile = logfile
         self.stream = stream
         self.message_format = message_format
