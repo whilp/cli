@@ -131,8 +131,7 @@ class DaemonizingApp(
     functionality.
 
     .. versionchanged:: 1.0.4
-
-    Actual functionality moved to :class:`DaemonizingMixin`.
+        Actual functionality moved to :class:`DaemonizingMixin`.
     """
 
     def __init__(self, main=None, **kwargs):

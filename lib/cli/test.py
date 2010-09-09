@@ -2,10 +2,10 @@
 :mod:`cli.test` -- functional and unit test support
 ---------------------------------------------------
 
-.. versionadded:: 1.0.2
-
 This module provides support for easily writing both functional and
 unit tests for your scripts.
+
+.. versionadded:: 1.0.2
 """
 
 __license__ = """Copyright (c) 2008-2010 Will Maier <will@m.aier.us>
@@ -49,7 +49,7 @@ class AppTest(unittest.TestCase):
     :attr:`default_kwargs` will be passed to the new application then.
 
     .. deprecated:: 1.1.1
-    Use :class:`AppMixin` instead.
+        Use :class:`AppMixin` instead.
     """
     app_cls = None
     """An application, usually descended from :class:`cli.app.Application`."""
@@ -223,10 +223,9 @@ class FunctionalTest(unittest.TestCase):
         arguments are specified in :attr:`run_kwargs`.
 
         .. versionchanged:: 1.1.1
-
-        :attr:`scriptdir` is no longer prepended to *script* before passing it
-        to :attr:`env`. Instead, it is added to the env's *script_path* during
-        :meth:`setUp`.
+            :attr:`scriptdir` is no longer prepended to *script* before passing it
+            to :attr:`env`. Instead, it is added to the env's *script_path* during
+            :meth:`setUp`.
         """
         _kwargs = self.run_kwargs.copy()
         _kwargs.update(kwargs)

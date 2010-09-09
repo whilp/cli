@@ -248,9 +248,8 @@ class ArgumentParser(argparse.ArgumentParser):
     property).
 
     .. versionchanged:: 1.1.1
-
-    The *stdout* and *stderr* options replace *file* (which was present until 1.1.1);
-    *argv* is added.
+        The *stdout* and *stderr* options replace *file* (which was present until 1.1.1);
+        *argv* is added.
     """
 
     def __init__(self, stdout=None, stderr=None, argv=None, **kwargs):
@@ -288,8 +287,7 @@ class ArgumentParser(argparse.ArgumentParser):
         """If *file* is None, use :attr:`stdout` instead of :data:`sys.stdout`.
 
         .. versionchanged:: 1.1.1
-
-        Previously used :attr:`file`, which is now :attr:`stdout`.
+            Previously used :attr:`file`, which is now :attr:`stdout`.
         """
         if file is None:    # pragma: no cover
             file = self.stdout
