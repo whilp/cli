@@ -15,9 +15,9 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from ..util import update_wrapper, fmtsec
+from cli.util import update_wrapper, fmtsec
 
-from .. import tests
+from cli import tests
 
 class TestUtils(tests.BaseTest):
     

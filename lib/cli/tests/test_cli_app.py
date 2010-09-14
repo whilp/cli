@@ -15,10 +15,10 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from ..app import Application, CommandLineApp
-from ..util import StringIO
+from cli.app import Application, CommandLineApp
+from cli.util import StringIO
 
-from .. import tests
+from cli import tests
 
 class FakeApp(Application):
     

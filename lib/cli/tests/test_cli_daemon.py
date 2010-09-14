@@ -15,9 +15,9 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from ..daemon import DaemonizingApp
+from cli.daemon import DaemonizingApp
 
-from .. import tests
+from cli import tests
 
 class FakeDaemonizingApp(DaemonizingApp):
     

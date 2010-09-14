@@ -17,10 +17,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import logging
 logging.logMultiprocessing = 0
 
-from ..ext import argparse
-from ..log import CommandLineLogger, LoggingApp
+from cli.ext import argparse
+from cli.log import CommandLineLogger, LoggingApp
 
-from .. import tests
+from cli import tests
 
 class FakeLoggingApp(LoggingApp):
     
