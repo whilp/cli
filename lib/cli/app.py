@@ -35,7 +35,7 @@ import sys
 
 from cli.ext import argparse
 from cli.profiler import Profiler
-from cli.util import ifelse
+from cli.util import ifelse, ismethodof
 
 __all__ = ["Application", "CommandLineApp", "CommandLineMixin"]
 
@@ -230,7 +230,7 @@ class Application(object):
         self.pre_run()
 
         args = (self,)
-        if isinstance(getattr(self.main, "im_self", None), self.__class__):
+        if ismethodof(self.main, self):
             args = ()
         try:
             returned = self.main(*args)

@@ -154,3 +154,15 @@ def ifelse(a, predicate, b):
         return a
     else:
         return b
+
+def ismethodof(method, obj):
+    """Return True if *method* is a method of *obj*.
+
+    *method* should be a method on a class instance; *obj* should be an instance
+    of a class.
+    """
+    # Check for both 'im_self' (Python < 3.0) and '__self__' (Python >= 3.0).
+    cls = obj.__class__
+    mainobj = getattr(method, "im_self",
+        getattr(method, "__self__", None))
+    return isinstance(mainobj, cls)
