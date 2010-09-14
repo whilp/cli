@@ -301,7 +301,7 @@ correctly. To run the tests, use the `tox`_ automated testing tool::
 
 .. _tox:    http://codespeak.net/tox/
 
-By default, :command:`tox` will run attempt to run the unittests on all of the
+By default, :command:`tox` will attempt to run the unittests on all of the
 platforms currently supported by :mod:`cli`. See the `tox documentation`_ for
 more information about how to run tests.
 
