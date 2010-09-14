@@ -15,10 +15,10 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.profiler import Profiler
-from cli.util import StringIO
+from ..profiler import Profiler
+from ..util import StringIO
 
-from tests import BaseTest
+from .tests import BaseTest
 
 class TestProfiler(BaseTest):
 

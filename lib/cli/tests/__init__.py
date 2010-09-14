@@ -22,8 +22,8 @@ try:
 except ImportError:
     import unittest
 
-import cli.test
-from cli.test import AppMixin
+from .. import test
+from ..test import AppMixin
 
 class BaseTest(unittest.TestCase):
     pass
