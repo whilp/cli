@@ -35,6 +35,7 @@ import sys
 
 from cli.ext import argparse
 from cli.profiler import Profiler
+from cli.util import ifelse, ismethodof
 
 __all__ = ["Application", "CommandLineApp", "CommandLineMixin"]
 
@@ -114,6 +115,8 @@ class Application(object):
         self.stderr = stderr and stderr or sys.stderr
         self.version = version
         self.argv = argv
+        if argv is None:
+            self.argv = sys.argv
         self._description = description
 
         self.profiler = profiler
@@ -227,7 +230,7 @@ class Application(object):
         self.pre_run()
 
         args = (self,)
-        if isinstance(getattr(self.main, "im_self", None), self.__class__):
+        if ismethodof(self.main, self):
             args = ()
         try:
             returned = self.main(*args)
@@ -237,16 +240,71 @@ class Application(object):
         return self.post_run(returned)
 
 class ArgumentParser(argparse.ArgumentParser):
-    """This subclass makes it easier to redirect ArgumentParser's output."""
+    """This subclass makes it easier to test ArgumentParser.
 
-    def __init__(self, file=None, **kwargs):
-        self.file = file
+    Unwrapped, :class:`argparse.ArgumentParser` checks the sys module for
+    stdout, stderr and argv at several points. This wrapper class moves all of
+    these checks into instantiation (except for :attr:`prog`, which is a
+    property).
+
+    .. versionchanged:: 1.1.1
+        The *stdout* and *stderr* options replace *file* (which was present until 1.1.1);
+        *argv* is added.
+    """
+
+    def __init__(self, stdout=None, stderr=None, argv=None, **kwargs):
+        self.stdout = ifelse(stdout, stdout is not None, sys.stdout)
+        self.stderr = ifelse(stderr, stderr is not None, sys.stderr)
+        self.argv = ifelse(argv, argv is not None, sys.argv)
+        self._prog = kwargs.get("prog", None)
         super(ArgumentParser, self).__init__(**kwargs)
 
+    def get_prog(self):
+
+        prog = self._prog
+        if prog is None:
+            prog = os.path.basename(self.argv[0])
+        return prog
+
+    def set_prog(self, value):
+        self._prog = value
+
+    prog = property(get_prog, set_prog, doc= """\
+        Return or lookup the program's name.
+
+        If :attr:`_prog` is None, returns the first element in the :attr:`argv`
+        list.
+        """)
+    del(get_prog, set_prog)
+
+    def parse_known_args(self, args=None, namespace=None):
+        """If *args* is None, use :attr:`argv`, not :data:`sys.argv`."""
+        if args is None:
+            args = self.argv[1:]
+        return super(ArgumentParser, self).parse_known_args(args, namespace)
+
     def _print_message(self, message, file=None):
+        """If *file* is None, use :attr:`stdout` instead of :data:`sys.stdout`.
+
+        .. versionchanged:: 1.1.1
+            Previously used :attr:`file`, which is now :attr:`stdout`.
+        """
         if file is None:    # pragma: no cover
-            file = self.file
+            file = self.stdout
+        if message:
+            message = unicode(message)
         super(ArgumentParser, self)._print_message(message, file)
+
+    def exit(self, status=0, message=None):
+        """If *message* is not None, write it to :attr:`stderr` instead of :data:`sys.stderr`."""
+        if message:
+            self.stderr.write(unicode(message))
+        super(ArgumentParser, self).exit(status, message=None)
+
+    def error(self, message):
+        """Write *message* to :attr:`stderr` instead of :data:`sys.stderr`."""
+        self.print_usage(self.stderr)
+        self.exit(2, u"%s: error: %s\n" % (self.prog, message))
 
 class CommandLineMixin(object):
     """A command line application.
@@ -298,7 +356,9 @@ class CommandLineMixin(object):
             description=self.description,
             epilog=self.epilog,
             prefix_chars=self.prefix,
-            file=self.stdout,
+            argv=self.argv,
+            stdout=self.stdout,
+            stderr=self.stderr,
             )
 
         # We add this ourselves to avoid clashing with -v/verbose.
@@ -341,11 +401,21 @@ class CommandLineMixin(object):
         """Parse command line.
 
         During :meth:`pre_run`, :class:`CommandLineMixin`
-        passes the application's :attr:`argv` attribute to
-        :meth:`argparse.ArgumentParser.parse_args`. The results are
-        stored in :attr:`params`.
+        calls :meth:`argparse.ArgumentParser.parse_args`. The results are
+        stored in :attr:`params`. 
+
+        ..versionchanged:: 1.1.1
+
+        If :meth:`argparse.ArgumentParser.parse_args` raises SystemExit but
+        :attr:`exit_after_main` is not True, raise Abort instead.
         """
-        ns = self.argparser.parse_args(self.argv)
+        try:
+            ns = self.argparser.parse_args()
+        except SystemExit, e:
+            if self.exit_after_main:
+                raise
+            else:
+                raise Abort(e.code)
         self.params = self.update_params(self.params, ns)
 
 class CommandLineApp(CommandLineMixin, Application):

@@ -16,17 +16,21 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
+import pstats
 import sys
 
 try:
-    import cStringIO as StringIO
+    import io
+    import io as StringIO
 except ImportError:
-    try:
-        import StringIO
-    except ImportError:
-        import io as StringIO
+    import StringIO
 
-StringIO = StringIO.StringIO
+BaseStringIO = StringIO.StringIO
+
+class StringIO(BaseStringIO):
+    
+    def write(self, s):
+        BaseStringIO.write(self, unicode(s))
 
 class update_wrapper(object):
     assignments = ('__module__', '__name__', '__doc__')
@@ -46,6 +50,35 @@ class update_wrapper(object):
         return wrapper
 
 update_wrapper = update_wrapper()
+
+# pstats.Stats doesn't know how to write to a stream in Python<2.5, so wrap it.
+class StatsWrapper(pstats.Stats):
+    """Teach Stats how to output to a configurable stream.
+
+    Makes 2.4 Stats compatible with the >=2.5 API.
+    """
+    
+    def __init__(self, *args, **kwargs):
+        self.stream = kwargs.get("stream", sys.stdout)
+        arg = args[0]
+        pstats.Stats.__init__(self, *args)
+    
+Stats = pstats.Stats
+if getattr(pstats, "sys", None) is None:
+    for name, meth in vars(StatsWrapper).items():
+        if name != "init" or "print" not in name:
+            continue
+        def wrapper(self, *args, **kwargs):
+            oldstdout = sys.stdout
+            sys.stdout = self.stream
+            try:
+                returned = meth(self, *args, **kwargs)
+            finally:
+                sys.stdout = oldstdout
+
+            return returned
+        setattr(StatsWrapper, name, update_wrapper(wrapper, meth))
+    Stats = StatsWrapper
 
 def fmtsec(seconds):
     if seconds < 0:
@@ -110,3 +143,26 @@ def trim(string):
         trimmed.pop(0)
     # Return a single string:
     return '\n'.join(trimmed) + "\n"
+
+def ifelse(a, predicate, b):
+    """Return *a* if *predicate* evaluates to True; else *b*.
+
+    This emulates the logic of the if..else ternary operator introduced in
+    Python 2.5.
+    """
+    if predicate:
+        return a
+    else:
+        return b
+
+def ismethodof(method, obj):
+    """Return True if *method* is a method of *obj*.
+
+    *method* should be a method on a class instance; *obj* should be an instance
+    of a class.
+    """
+    # Check for both 'im_self' (Python < 3.0) and '__self__' (Python >= 3.0).
+    cls = obj.__class__
+    mainobj = getattr(method, "im_self",
+        getattr(method, "__self__", None))
+    return isinstance(mainobj, cls)

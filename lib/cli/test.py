@@ -2,10 +2,10 @@
 :mod:`cli.test` -- functional and unit test support
 ---------------------------------------------------
 
-.. versionadded:: 1.0.2
-
 This module provides support for easily writing both functional and
 unit tests for your scripts.
+
+.. versionadded:: 1.0.2
 """
 
 __license__ = """Copyright (c) 2008-2010 Will Maier <will@m.aier.us>
@@ -25,6 +25,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
 import os
+import shlex
 
 from shutil import rmtree
 from tempfile import mkdtemp
@@ -34,8 +35,9 @@ try:
 except ImportError:
     import unittest
 
+from cli.app import Abort
 from cli.ext import scripttest
-from cli.util import trim
+from cli.util import StringIO, trim
 
 __all__ = ["AppTest", "FunctionalTest"]
 
@@ -45,6 +47,9 @@ class AppTest(unittest.TestCase):
     :class:`AppTest` provides a simple :meth:`setUp` method
     to instantiate :attr:`app_cls`, your application's class.
     :attr:`default_kwargs` will be passed to the new application then.
+
+    .. deprecated:: 1.1.1
+        Use :class:`AppMixin` instead.
     """
     app_cls = None
     """An application, usually descended from :class:`cli.app.Application`."""
@@ -74,6 +79,87 @@ class AppTest(unittest.TestCase):
         def app(app):
             pass
         self.app = app
+
+    def runapp(self, cmd, environ={}, **kwargs):
+        _kwargs = self.default_kwargs.copy()
+        _kwargs.update(kwargs)
+        self.app_cls(**kwargs)
+
+class AppMixin(object):
+    """Useful methods for testing App classes.
+
+    Note: This won't help for testing App _instances_.
+    """
+    app_cls = None
+    """The Application class to test."""
+    args = ()
+    """The arguments to pass when instantiating the test Application."""
+    kwargs = {
+        "exit_after_main": False,
+    }
+    """The keyword arguments to pass when instantiating the test Application."""
+
+    def runapp(self, app_cls, cmd, **kwargs):
+        """Run the application.
+
+        *app_cls* is a class that inherits from :class:`cli.app.Application`.
+        *cmd* may be a string with command line arguments. If present, *cmd*
+        will be parsed by :func:`shlex.split` and passed to the application
+        as its *argv* keyword argument (overriding *argv* keys in both
+        :attr:`default_kwargs` and *kwargs*). *kwargs* will be merged with
+        :attr:`default_kwargs` and passed to the application as well.
+
+        If *stdout* or *stderr* keys are not set in either *kwargs* or
+        :attr:`default_kwargs`, new :class:`StringIO` instances will be
+        used as temporary buffers for application output.
+
+        Returns (status, app), where *status* is the application's return code
+        and *app* is the application instance.
+        """
+        _kwargs = self.kwargs.copy()
+        _kwargs.update(kwargs)
+        _kwargs["stdout"] = _kwargs.get("stdout", StringIO())
+        _kwargs["stderr"] = _kwargs.get("stderr", StringIO())
+        if cmd:
+            _kwargs["argv"] = shlex.split(cmd)
+        app = app_cls(**_kwargs)
+        app.setup()
+        status = app.run()
+        return status, app
+
+    def assertAppDoes(self, app_cls, cmd, kwargs={}, stdout='', stderr='', status=0,
+            raises=(), trim_output=trim):
+        """Fail the test if the app behaves unexpectedly.
+
+        *app_cls*, *cmd* and *kwargs* will be passed to :meth:`runapp`. If the
+        application raises an :class:`Exception` instance contained in the
+        *raises* tuple, the test will pass. Otherwise, the application's stdout,
+        stderr and return status will be compared with *stdout*, *stderr* and
+        *status*, respectively (using :meth:`assertEqual`).
+        """
+        try:
+            returned, app = self.runapp(app_cls, cmd, **kwargs)
+        except raises, e:
+            return True
+        if trim:
+            stdout, stderr = trim(stdout), trim(stderr)
+        self.assertEqual(status, returned)
+        self.assertEqual(stdout, app.stdout)
+        self.assertEqual(stderr, app.stderr)
+
+    def assertAppAborts(self, app_cls, cmd, status=0, **kwargs):
+        """Fail unless the app aborts.
+
+        *app_cls* must raise :class:`Abort` with a :data:`Abort.status` value
+        equal to *status*.
+        """
+        try:
+            self.runapp(app_cls, cmd, **kwargs)
+        except Abort, e:
+            self.assertEqual(status, e.status)
+            return True
+
+        raise self.failureException("Abort not raised")
 
 class FunctionalTest(unittest.TestCase):
     """A functional test, also based on :class:`unittest.TestCase`.
@@ -111,7 +197,12 @@ class FunctionalTest(unittest.TestCase):
             self._testdir = mkdtemp(prefix="functests-")
         if not os.path.isdir(self._testdir):
             os.mkdir(self._testdir)
-        self.env = scripttest.TestFileEnvironment(os.path.join(self._testdir, "scripttest"))
+        path = os.environ.get("PATH", '').split(':')
+        path.append(self.scriptdir)
+        self.env = scripttest.TestFileEnvironment(
+            base_path=os.path.join(self._testdir, "scripttest"),
+            script_path=path,
+        )
 
         addTypeEqualityFunc = getattr(self, "addTypeEqualityFunc", None)
         if callable(addTypeEqualityFunc):
@@ -128,13 +219,16 @@ class FunctionalTest(unittest.TestCase):
     def run_script(self, script, *args, **kwargs):
         """Run a test script.
 
-        *script* is prepended with the path to :attr:`scriptdir` before
-        it, *args* and *kwargs* are passed to :attr:`env`. Default
-        keyword arguments are specified in :attr:`run_kwargs`.
+        *script*, *args* and *kwargs* are passed to :attr:`env`. Default keyword
+        arguments are specified in :attr:`run_kwargs`.
+
+        .. versionchanged:: 1.1.1
+            :attr:`scriptdir` is no longer prepended to *script* before passing it
+            to :attr:`env`. Instead, it is added to the env's *script_path* during
+            :meth:`setUp`.
         """
         _kwargs = self.run_kwargs.copy()
         _kwargs.update(kwargs)
-        script = os.path.join(self.scriptdir, script)
         return self.env.run(script, *args, **_kwargs)
 
     def assertScriptDoes(self, result, stdout='', stderr='', returncode=0, trim_output=True):

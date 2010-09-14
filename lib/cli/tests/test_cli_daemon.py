@@ -17,12 +17,16 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 from cli.daemon import DaemonizingApp
 
-from tests import AppTest, DecoratorTests
+from cli import tests
 
-class TestDaemonizingApp(AppTest, DecoratorTests):
-    app_cls = DaemonizingApp
+class FakeDaemonizingApp(DaemonizingApp):
+    
+    def main(self):
+        pass
+
+class TestDaemonizingApp(tests.AppTest):
+    app_cls = FakeDaemonizingApp
 
     def test_parse_args(self):
-        self.app.argv = ["-d"]
-        self.app.run()
-        self.assertEqual(self.app.params.daemonize, True)
+        _, app = self.runapp(self.app_cls, "test -d")
+        self.assertEqual(app.params.daemonize, True)

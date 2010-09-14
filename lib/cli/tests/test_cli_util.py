@@ -17,9 +17,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 from cli.util import update_wrapper, fmtsec
 
-from tests import BaseTest
+from cli import tests
 
-class TestUtils(BaseTest):
+class TestUtils(tests.BaseTest):
     
     def test_update_wrapper(self):
         def foo():

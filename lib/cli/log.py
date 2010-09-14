@@ -87,6 +87,8 @@ class CommandLineLogger(logging.Logger):
         fits on the standard logging scale and then added to
         :attr:`default_level`.
         """
+        if not hasattr(ns, "quiet"):
+            return logging.Logger.setLevel(self, ns)
         level = self.default_level + (10 * (ns.quiet - ns.verbose))
 
         if ns.silent:
@@ -122,8 +124,8 @@ class LoggingMixin(object):
     """
 
     def __init__(self, stream=sys.stdout, logfile=None,
-            message_format="%(message)s", 
-            date_format="%(asctime)s %(message)s", root=True, **kwargs):
+            message_format="%(asctime)s %(message)s", 
+            date_format="%Y-%m-%dT%H:%M:%S", root=True, **kwargs):
         self.logfile = logfile
         self.stream = stream
         self.message_format = message_format
@@ -157,6 +159,8 @@ class LoggingMixin(object):
         # If requested, make our logger the root.
         if self.root:
             logging.root = self.log
+            logging.Logger.root = self.log
+            logging.Logger.manager = logging.Manager(self.log)
 
     def pre_run(self):
         """Set the verbosity level and configure the logger.
@@ -195,8 +199,7 @@ class LoggingApp(LoggingMixin, CommandLineMixin, Application):
     :class:`LoggingMixin` and other mixins that provide necessary functionality.
 
     .. versionchanged:: 1.0.4
-
-    Actual functionality moved to :class:`LoggingMixin`.
+        Actual functionality moved to :class:`LoggingMixin`.
     """
     
     def __init__(self, main=None, **kwargs):
