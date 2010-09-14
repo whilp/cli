@@ -20,6 +20,7 @@ import pstats
 import sys
 
 try:
+    import io
     import io as StringIO
 except ImportError:
     import StringIO
