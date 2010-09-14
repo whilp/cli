@@ -5,6 +5,11 @@ except ImportError:
     use_setuptools()
 from setuptools import setup, find_packages
 
+try:
+    from distutils.command.build_py import build_py_2to3 as build_py
+except ImportError:
+    from distutils.command.build_py import build_py
+
 import sys, os
 
 libdir = "lib"
@@ -32,10 +37,7 @@ setup_options = {
         # -*- Entry points: -*-
     """,
     "test_suite": "tests",
+    "cmdclass": { "build_py": build_py },
 }
-
-# Enable 2to3 on 3.x.
-if sys.version_info >= (3, 0):
-    setup_options["use_2to3"] = True
 
 setup(**setup_options)
