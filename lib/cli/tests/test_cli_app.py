@@ -18,7 +18,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 from ..app import Application, CommandLineApp
 from ..util import StringIO
 
-from . import tests
+from .. import tests
 
 class FakeApp(Application):
     

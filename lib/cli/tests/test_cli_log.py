@@ -20,7 +20,7 @@ logging.logMultiprocessing = 0
 from ..ext import argparse
 from ..log import CommandLineLogger, LoggingApp
 
-from . import tests
+from .. import tests
 
 class FakeLoggingApp(LoggingApp):
     

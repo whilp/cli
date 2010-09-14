@@ -17,7 +17,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 from ..daemon import DaemonizingApp
 
-from . import tests
+from .. import tests
 
 class FakeDaemonizingApp(DaemonizingApp):
     

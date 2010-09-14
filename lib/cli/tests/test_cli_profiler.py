@@ -18,9 +18,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 from ..profiler import Profiler
 from ..util import StringIO
 
-from .tests import BaseTest
+from .. import tests
 
-class TestProfiler(BaseTest):
+class TestProfiler(tests.BaseTest):
 
     def setUp(self):
         self.stdout = StringIO()
