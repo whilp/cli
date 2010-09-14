@@ -36,7 +36,7 @@ setup_options = {
     "entry_points": """
         # -*- Entry points: -*-
     """,
-    "test_suite": "tests",
+    "test_suite": "cli.tests",
     "cmdclass": { "build_py": build_py },
 }
 
