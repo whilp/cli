@@ -197,12 +197,11 @@ class Application(object):
     def post_run(self, returned):
         """Clean up after the application.
 
-        After :attr:`main` has been called, :meth:`run` passes the
-        return value to this method. By default, :meth:`post_run`
-        decides whether to call :func:`sys.exit` (based on the
-        value of the :attr:`exit_after_main` attribute) or pass the
-        value back to :meth:`run`. Subclasses should probably preserve
-        this behavior.
+        After :attr:`main` has been called, :meth:`run` passes the return value
+        (or :class:`Exception` instance raised) to this method. By default,
+        :meth:`post_run` decides whether to call :func:`sys.exit` (based on the
+        value of the :attr:`exit_after_main` attribute) or pass the value back
+        to :meth:`run`. Subclasses should probably preserve this behavior.
         """
         # Interpret the returned value in the same way sys.exit() does.
         if returned is None:
@@ -221,10 +220,10 @@ class Application(object):
     def run(self):
         """Run the application, returning its return value.
 
-        This method first calls :meth:`pre_run` and then calls
-        :attr:`main`, passing it an instance of the :class:`Application`
-        itself as its only argument. The return value is then passed to
-        :meth:`post_run` which may modify it (or terminate the
+        This method first calls :meth:`pre_run` and then calls :attr:`main`,
+        passing it an instance of the :class:`Application` itself as its only
+        argument. The return value (or :class:`Exception` instance raised) is
+        then passed to :meth:`post_run` which may modify it (or terminate the
         application entirely).
         """
         self.pre_run()
@@ -236,6 +235,8 @@ class Application(object):
             returned = self.main(*args)
         except Abort, e:
             returned = e.status
+        except Exception, e:
+            returned = e
 
         return self.post_run(returned)
 
