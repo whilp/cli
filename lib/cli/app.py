@@ -206,6 +206,8 @@ class Application(object):
         # Interpret the returned value in the same way sys.exit() does.
         if returned is None:
             returned = 0
+        elif isinstance(e, Abort):
+            returned = e.status
         else:
             try:
                 returned = int(returned)
@@ -233,8 +235,6 @@ class Application(object):
             args = ()
         try:
             returned = self.main(*args)
-        except Abort, e:
-            returned = e.status
         except Exception, e:
             returned = e
 
