@@ -211,7 +211,9 @@ class Application(object):
         else:
             try:
                 returned = int(returned)
-            except ValueError:
+            except (TypeError, ValueError):
+                if isinstance(returned, Exception):
+                    raise returned
                 returned = 1
             
         if self.exit_after_main:
