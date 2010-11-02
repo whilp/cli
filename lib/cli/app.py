@@ -33,7 +33,7 @@ __todo__ = """\
 import os
 import sys
 
-from cli.ext import argparse
+from cli._ext import argparse
 from cli.profiler import Profiler
 from cli.util import ifelse, ismethodof
 
