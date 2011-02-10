@@ -369,7 +369,8 @@ class CommandLineMixin(object):
         # We add this ourselves to avoid clashing with -v/verbose.
         if self.version is not None:
             self.add_param(
-                "-V", "--version", action="version", default=argparse.SUPPRESS,
+                "-V", "--version", action="version", 
+                version=("%%(prog)s %s" % self.version),
                 help=("show program's version number and exit"))
 
     def add_param(self, *args, **kwargs):
