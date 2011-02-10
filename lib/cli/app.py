@@ -181,8 +181,10 @@ class Application(object):
         property will examine the :attr:`main` callable and use its
         docstring (:attr:`__doc__` attribute).
         """
-
-        return getattr(self.main, "__doc__", self._description)
+        if self._description is not None:
+            return self._description
+        else:
+            return getattr(self.main, "__doc__", "")
 
     def pre_run(self):
         """Perform any last-minute configuration.
