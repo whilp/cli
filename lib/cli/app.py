@@ -34,7 +34,6 @@ import os
 import sys
 
 from cli._ext import argparse
-from cli.profiler import Profiler
 from cli.util import ifelse, ismethodof
 
 __all__ = ["Application", "CommandLineApp", "CommandLineMixin"]
@@ -95,8 +94,8 @@ class Application(object):
     command line. If *argv* is ``None``, :data:`sys.argv` will be used
     instead.
 
-    *profiler* is a :class:`cli.profiler.Profiler` instance. If not
-    ``None``, the profiler will be available to the running application.
+    *profiler* is a :class:`cli.profiler.Profiler` instance, or ``None`` (default).
+    If not ``None``, the profiler will be available to the running application.
 
     In all but a very few cases, subclasses that override the constructor
     should call :meth:`Application.__init__` at the end of the
@@ -120,8 +119,6 @@ class Application(object):
         self._description = description
 
         self.profiler = profiler
-        if self.profiler is None:
-            self.profiler = Profiler(self.stderr, anonymous=True)
 
         if main is not None:
             self.main = main
