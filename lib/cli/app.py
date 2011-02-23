@@ -33,8 +33,7 @@ __todo__ = """\
 import os
 import sys
 
-from cli.ext import argparse
-from cli.profiler import Profiler
+from cli._ext import argparse
 from cli.util import ifelse, ismethodof
 
 __all__ = ["Application", "CommandLineApp", "CommandLineMixin"]
@@ -95,8 +94,8 @@ class Application(object):
     command line. If *argv* is ``None``, :data:`sys.argv` will be used
     instead.
 
-    *profiler* is a :class:`cli.profiler.Profiler` instance. If not
-    ``None``, the profiler will be available to the running application.
+    *profiler* is a :class:`cli.profiler.Profiler` instance, or ``None`` (default).
+    If not ``None``, the profiler will be available to the running application.
 
     In all but a very few cases, subclasses that override the constructor
     should call :meth:`Application.__init__` at the end of the
@@ -120,8 +119,6 @@ class Application(object):
         self._description = description
 
         self.profiler = profiler
-        if self.profiler is None:
-            self.profiler = Profiler(self.stderr, anonymous=True)
 
         if main is not None:
             self.main = main
@@ -181,8 +178,10 @@ class Application(object):
         property will examine the :attr:`main` callable and use its
         docstring (:attr:`__doc__` attribute).
         """
-
-        return getattr(self.main, "__doc__", self._description)
+        if self._description is not None:
+            return self._description
+        else:
+            return getattr(self.main, "__doc__", "")
 
     def pre_run(self):
         """Perform any last-minute configuration.
@@ -197,20 +196,23 @@ class Application(object):
     def post_run(self, returned):
         """Clean up after the application.
 
-        After :attr:`main` has been called, :meth:`run` passes the
-        return value to this method. By default, :meth:`post_run`
-        decides whether to call :func:`sys.exit` (based on the
-        value of the :attr:`exit_after_main` attribute) or pass the
-        value back to :meth:`run`. Subclasses should probably preserve
-        this behavior.
+        After :attr:`main` has been called, :meth:`run` passes the return value
+        (or :class:`Exception` instance raised) to this method. By default,
+        :meth:`post_run` decides whether to call :func:`sys.exit` (based on the
+        value of the :attr:`exit_after_main` attribute) or pass the value back
+        to :meth:`run`. Subclasses should probably preserve this behavior.
         """
         # Interpret the returned value in the same way sys.exit() does.
         if returned is None:
             returned = 0
+        elif isinstance(returned, Abort):
+            returned = returned.status
         else:
             try:
                 returned = int(returned)
-            except ValueError:
+            except (TypeError, ValueError):
+                if isinstance(returned, Exception):
+                    raise returned
                 returned = 1
             
         if self.exit_after_main:
@@ -221,10 +223,10 @@ class Application(object):
     def run(self):
         """Run the application, returning its return value.
 
-        This method first calls :meth:`pre_run` and then calls
-        :attr:`main`, passing it an instance of the :class:`Application`
-        itself as its only argument. The return value is then passed to
-        :meth:`post_run` which may modify it (or terminate the
+        This method first calls :meth:`pre_run` and then calls :attr:`main`,
+        passing it an instance of the :class:`Application` itself as its only
+        argument. The return value (or :class:`Exception` instance raised) is
+        then passed to :meth:`post_run` which may modify it (or terminate the
         application entirely).
         """
         self.pre_run()
@@ -234,8 +236,8 @@ class Application(object):
             args = ()
         try:
             returned = self.main(*args)
-        except Abort, e:
-            returned = e.status
+        except Exception, e:
+            returned = e
 
         return self.post_run(returned)
 
@@ -364,7 +366,8 @@ class CommandLineMixin(object):
         # We add this ourselves to avoid clashing with -v/verbose.
         if self.version is not None:
             self.add_param(
-                "-V", "--version", action="version", default=argparse.SUPPRESS,
+                "-V", "--version", action="version", 
+                version=("%%(prog)s %s" % self.version),
                 help=("show program's version number and exit"))
 
     def add_param(self, *args, **kwargs):

@@ -194,6 +194,18 @@ is actually being run, so shield it with a conditional::
 This will allow you to import your application and tweak it
 programmatically from another script without actually invoking it.
 
+Projects using :mod:`cli`
+-------------------------
+
+The following projects are known to use :mod:`cli`; please email
+`willmaier@ml1.net <mailto:willmaier@ml1.net>`_ if you'd like to see your
+project listed here.
+
+*  `gc3pie`_ - Python libraries and tools for running applications on diverse
+   Grids and clusters
+
+.. _gc3pie: http://code.google.com/p/gc3pie/
+
 Best practices
 --------------
 
@@ -301,7 +313,7 @@ correctly. To run the tests, use the `tox`_ automated testing tool::
 
 .. _tox:    http://codespeak.net/tox/
 
-By default, :command:`tox` will run attempt to run the unittests on all of the
+By default, :command:`tox` will attempt to run the unittests on all of the
 platforms currently supported by :mod:`cli`. See the `tox documentation`_ for
 more information about how to run tests.
 
