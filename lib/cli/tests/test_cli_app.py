@@ -15,7 +15,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.app import Application, CommandLineApp
+from cli.app import Abort, Application, CommandLineApp
 from cli.util import StringIO
 
 from cli import tests
@@ -68,6 +68,16 @@ class TestCommandLineApp(tests.AppTest):
 
         status, app = self.runapp(Test, "test -f bar")
         self.assertEqual(app.params.foo, "bar")
+
+    def test_parse_args_version(self):
+        class Test(self.app_cls): pass
+
+        status = None
+        try:
+            self.runapp(Test, "test -V", version="1.0")
+        except Abort, e:
+            status = e.status
+        self.assertEqual(status, 0)
 
     def test_version(self):
         self.app.version = "0.1"
