@@ -97,6 +97,11 @@ class Application(object):
     *profiler* is a :class:`cli.profiler.Profiler` instance, or ``None`` (default).
     If not ``None``, the profiler will be available to the running application.
 
+    *reraise* is a tuple of exception classes: if an exception is
+    raised by :attr:`main` and it is listed here, then it will be
+    propagated upwards by :attr:`post_run`; otherwise it will just
+    cause :attr:`post_run` to exit with return code 1.
+
     In all but a very few cases, subclasses that override the constructor
     should call :meth:`Application.__init__` at the end of the
     overridden method to ensure that the :meth:`setup` method is
@@ -106,7 +111,7 @@ class Application(object):
 
     def __init__(self, main=None, name=None, exit_after_main=True, stdin=None, stdout=None,
             stderr=None, version=None, description=None, argv=None,
-            profiler=None, **kwargs):
+            profiler=None, reraise=(Exception,), **kwargs):
         self._name = name
         self.exit_after_main = exit_after_main
         self.stdin = stdin and stdin or sys.stdin
@@ -120,6 +125,11 @@ class Application(object):
 
         self.profiler = profiler
 
+        if isinstance(reraise, Exception):
+            self.reraise = (reraise,)
+        else:
+            self.reraise = reraise
+        
         if main is not None:
             self.main = main
 
@@ -210,10 +220,11 @@ class Application(object):
         else:
             try:
                 returned = int(returned)
-            except (TypeError, ValueError):
-                if isinstance(returned, Exception):
+            except:
+                if isinstance(returned, self.reraise):
                     raise returned
-                returned = 1
+                else:
+                    returned = 1
             
         if self.exit_after_main:
             sys.exit(returned)

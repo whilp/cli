@@ -55,6 +55,29 @@ class TestApplication(tests.AppTest):
         app.main = lambda app: "foo"
         self.assertEqual(app.run(), 1)
 
+    def test_raise_exception1(self):
+        @self.app_cls(exit_after_main=False, reraise=Exception)
+        def app(app):
+            raise RuntimeError("Just testing.")
+
+        self.assertRaises(RuntimeError, app.run)
+
+    def test_raise_exception2(self):
+        @self.app_cls(exit_after_main=False,
+                      reraise=(RuntimeError, AssertionError))
+        def app(app):
+            raise RuntimeError("Just testing.")
+
+        self.assertRaises(RuntimeError, app.run)
+
+    def test_swallow_exception(self):
+        @self.app_cls(exit_after_main=False, reraise=(ValueError, TypeError))
+        def app(app):
+            raise RuntimeError("Just testing.")
+
+        self.assertEqual(app.run(), 1)
+
+            
 class TestCommandLineApp(tests.AppTest):
     app_cls = FakeCommandLineApp
 
