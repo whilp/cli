@@ -124,11 +124,7 @@ class Application(object):
         self._description = description
 
         self.profiler = profiler
-
-        if isinstance(reraise, Exception):
-            self.reraise = (reraise,)
-        else:
-            self.reraise = reraise
+        self.reraise = reraise
         
         if main is not None:
             self.main = main
