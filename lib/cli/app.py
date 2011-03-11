@@ -213,14 +213,13 @@ class Application(object):
             returned = 0
         elif isinstance(returned, Abort):
             returned = returned.status
+        elif isinstance(returned, self.reraise):
+            raise returned
         else:
             try:
                 returned = int(returned)
             except:
-                if isinstance(returned, self.reraise):
-                    raise returned
-                else:
-                    returned = 1
+                returned = 1
             
         if self.exit_after_main:
             sys.exit(returned)
