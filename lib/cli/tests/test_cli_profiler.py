@@ -15,7 +15,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
-from cli.profiler import Profiler
+from cli.profiler import Profiler, update_wrapper, fmtsec
 from cli.util import StringIO
 
 from cli import tests
@@ -59,3 +59,25 @@ class TestProfiler(tests.BaseTest):
         def foo():
             pass
         foo()
+
+class TestUtils(tests.BaseTest):
+    
+    def test_update_wrapper(self):
+        def foo():
+            """foo"""
+            return "foo"
+        def wrapper():
+            """wrapper"""
+            return foo()
+        wrapper = update_wrapper(wrapper, foo)
+        self.assertEqual(wrapper.__doc__, foo.__doc__)
+        self.assertEqual(wrapper.__name__, foo.__name__)
+
+    def test_fmtsec(self):
+        self.assertEqual(fmtsec(-1), "-1.000000  s")
+        self.assertEqual(fmtsec(0), "0 s")
+        self.assertEqual(fmtsec(1), "1.000000  s")
+        self.assertEqual(fmtsec(1e9 + 1), "1e+09  s")
+        self.assertEqual(fmtsec(1e6 + 1.3), "1000001  s")
+        self.assertEqual(fmtsec(1003.02), "1003.020  s")
+        self.assertEqual(fmtsec(1e-3 + .00003), "1.030000 ms")
