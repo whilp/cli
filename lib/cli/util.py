@@ -16,7 +16,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
-import pstats
 import sys
 
 try:
@@ -50,35 +49,6 @@ class update_wrapper(object):
         return wrapper
 
 update_wrapper = update_wrapper()
-
-# pstats.Stats doesn't know how to write to a stream in Python<2.5, so wrap it.
-class StatsWrapper(pstats.Stats):
-    """Teach Stats how to output to a configurable stream.
-
-    Makes 2.4 Stats compatible with the >=2.5 API.
-    """
-    
-    def __init__(self, *args, **kwargs):
-        self.stream = kwargs.get("stream", sys.stdout)
-        arg = args[0]
-        pstats.Stats.__init__(self, *args)
-    
-Stats = pstats.Stats
-if getattr(pstats, "sys", None) is None:
-    for name, meth in vars(StatsWrapper).items():
-        if name != "init" or "print" not in name:
-            continue
-        def wrapper(self, *args, **kwargs):
-            oldstdout = sys.stdout
-            sys.stdout = self.stream
-            try:
-                returned = meth(self, *args, **kwargs)
-            finally:
-                sys.stdout = oldstdout
-
-            return returned
-        setattr(StatsWrapper, name, update_wrapper(wrapper, meth))
-    Stats = StatsWrapper
 
 def fmtsec(seconds):
     if seconds < 0:
