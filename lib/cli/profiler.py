@@ -35,7 +35,6 @@ from cli.util import fmtsec
 
 __all__ = ["Profiler", "Stats"]
 
-
 # pstats.Stats doesn't know how to write to a stream in Python<2.5, so wrap it.
 class StatsWrapper(pstats.Stats):
     """Teach Stats how to output to a configurable stream.
@@ -64,7 +63,6 @@ if getattr(pstats, "sys", None) is None:
             return returned
         setattr(StatsWrapper, name, update_wrapper(wrapper, meth))
     Stats = StatsWrapper
-
 
 class Profiler(object):
     """A profiling tool.
