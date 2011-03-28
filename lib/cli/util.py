@@ -18,6 +18,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import sys
 
+from cli.profiler import Stats, fmtsec, update_wrapper
+
 try:
     import io
     import io as StringIO
@@ -30,58 +32,6 @@ class StringIO(BaseStringIO):
     
     def write(self, s):
         BaseStringIO.write(self, unicode(s))
-
-class update_wrapper(object):
-    assignments = ('__module__', '__name__', '__doc__')
-    updates = ('__dict__',)
-
-    def __call__(self, wrapper, wrapped):
-        """Update callable wrapper so it looks like callable wrapped.
-    
-        Based on functools.update_wrapper (used only for compatibility on
-        Python <= 2.5).
-        """
-        for attr in self.assignments:
-            setattr(wrapper, attr, getattr(wrapped, attr))
-        for attr in self.updates:
-            getattr(wrapper, attr).update(getattr(wrapper, attr, {}))
-    
-        return wrapper
-
-update_wrapper = update_wrapper()
-
-def fmtsec(seconds):
-    if seconds < 0:
-        return '-' + fmtsec(-seconds)
-    elif seconds == 0:
-        return '0 s'
-
-    prefixes = " munp"
-    powers = range(0, 3 * len(prefixes) + 1, 3)
-
-    prefix = ''
-    for power, prefix in zip(powers, prefixes):
-        if seconds >= pow(10.0, -power):
-            seconds *= pow(10.0, power)
-            break
-
-    formats = [
-        (1e9, "%.4g"),
-        (1e6, "%.0f"),
-        (1e5, "%.1f"),
-        (1e4, "%.2f"),
-        (1e3, "%.3f"),
-        (1e2, "%.4f"),
-        (1e1, "%.5f"),
-        (1e0, "%.6f"),
-    ]
-
-    for threshold, format in formats:
-        if seconds >= threshold:
-            break
-
-    format += " %ss"
-    return format % (seconds, prefix)
 
 def trim(string):
     """Trim whitespace from strings.
