@@ -33,7 +33,7 @@ except ImportError: # pragma: no cover
 
 from cli.util import fmtsec
 
-__all__ = ["Profiler"]
+__all__ = ["Profiler", "Stats"]
 
 
 # pstats.Stats doesn't know how to write to a stream in Python<2.5, so wrap it.
