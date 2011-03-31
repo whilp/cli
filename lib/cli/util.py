@@ -16,8 +16,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 """
 
-import pstats
 import sys
+
+from cli.profiler import Stats, fmtsec, update_wrapper
 
 try:
     import io
@@ -31,87 +32,6 @@ class StringIO(BaseStringIO):
     
     def write(self, s):
         BaseStringIO.write(self, unicode(s))
-
-class update_wrapper(object):
-    assignments = ('__module__', '__name__', '__doc__')
-    updates = ('__dict__',)
-
-    def __call__(self, wrapper, wrapped):
-        """Update callable wrapper so it looks like callable wrapped.
-    
-        Based on functools.update_wrapper (used only for compatibility on
-        Python <= 2.5).
-        """
-        for attr in self.assignments:
-            setattr(wrapper, attr, getattr(wrapped, attr))
-        for attr in self.updates:
-            getattr(wrapper, attr).update(getattr(wrapper, attr, {}))
-    
-        return wrapper
-
-update_wrapper = update_wrapper()
-
-# pstats.Stats doesn't know how to write to a stream in Python<2.5, so wrap it.
-class StatsWrapper(pstats.Stats):
-    """Teach Stats how to output to a configurable stream.
-
-    Makes 2.4 Stats compatible with the >=2.5 API.
-    """
-    
-    def __init__(self, *args, **kwargs):
-        self.stream = kwargs.get("stream", sys.stdout)
-        arg = args[0]
-        pstats.Stats.__init__(self, *args)
-    
-Stats = pstats.Stats
-if getattr(pstats, "sys", None) is None:
-    for name, meth in vars(StatsWrapper).items():
-        if name != "init" or "print" not in name:
-            continue
-        def wrapper(self, *args, **kwargs):
-            oldstdout = sys.stdout
-            sys.stdout = self.stream
-            try:
-                returned = meth(self, *args, **kwargs)
-            finally:
-                sys.stdout = oldstdout
-
-            return returned
-        setattr(StatsWrapper, name, update_wrapper(wrapper, meth))
-    Stats = StatsWrapper
-
-def fmtsec(seconds):
-    if seconds < 0:
-        return '-' + fmtsec(-seconds)
-    elif seconds == 0:
-        return '0 s'
-
-    prefixes = " munp"
-    powers = range(0, 3 * len(prefixes) + 1, 3)
-
-    prefix = ''
-    for power, prefix in zip(powers, prefixes):
-        if seconds >= pow(10.0, -power):
-            seconds *= pow(10.0, power)
-            break
-
-    formats = [
-        (1e9, "%.4g"),
-        (1e6, "%.0f"),
-        (1e5, "%.1f"),
-        (1e4, "%.2f"),
-        (1e3, "%.3f"),
-        (1e2, "%.4f"),
-        (1e1, "%.5f"),
-        (1e0, "%.6f"),
-    ]
-
-    for threshold, format in formats:
-        if seconds >= threshold:
-            break
-
-    format += " %ss"
-    return format % (seconds, prefix)
 
 def trim(string):
     """Trim whitespace from strings.
