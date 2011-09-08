@@ -24,10 +24,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 """
 
 __todo__ = """\
- * handle exceptions?
-    http://blog.bstpierre.org/python-exception-handling-cleanup-and-reraise
-    http://blog.ianbicking.org/2007/09/12/re-raising-exceptions/
-    http://www.doughellmann.com/articles/how-tos/python-exception-handling/index.html
 """.split(" * ")
 
 import os
@@ -214,7 +210,8 @@ class Application(object):
         elif isinstance(returned, Abort):
             returned = returned.status
         elif isinstance(returned, self.reraise):
-            raise returned
+            # raising the last exception preserves traceback
+            raise
         else:
             try:
                 returned = int(returned)
