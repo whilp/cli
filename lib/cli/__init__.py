@@ -20,7 +20,7 @@ __version__ = "devel"
 __package__ = "cli"
 __description__ = "Simple, object-oriented approach to Python CLI apps"
 __author__ = "Will Maier"
-__author_email__ = "will@m.aier.us"
+__author_email__ = "wcmaier@m.aier.us"
 __url__ = "http://packages.python.org/pyCLI/"
 
 # See http://pypi.python.org/pypi?%3Aaction=list_classifiers.
@@ -40,7 +40,7 @@ __requires__ = []
 
 # The following is modeled after the ISC license.
 __copyright__ = """\
-2009-2010 Will Maier <will@m.aier.us>
+2009-2012 Will Maier <wcmaier@m.aier.us>
 
 Permission to use, copy, modify, and distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
