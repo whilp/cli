@@ -16,7 +16,7 @@ interface.
 # pragma: no cover
 
 __project__ = "pyCLI"
-__version__ = "2.0.2"
+__version__ = "2.0.3"
 __package__ = "cli"
 __description__ = "Simple, object-oriented approach to Python CLI apps"
 __author__ = "Will Maier"
