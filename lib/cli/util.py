@@ -22,11 +22,11 @@ from cli.profiler import Stats, fmtsec, update_wrapper
 
 try:
     import io
-    import io as StringIO
-except ImportError:
+    BaseStringIO = io.StringIO
+except (ImportError, AttributeError):
     import StringIO
+    BaseStringIO = StringIO.StringIO
 
-BaseStringIO = StringIO.StringIO
 
 class StringIO(BaseStringIO):
     
