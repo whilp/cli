@@ -206,7 +206,7 @@ class FunctionalTest(unittest.TestCase):
 
         addTypeEqualityFunc = getattr(self, "addTypeEqualityFunc", None)
         if callable(addTypeEqualityFunc):
-            addTypeEqualityFunc(str, "assertMultiLineEqual")
+            addTypeEqualityFunc(str, self.assertMultiLineEqual)
 
     def tearDown(self):
         """Clean up after the test.
