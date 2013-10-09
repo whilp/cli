@@ -17,9 +17,9 @@ you can use either `git`_ or `Mercurial`_ to get a copy of the project's code
 and history::
     
     $ hg clone http://bitbucket.org/wcmaier/cli
-    $ git clone git://github.com/wcmaier/cli.git
+    $ git clone git://github.com/whilp/cli.git
 
-.. _github:     http://github.com/wcmaier/cli
+.. _github:     http://github.com/whilp/cli
 .. _bitbucket:  http://bitbucket.org/wcmaier/cli
 .. _git:        http://git-scm.com/
 .. _Mercurial:  http://mercurial.selenic.com/
@@ -27,8 +27,8 @@ and history::
 If you notice a problem with :mod:`cli`, please report it using the github
 `issue tracker`_ (or, if you have a fix, send a `pull request`_).
 
-.. _issue tracker:  http://github.com/wcmaier/cli/issues
-.. _pull request:   http://github.com/wcmaier/cli/pull/new/master
+.. _issue tracker:  http://github.com/whilp/cli/issues
+.. _pull request:   http://github.com/whilp/cli/pull/new/master
 
 A note about versions
 +++++++++++++++++++++
