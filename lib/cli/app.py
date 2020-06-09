@@ -240,6 +240,9 @@ class Application(object):
         try:
             returned = self.main(*args)
         except Exception, e:
+        	elif isinstance(e, self.reraise):
+        	    # raising the last exception preserves traceback
+        	    raise
             returned = e
 
         return self.post_run(returned)
