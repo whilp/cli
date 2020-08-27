@@ -239,10 +239,10 @@ class Application(object):
             args = ()
         try:
             returned = self.main(*args)
-        except Exception, e:
-        	elif isinstance(e, self.reraise):
-        	    # raising the last exception preserves traceback
-        	    raise
+        except self.reraise:
+            # raising the last exception preserves traceback
+            raise
+        except Exception as e:
             returned = e
 
         return self.post_run(returned)
@@ -420,7 +420,7 @@ class CommandLineMixin(object):
         """
         try:
             ns = self.argparser.parse_args()
-        except SystemExit, e:
+        except SystemExit as e:
             if self.exit_after_main:
                 raise
             else:
